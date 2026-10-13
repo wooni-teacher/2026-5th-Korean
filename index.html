@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>반월초 5학년 국어 학습지 허브</title>
+<link href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=Gowun+Dodum&display=swap" rel="stylesheet"/>
+<style>
+:root{
+  --navy:#1F3350;
+  --gold:#B5933A;
+  --teal:#2D7A6B;
+  --bg:#F8F5EF;
+  --card:#FFFFFF;
+  --border:#D9CFC0;
+  --text:#2C2C2C;
+  --muted:#7A7060;
+  --radius:14px;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Gowun Dodum',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;}
+h1,h2,h3,.title-font{font-family:'Gowun Batang',serif;}
+
+/* ── HEADER ── */
+.hero{background:var(--navy);color:#fff;padding:40px 24px 48px;text-align:center;position:relative;overflow:hidden;}
+.hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 70% 40%, rgba(181,147,58,.18) 0%, transparent 60%);}
+.hero .school{font-size:.82rem;letter-spacing:.12em;color:rgba(255,255,255,.6);margin-bottom:10px;text-transform:uppercase;}
+.hero h1{font-size:1.7rem;margin-bottom:8px;position:relative;}
+.hero h1 em{color:var(--gold);font-style:normal;}
+.hero .subtitle{font-size:.9rem;color:rgba(255,255,255,.65);position:relative;}
+
+/* ── FILTER TABS ── */
+.filter-bar{max-width:960px;margin:0 auto;padding:28px 16px 0;}
+.filter-row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px;}
+.filter-label{font-size:.78rem;color:var(--muted);margin-bottom:6px;}
+.filter-btn{padding:7px 16px;border-radius:20px;border:1.5px solid var(--border);background:#fff;color:var(--muted);cursor:pointer;font-family:'Gowun Dodum',sans-serif;font-size:.82rem;transition:all .18s;}
+.filter-btn:hover{border-color:var(--teal);color:var(--teal);}
+.filter-btn.active{background:var(--navy);border-color:var(--navy);color:#fff;}
+
+/* ── GRID ── */
+.main{max-width:960px;margin:0 auto;padding:20px 16px 60px;}
+.danwon-group{margin-bottom:40px;}
+.danwon-title{display:flex;align-items:center;gap:12px;margin-bottom:16px;}
+.danwon-title h2{font-size:1.1rem;color:var(--navy);}
+.danwon-title .line{flex:1;height:1px;background:var(--border);}
+.danwon-badge{font-size:.72rem;background:var(--navy);color:#fff;padding:3px 10px;border-radius:10px;font-family:'Gowun Dodum',sans-serif;}
+
+.card-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:16px;}
+
+.app-card{background:var(--card);border:1.5px solid var(--border);border-radius:var(--radius);overflow:hidden;transition:all .22s;cursor:pointer;text-decoration:none;color:inherit;display:flex;flex-direction:column;}
+.app-card:hover{border-color:var(--teal);box-shadow:0 6px 20px rgba(45,122,107,.18);transform:translateY(-3px);}
+.app-card.hidden{display:none;}
+
+.card-top{padding:20px 20px 14px;flex:1;}
+.card-icon{font-size:1.8rem;margin-bottom:10px;}
+.card-danwon{font-size:.7rem;color:var(--muted);margin-bottom:4px;letter-spacing:.04em;}
+.card-title{font-family:'Gowun Batang',serif;font-size:1rem;color:var(--navy);font-weight:700;margin-bottom:6px;line-height:1.4;}
+.card-desc{font-size:.8rem;color:var(--muted);line-height:1.65;}
+
+.card-bottom{padding:12px 20px;border-top:1px solid var(--border);background:#FAFAF7;display:flex;align-items:center;justify-content:space-between;}
+.card-tags{display:flex;gap:6px;flex-wrap:wrap;}
+.tag{font-size:.68rem;padding:2px 8px;border-radius:8px;font-family:'Gowun Dodum',sans-serif;}
+.tag.firebase{background:#FFF3CD;color:#856404;}
+.tag.static{background:#d4edda;color:#155724;}
+.tag.writing{background:#cce5ff;color:#004085;}
+.tag.drama{background:#f8d7da;color:#721c24;}
+.tag.quiz{background:#e2d9f3;color:#4a1e8c;}
+.card-arrow{color:var(--teal);font-size:.9rem;font-weight:700;}
+
+/* ── SEARCH ── */
+.search-wrap{position:relative;margin-bottom:12px;}
+.search-input{width:100%;border:1.5px solid var(--border);border-radius:24px;padding:10px 18px 10px 42px;font-family:'Gowun Dodum',sans-serif;font-size:.9rem;background:#fff;color:var(--text);}
+.search-input:focus{outline:none;border-color:var(--teal);}
+.search-icon{position:absolute;left:14px;top:50%;transform:translateY(-50%);font-size:1rem;color:var(--muted);pointer-events:none;}
+
+/* ── EMPTY STATE ── */
+.empty-state{text-align:center;padding:60px 20px;color:var(--muted);}
+.empty-state .icon{font-size:3rem;margin-bottom:12px;}
+.empty-state p{font-size:.9rem;}
+
+/* ── STATS BAR ── */
+.stats-bar{display:flex;gap:18px;margin-bottom:24px;flex-wrap:wrap;}
+.stat{text-align:center;}
+.stat .val{font-size:1.6rem;font-family:'Gowun Batang',serif;color:var(--navy);font-weight:700;display:block;}
+.stat .lbl{font-size:.75rem;color:var(--muted);}
+
+/* ── RESPONSIVE ── */
+@media(max-width:540px){
+  .hero h1{font-size:1.3rem;}
+  .card-grid{grid-template-columns:1fr;}
+}
+</style>
+</head>
+<body>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="school">반월초등학교 5학년</div>
+  <h1>📚 국어 <em>학습지 허브</em></h1>
+  <div class="subtitle">단원별 · 차시별 · 주제별 수업 자료 모음</div>
+</div>
+
+<!-- FILTER + SEARCH -->
+<div class="filter-bar">
+  <div class="search-wrap">
+    <span class="search-icon">🔍</span>
+    <input type="text" class="search-input" id="searchInput" placeholder="앱 이름이나 주제로 검색…" oninput="applyFilters()"/>
+  </div>
+
+  <div class="filter-label">📖 학기·단원</div>
+  <div class="filter-row" id="danwonFilters">
+    <button class="filter-btn active" data-danwon="all" onclick="setFilter('danwon','all',this)">전체</button>
+    <button class="filter-btn" data-danwon="5-1" onclick="setFilter('danwon','5-1',this)">5학년 1학기</button>
+    <button class="filter-btn" data-danwon="5-2" onclick="setFilter('danwon','5-2',this)">5학년 2학기</button>
+  </div>
+
+  <div class="filter-label" style="margin-top:10px;">🏷️ 활동 유형</div>
+  <div class="filter-row" id="typeFilters">
+    <button class="filter-btn active" data-type="all" onclick="setFilter('type','all',this)">전체</button>
+    <button class="filter-btn" data-type="writing" onclick="setFilter('type','writing',this)">글쓰기</button>
+    <button class="filter-btn" data-type="quiz" onclick="setFilter('type','quiz',this)">퀴즈·활동</button>
+    <button class="filter-btn" data-type="drama" onclick="setFilter('type','drama',this)">역할극</button>
+    <button class="filter-btn" data-type="static" onclick="setFilter('type','static',this)">학습자료</button>
+  </div>
+</div>
+
+<!-- MAIN CONTENT -->
+<div class="main">
+
+  <!-- STATS -->
+  <div class="stats-bar" id="statsBar"></div>
+
+  <!-- CARDS (rendered by JS) -->
+  <div id="cardContainer"></div>
+
+  <!-- EMPTY STATE -->
+  <div class="empty-state" id="emptyState" style="display:none;">
+    <div class="icon">🔎</div>
+    <p>검색 결과가 없습니다.<br>다른 키워드로 검색해보세요.</p>
+  </div>
+
+</div>
+
+<script>
+// ── APP DATA ──
+// 각 앱 파일과 같은 폴더에 있을 때 상대경로로 링크합니다.
+// 실제 배포 환경에 맞게 url을 수정하세요.
+const APPS = [
+  // ──────────────────── 5학년 1학기 ────────────────────
+  {
+    id: 'poem_gallery',
+    url: 'poem_gallery.html',
+    icon: '🖼️',
+    danwon: '5-1',
+    danwonLabel: '5-1 국어 1단원',
+    chasi: '2~3차시',
+    title: '시 갤러리 – 시 감상하고 생각 나누기',
+    desc: '4편의 시를 미술관 전시 형식으로 감상하고, 인상 깊은 구절을 쓰고 친구의 의견을 실시간으로 확인해요.',
+    tags: ['firebase','writing'],
+    keywords: ['시','감상','갤러리','의견','구절']
+  },
+  {
+    id: 'gukeo_4_6cha',
+    url: 'gukeo_4_6cha.html',
+    icon: '✍️',
+    danwon: '5-1',
+    danwonLabel: '5-1 국어 1단원',
+    chasi: '4~6차시',
+    title: '월요일 아침 – 시 쓰기 + 시화 그리기',
+    desc: '"월요일 아침" 시에서 인상 깊은 구절을 고르고, 이유를 쓴 뒤 태블릿으로 시화를 그려요.',
+    tags: ['firebase','writing'],
+    keywords: ['시화','그리기','월요일','캔버스','시쓰기']
+  },
+  {
+    id: 'yugwansun_hotseating',
+    url: 'yugwansun_hotseating.html',
+    icon: '🔥',
+    danwon: '5-1',
+    danwonLabel: '5-1 국어 역사 연계',
+    chasi: '드라마 활동',
+    title: '유관순 열사 핫시팅',
+    desc: '유관순 이야기를 읽고 인상적인 부분을 쓴 뒤, 역할 뽑기로 핫시팅 역할극을 진행해요.',
+    tags: ['firebase','drama'],
+    keywords: ['유관순','핫시팅','역할극','드라마','BGM']
+  },
+  {
+    id: 'udangtang_openbook',
+    url: 'udangtang_openbook.html',
+    icon: '📖',
+    danwon: '5-1',
+    danwonLabel: '5-1 국어 – 문장 성분',
+    chasi: '수행평가 사전학습',
+    title: '문장 성분의 호응 – 오픈북 학습지',
+    desc: '시간/부정/높임/왜냐하면 4가지 호응 유형을 예시와 함께 학습해요. 수행평가 오픈북으로 활용.',
+    tags: ['static'],
+    keywords: ['문장성분','호응','오픈북','학습자료','수행평가']
+  },
+  {
+    id: 'udangtang_v2',
+    url: 'udangtang_v2.html',
+    icon: '📝',
+    danwon: '5-1',
+    danwonLabel: '5-1 국어 – 문장 성분',
+    chasi: '수행평가 답안지',
+    title: '우당탕탕 편지 – 문장 호응 답안지',
+    desc: '문장 성분의 호응 관계 학습지 4가지 유형 답안 해설. 비밀번호로 보호된 선생님 전용 답안지.',
+    tags: ['static'],
+    keywords: ['답안지','문장호응','편지','비밀번호']
+  },
+  // ──────────────────── 5학년 2학기 ────────────────────
+  {
+    id: 'maechae_writing',
+    url: 'maechae_writing.html',
+    icon: '🌏',
+    danwon: '5-2',
+    danwonLabel: '5-2 국어 – 매체 활용',
+    chasi: '글쓰기 활동',
+    title: '매체를 활용한 글쓰기',
+    desc: '"가고 싶은 나라"와 "만나고 싶은 사람" 두 주제로 단계별 글쓰기를 하고 파일로 제출해요.',
+    tags: ['firebase','writing'],
+    keywords: ['글쓰기','매체','나라','사람','단계별']
+  },
+  {
+    id: 'ox_activity',
+    url: 'ox_activity.html',
+    icon: '⭕',
+    danwon: '5-2',
+    danwonLabel: '5-2 국어(가) 3단원',
+    chasi: '114~117쪽',
+    title: '표준어와 방언 알기 – OX 활동지',
+    desc: '글 읽기 전/후로 표준어와 방언에 대한 문장을 읽고 O/X/△로 표시하고 근거 위치를 적어요.',
+    tags: ['firebase','quiz'],
+    keywords: ['표준어','방언','OX','활동지','읽기전략']
+  }
+];
+
+// ── Filter State ──
+let filters = { danwon: 'all', type: 'all' };
+
+function setFilter(key, val, el){
+  filters[key] = val;
+  const group = key==='danwon' ? 'danwonFilters' : 'typeFilters';
+  document.querySelectorAll(`#${group} .filter-btn`).forEach(b=>b.classList.remove('active'));
+  el.classList.add('active');
+  applyFilters();
+}
+
+function applyFilters(){
+  const q = document.getElementById('searchInput').value.toLowerCase().trim();
+  const { danwon, type } = filters;
+
+  let visible = 0;
+  APPS.forEach(app=>{
+    const el = document.getElementById(`card-${app.id}`);
+    if(!el) return;
+    const matchDanwon = danwon==='all' || app.danwon===danwon;
+    const matchType = type==='all' || app.tags.includes(type);
+    const matchQ = !q ||
+      app.title.toLowerCase().includes(q) ||
+      app.desc.toLowerCase().includes(q) ||
+      (app.keywords||[]).some(k=>k.includes(q));
+    const show = matchDanwon && matchType && matchQ;
+    el.classList.toggle('hidden', !show);
+    if(show) visible++;
+  });
+
+  // Toggle danwon groups visibility
+  document.querySelectorAll('.danwon-group').forEach(g=>{
+    const anyVisible = [...g.querySelectorAll('.app-card')].some(c=>!c.classList.contains('hidden'));
+    g.style.display = anyVisible ? '' : 'none';
+  });
+
+  document.getElementById('emptyState').style.display = visible===0 ? 'block' : 'none';
+}
+
+// ── Render ──
+function render(){
+  const container = document.getElementById('cardContainer');
+  container.innerHTML = '';
+
+  // Group by danwon
+  const groups = {};
+  APPS.forEach(app=>{
+    if(!groups[app.danwon]) groups[app.danwon] = [];
+    groups[app.danwon].push(app);
+  });
+
+  const danwonOrder = ['5-1','5-2'];
+  const danwonLabels = {'5-1':'5학년 1학기','5-2':'5학년 2학기'};
+
+  danwonOrder.forEach(dw=>{
+    if(!groups[dw]) return;
+    const section = document.createElement('div');
+    section.className = 'danwon-group';
+    section.id = `group-${dw}`;
+    section.innerHTML = `
+      <div class="danwon-title">
+        <span class="danwon-badge">${dw}</span>
+        <h2>${danwonLabels[dw]}</h2>
+        <div class="line"></div>
+        <span style="font-size:.78rem;color:var(--muted)">${groups[dw].length}개</span>
+      </div>
+      <div class="card-grid" id="grid-${dw}"></div>`;
+    container.appendChild(section);
+
+    const grid = section.querySelector(`#grid-${dw}`);
+    groups[dw].forEach(app=>{
+      const tagHtml = app.tags.map(t=>{
+        const labels = {firebase:'🔴 실시간',static:'📄 정적',writing:'✍️ 글쓰기',drama:'🎭 역할극',quiz:'❓ 퀴즈'};
+        return `<span class="tag ${t}">${labels[t]||t}</span>`;
+      }).join('');
+
+      const card = document.createElement('a');
+      card.className = 'app-card';
+      card.id = `card-${app.id}`;
+      card.href = app.url;
+      card.target = '_blank';
+      card.innerHTML = `
+        <div class="card-top">
+          <div class="card-icon">${app.icon}</div>
+          <div class="card-danwon">${app.danwonLabel} · ${app.chasi}</div>
+          <div class="card-title">${app.title}</div>
+          <div class="card-desc">${app.desc}</div>
+        </div>
+        <div class="card-bottom">
+          <div class="card-tags">${tagHtml}</div>
+          <div class="card-arrow">→</div>
+        </div>`;
+      grid.appendChild(card);
+    });
+  });
+
+  // Stats
+  document.getElementById('statsBar').innerHTML = `
+    <div class="stat"><span class="val">${APPS.length}</span><span class="lbl">전체 앱</span></div>
+    <div class="stat"><span class="val">${APPS.filter(a=>a.danwon==='5-1').length}</span><span class="lbl">1학기</span></div>
+    <div class="stat"><span class="val">${APPS.filter(a=>a.danwon==='5-2').length}</span><span class="lbl">2학기</span></div>
+    <div class="stat"><span class="val">${APPS.filter(a=>a.tags.includes('firebase')).length}</span><span class="lbl">실시간 앱</span></div>`;
+}
+
+render();
+</script>
+</body>
+</html>

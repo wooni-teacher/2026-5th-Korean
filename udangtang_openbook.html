@@ -1,0 +1,806 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>우당탕탕 5학년 1반 편지 — 문장 성분의 호응 관계</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=Gowun+Dodum&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #1E1A16;
+    --ink-soft: #6B6156;
+    --paper: #FAF7F0;
+    --paper-2: #F2EDE0;
+    --line: #DDD5C0;
+    --navy: #1F3350;
+    --navy-mid: #2C4A72;
+    --accent-red: #8B2E2E;
+    --accent-gold: #B5933A;
+    --green: #3A6B4A;
+    --purple: #5A3E72;
+    --teal: #2D6B6B;
+    --orange: #8B5530;
+    --shadow: 0 6px 24px rgba(20,15,5,0.13);
+    --shadow-sm: 0 2px 8px rgba(20,15,5,0.10);
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Gowun Dodum', sans-serif;
+    background: var(--paper-2);
+    color: var(--ink);
+    min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ─── HEADER ─── */
+  .site-header {
+    background: var(--navy);
+    padding: 28px 24px 0;
+    position: sticky; top: 0; z-index: 100;
+    box-shadow: 0 4px 20px rgba(10,8,4,0.25);
+  }
+  .header-inner {
+    max-width: 900px; margin: 0 auto;
+    display: flex; align-items: flex-end; justify-content: space-between;
+    gap: 12px; flex-wrap: wrap; padding-bottom: 0;
+  }
+  .header-kicker {
+    font-size: 11px; letter-spacing: 0.14em; color: var(--accent-gold); font-weight: 700;
+    text-transform: uppercase; margin-bottom: 6px;
+  }
+  .header-title {
+    font-family: 'Gowun Batang', serif;
+    font-size: clamp(18px, 3.5vw, 26px);
+    color: #fff; line-height: 1.2; font-weight: 700;
+  }
+  .header-sub { font-size: 13px; color: #C4BAA8; margin-top: 4px; }
+  .badge-row { display: flex; gap: 8px; flex-wrap: wrap; padding-bottom: 20px; }
+  .type-badge {
+    font-size: 11.5px; font-weight: 700; padding: 4px 11px; border-radius: 12px; border: 1.5px solid;
+    white-space: nowrap;
+  }
+  .badge-time   { color: #FFC87A; border-color: rgba(255,200,122,0.45); }
+  .badge-neg    { color: #FF9F9F; border-color: rgba(255,159,159,0.45); }
+  .badge-keun   { color: #90C9A0; border-color: rgba(144,201,160,0.45); }
+  .badge-wae    { color: #A8C8FF; border-color: rgba(168,200,255,0.45); }
+
+  /* ─── TAB BAR ─── */
+  .tab-bar {
+    background: var(--navy-mid);
+    display: flex; max-width: 900px; margin: 0 auto;
+    border-top: 1px solid rgba(255,255,255,0.08);
+  }
+  .tab-btn {
+    flex: 1; padding: 12px 6px; background: none; border: none; cursor: pointer;
+    font-family: 'Gowun Dodum', sans-serif; font-size: 12.5px; color: #A0AFCC; font-weight: 700;
+    border-bottom: 3px solid transparent; transition: color .2s, border-color .2s;
+    line-height: 1.4;
+  }
+  .tab-btn .tab-name { display: block; font-size: 14px; }
+  .tab-btn:hover { color: #ddd; }
+  .tab-btn.active { color: #fff; border-bottom-color: var(--accent-gold); }
+
+  /* ─── MAIN ─── */
+  .main { max-width: 900px; margin: 0 auto; padding: 28px 16px 60px; }
+
+  .panel { display: none; }
+  .panel.visible { display: block; animation: fadeIn .3s ease; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+
+  /* ─── LETTER CONTEXT CARD ─── */
+  .letter-card {
+    background: #fff; border-radius: 10px; box-shadow: var(--shadow-sm);
+    padding: 20px 22px; margin-bottom: 22px;
+    border-left: 5px solid var(--accent-gold);
+    position: relative;
+  }
+  .letter-card .letter-kicker {
+    font-size: 11px; text-transform: uppercase; letter-spacing: 0.12em;
+    font-weight: 700; margin-bottom: 8px; color: var(--accent-gold);
+  }
+  .letter-card .letter-text {
+    font-family: 'Gowun Batang', serif;
+    font-size: 14px; line-height: 2.1; color: var(--ink);
+    white-space: pre-wrap; word-break: keep-all;
+  }
+  .letter-card .letter-text mark {
+    background: rgba(255,80,80,0.15); color: var(--accent-red);
+    border-radius: 3px; padding: 1px 2px; font-weight: 700;
+    text-decoration: underline wavy rgba(180,50,50,0.5);
+  }
+  .toggle-letter-btn {
+    background: none; border: 1px solid var(--line); color: var(--ink-soft);
+    font-family: 'Gowun Dodum', sans-serif; font-size: 12.5px; padding: 5px 12px;
+    border-radius: 16px; cursor: pointer; margin-bottom: 14px;
+  }
+  .toggle-letter-btn:hover { background: var(--paper-2); }
+
+  /* ─── TYPE LEGEND ─── */
+  .legend {
+    display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 20px;
+  }
+  .legend-item {
+    display: flex; align-items: center; gap: 6px; font-size: 12.5px; color: var(--ink-soft);
+  }
+  .legend-dot {
+    width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0;
+  }
+
+  /* ─── ERROR CARDS ─── */
+  .section-heading {
+    font-family: 'Gowun Batang', serif; font-size: 15.5px; font-weight: 700;
+    color: var(--ink-soft); margin: 4px 0 12px; padding-bottom: 8px;
+    border-bottom: 1px solid var(--line);
+  }
+  .cards-grid {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(270px, 1fr));
+    gap: 14px; margin-bottom: 28px;
+  }
+
+  .err-card {
+    background: #fff; border-radius: 10px; box-shadow: var(--shadow-sm);
+    overflow: hidden; cursor: pointer;
+    transition: transform .15s ease, box-shadow .15s ease;
+    border-top: 4px solid var(--c, #999);
+  }
+  .err-card:hover { transform: translateY(-2px); box-shadow: var(--shadow); }
+
+  .err-card .card-front { padding: 16px 18px 14px; }
+  .err-card .err-tag {
+    display: inline-block; font-size: 10.5px; font-weight: 700; padding: 3px 9px;
+    border-radius: 10px; margin-bottom: 10px;
+    background: var(--tag-bg, #eee); color: var(--tag-color, #555);
+  }
+  .err-card .wrong-text {
+    font-family: 'Gowun Batang', serif; font-size: 15.5px; font-weight: 700;
+    color: var(--accent-red); line-height: 1.6; margin-bottom: 6px;
+  }
+  .err-card .hint-line {
+    font-size: 12.5px; color: var(--ink-soft);
+  }
+  .err-card .card-reveal {
+    padding: 0 18px; max-height: 0; overflow: hidden;
+    transition: max-height .35s ease, padding .35s ease;
+    border-top: 1px dashed transparent;
+  }
+  .err-card.open .card-reveal {
+    max-height: 300px; padding: 14px 18px 16px;
+    border-top-color: var(--line);
+  }
+  .err-card .reveal-row { margin-bottom: 12px; }
+  .err-card .reveal-row:last-child { margin-bottom: 0; }
+  .err-card .reveal-label {
+    font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.08em;
+    font-weight: 700; color: var(--ink-soft); margin-bottom: 4px;
+  }
+  .err-card .reveal-text {
+    font-family: 'Gowun Batang', serif; font-size: 14px; line-height: 1.65;
+  }
+  .err-card .reveal-text.reason { color: var(--navy); }
+  .err-card .reveal-text.correct { color: var(--green); font-weight: 700; }
+  .err-card .open-indicator {
+    font-size: 11px; color: var(--accent-gold); font-weight: 700;
+    display: flex; align-items: center; gap: 4px; margin-top: 8px;
+  }
+  .err-card.open .open-indicator { display: none; }
+
+  /* progress bar */
+  .progress-bar-wrap {
+    position: sticky; bottom: 16px; pointer-events: none;
+    display: flex; justify-content: center; padding: 0 16px;
+  }
+  .progress-pill {
+    background: var(--navy); color: #fff; border-radius: 30px;
+    padding: 10px 20px; font-size: 13px; box-shadow: var(--shadow);
+    display: flex; align-items: center; gap: 12px; pointer-events: all;
+  }
+  .progress-track { width: 120px; height: 5px; background: rgba(255,255,255,0.2); border-radius: 3px; overflow: hidden; }
+  .progress-fill { height: 100%; background: var(--accent-gold); border-radius: 3px; transition: width .3s ease; }
+
+  .review-btn {
+    background: none; border: 1.5px solid rgba(255,255,255,0.3); color: #fff;
+    font-family: 'Gowun Dodum', sans-serif; font-size: 12px; padding: 5px 12px;
+    border-radius: 14px; cursor: pointer;
+  }
+  .review-btn:hover { background: rgba(255,255,255,0.1); }
+
+  @media (max-width: 560px) {
+    .header-inner { gap: 8px; }
+    .tab-btn .tab-name { font-size: 12.5px; }
+    .progress-track { width: 80px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="site-header">
+  <div class="header-inner">
+    <div>
+      <p class="header-kicker">5학년 국어 · 문장 성분의 호응 관계</p>
+      <h1 class="header-title">우당탕탕 5학년 1반 편지</h1>
+      <p class="header-sub">어색한 표현을 찾고, 이유와 바른 표현을 확인해보세요.</p>
+    </div>
+    <div class="badge-row">
+      <span class="type-badge badge-time">⏱ 시간 호응</span>
+      <span class="type-badge badge-neg">✗ 부정 호응</span>
+      <span class="type-badge badge-keun">🙏 높임 표현</span>
+      <span class="type-badge badge-wae">↩ 왜냐하면</span>
+    </div>
+  </div>
+  <div style="max-width:900px; margin:0 auto;">
+    <div class="tab-bar" role="tablist">
+      <button class="tab-btn active" data-panel="p1" role="tab"><span class="tab-name">✉ 철수의 고백</span>1단계</button>
+      <button class="tab-btn" data-panel="p2" role="tab"><span class="tab-name">✉ 민주의 답장</span>2단계</button>
+      <button class="tab-btn" data-panel="p3" role="tab"><span class="tab-name">✉ 영수의 질투</span>3단계</button>
+      <button class="tab-btn" data-panel="p4" role="tab"><span class="tab-name">✉ 유리의 정리</span>4단계</button>
+    </div>
+  </div>
+</div>
+
+<div class="main">
+
+<!-- ============================================================ 1단계 -->
+<div class="panel visible" id="p1">
+  <button class="toggle-letter-btn" data-target="letter1">📄 편지 전문 펼쳐보기 ▼</button>
+  <div class="letter-card" id="letter1" style="display:none;">
+    <p class="letter-kicker">철수의 고백 편지</p>
+    <p class="letter-text">안녕 민주야, 나 같은 반 철수야. 내가 <mark>지난주에</mark> 너에게 고백할 거야. 사실 나는 3년 전부터 너를 많이 좋아하는 마음을 갖고 있었거든. 내가 너를 좋아하는 이유는 너처럼 착하고 멋진 친구를 본 적이 <mark>전혀 있기</mark> 때문이야. 너는 키도 크고 운동도 <mark>여간 잘해</mark>. 그래서 지난달 체육 시간에 너랑 같이 피구를 할 때면 내 마음이 아주 기뻤어. 그리고 지난주 모둠 미술 활동 때 네가 나를 친절하게 <mark>도와주셔서</mark> 정말 <mark>고마울 거야</mark>. 그래서 나는 너랑 <mark>매일 친하게 지내고 싶습니다</mark>. 민주야, 나는 너랑 같은 반이 되어서 <mark>결코 행복해</mark>. 왜냐하면 넌 정말 친절하고 너와 있으면 항상 <mark>기분이 좋다</mark>. 다음 주에 열리는 내 생일 파티에도 너를 꼭 <mark>초대해 드릴게</mark>. 편지 읽어줘서 고맙고, 내일 교실에서 만났을 때 나에게 반갑게 <mark>웃어주실 거지</mark>? 앞으로도 우리 우정 변치 말고 앞으로도 잘 지내보자!
+
+2026년 9월, 너를 가장 생각하는 철수가</p>
+  </div>
+
+  <div class="legend">
+    <span class="legend-item"><span class="legend-dot" style="background:#E07B3A;"></span>시간 호응</span>
+    <span class="legend-item"><span class="legend-dot" style="background:#B65C4A;"></span>부정 호응</span>
+    <span class="legend-item"><span class="legend-dot" style="background:#3A6B4A;"></span>높임 표현</span>
+    <span class="legend-item"><span class="legend-dot" style="background:#5A3E72;"></span>왜냐하면 호응</span>
+  </div>
+
+  <p class="section-heading">총 10개의 어색한 표현 — 눌러서 이유와 바른 표현 확인하기</p>
+  <div class="cards-grid" data-panel="p1">
+
+    <div class="err-card" style="--c:#E07B3A; --tag-bg:#FFF0E5; --tag-color:#9B4A18;">
+      <div class="card-front">
+        <span class="err-tag">⏱ 시간 호응</span>
+        <p class="wrong-text">지난주에 너에게 고백할 거야</p>
+        <p class="hint-line">시간 표현이 서술어와 어울리지 않아요.</p>
+        <p class="open-indicator">눌러서 확인 ▾</p>
+      </div>
+      <div class="card-reveal">
+        <div class="reveal-row"><p class="reveal-label">어색한 이유</p><p class="reveal-text reason">시간을 나타내는 말(지난주)이 미래 서술어(고백할 거야)와 호응하지 않아요.</p></div>
+        <div class="reveal-row"><p class="reveal-label">바르게 고친 표현</p><p class="reveal-text correct">오늘 너에게 고백할게 / 지난주에 고백하려 했어</p></div>
+      </div>
+    </div>
+
+    <div class="err-card" style="--c:#B65C4A; --tag-bg:#FCEDEA; --tag-color:#7A2B1E;">
+      <div class="card-front">
+        <span class="err-tag">✗ 부정 호응</span>
+        <p class="wrong-text">전혀 있기 때문이야</p>
+        <p class="hint-line">'전혀'는 부정 표현과 함께 써야 해요.</p>
+        <p class="open-indicator">눌러서 확인 ▾</p>
+      </div>
+      <div class="card-reveal">
+        <div class="reveal-row"><p class="reveal-label">어색한 이유</p><p class="reveal-text reason">'전혀'는 부정의 뜻을 나타내는 부사어로, 반드시 부정 서술어와 호응해야 해요.</p></div>
+        <div class="reveal-row"><p class="reveal-label">바르게 고친 표현</p><p class="reveal-text correct">전혀 없기 때문이야</p></div>
+      </div>
+    </div>
+
+    <div class="err-card" style="--c:#B65C4A; --tag-bg:#FCEDEA; --tag-color:#7A2B1E;">
+      <div class="card-front">
+        <span class="err-tag">✗ 부정 호응</span>
+        <p class="wrong-text">운동도 여간 잘해</p>
+        <p class="hint-line">'여간'은 단독으로 긍정문에 쓸 수 없어요.</p>
+        <p class="open-indicator">눌러서 확인 ▾</p>
+      </div>
+      <div class="card-reveal">
+        <div class="reveal-row"><p class="reveal-label">어색한 이유</p><p class="reveal-text reason">'여간'은 부정 표현과 함께 쓰여 '보통이 아니게'의 뜻을 나타내요.</p></div>
+        <div class="reveal-row"><p class="reveal-label">바르게 고친 표현</p><p class="reveal-text correct">운동도 여간 잘하는 게 아니야</p></div>
+      </div>
+    </div>
+
+    <div class="err-card" style="--c:#3A6B4A; --tag-bg:#E8F2EC; --tag-color:#23472F;">
+      <div class="card-front">
+        <span class="err-tag">🙏 높임 표현</span>
+        <p class="wrong-text">네가 나를 친절하게 도와주셔서</p>
+        <p class="hint-line">높임의 대상이 맞지 않아요.</p>
+        <p class="open-indicator">눌러서 확인 ▾</p>
+      </div>
+      <div class="card-reveal">
+        <div class="reveal-row"><p class="reveal-label">어색한 이유</p><p class="reveal-text reason">'-주셔서'는 높임 표현인데, 친구(민주)에게 높임말을 쓸 필요가 없어요.</p></div>
+        <div class="reveal-row"><p class="reveal-label">바르게 고친 표현</p><p class="reveal-text correct">네가 나를 친절하게 도와줘서</p></div>
+      </div>
+    </div>
+
+    <div class="err-card" style="--c:#E07B3A; --tag-bg:#FFF0E5; --tag-color:#9B4A18;">
+      <div class="card-front">
+        <span class="err-tag">⏱ 시간 호응</span>
+        <p class="wrong-text">정말 고마울 거야</p>
+        <p class="hint-line">이미 일어난 일에 미래 표현을 썼어요.</p>
+        <p class="open-indicator">눌러서 확인 ▾</p>
+      </div>
+      <div class="card-reveal">
+        <div class="reveal-row"><p class="reveal-label">어색한 이유</p><p class="reveal-text reason">지난 일에 대한 감사이므로 과거 서술어로 써야 해요.</p></div>
+        <div class="reveal-row"><p class="reveal-label">바르게 고친 표현</p><p class="reveal-text correct">정말 고마웠어</p></div>
+      </div>
+    </div>
+
+    <div class="err-card" style="--c:#3A6B4A; --tag-bg:#E8F2EC; --tag-color:#23472F;">
+      <div class="card-front">
+        <span class="err-tag">🙏 높임 표현</span>
+        <p class="wrong-text">매일 친하게 지내고 싶습니다</p>
+        <p class="hint-line">같은 반 친구한테 쓰기엔 너무 격식체예요.</p>
+        <p class="open-indicator">눌러서 확인 ▾</p>
+      </div>
+      <div class="card-reveal">
+        <div class="reveal-label">어색한 이유</p><p class="reveal-text reason">친구 사이에 '-습니다'처럼 지나친 높임말은 자연스럽지 않아요.</p></div>
+        <div class="reveal-row"><p class="reveal-label">바르게 고친 표현</p><p class="reveal-text correct">매일 친하게 지내고 싶어</p></div>
+      </div>
+    </div>
+
+    <div class="err-card" style="--c:#B65C4A; --tag-bg:#FCEDEA; --tag-color:#7A2B1E;">
+      <div class="card-front">
+        <span class="err-tag">✗ 부정 호응</span>
+        <p class="wrong-text">결코 행복해</p>
+        <p class="hint-line">'결코'는 부정 표현과 함께 써야 해요.</p>
+        <p class="open-indicator">눌러서 확인 ▾</p>
+      </div>
+      <div class="card-reveal">
+        <div class="reveal-row"><p class="reveal-label">어색한 이유</p><p class="reveal-text reason">'결코'는 부정 서술어와만 쓸 수 있어요. 긍정 표현과 함께 쓰면 뜻이 반대가 돼요.</p></div>
+        <div class="reveal-row"><p class="reveal-label">바르게 고친 표현</p><p class="reveal-text correct">정말 / 진짜 행복해</p></div>
+      </div>
+    </div>
+
+    <div class="err-card" style="--c:#5A3E72; --tag-bg:#F0EBF8; --tag-color:#3A2550;">
+      <div class="card-front">
+        <span class="err-tag">↩ 왜냐하면 호응</span>
+        <p class="wrong-text">왜냐하면 … 기분이 좋다</p>
+        <p class="hint-line">'왜냐하면'은 특정 형태의 서술어와 짝을 이뤄야 해요.</p>
+        <p class="open-indicator">눌러서 확인 ▾</p>
+      </div>
+      <div class="card-reveal">
+        <div class="reveal-row"><p class="reveal-label">어색한 이유</p><p class="reveal-text reason">'왜냐하면'은 문장 끝이 반드시 '~기 때문이다/이야'로 끝나야 해요.</p></div>
+        <div class="reveal-row"><p class="reveal-label">바르게 고친 표현</p><p class="reveal-text correct">왜냐하면 … 기분이 좋기 때문이야</p></div>
+      </div>
+    </div>
+
+    <div class="err-card" style="--c:#3A6B4A; --tag-bg:#E8F2EC; --tag-color:#23472F;">
+      <div class="card-front">
+        <span class="err-tag">🙏 높임 표현</span>
+        <p class="wrong-text">너를 꼭 초대해 드릴게</p>
+        <p class="hint-line">높임의 대상이 맞지 않아요.</p>
+        <p class="open-indicator">눌러서 확인 ▾</p>
+      </div>
+      <div class="card-reveal">
+        <div class="reveal-row"><p class="reveal-label">어색한 이유</p><p class="reveal-text reason">'-드릴게'는 윗사람에게 쓰는 높임 표현이에요. 친구에게는 쓰지 않아요.</p></div>
+        <div class="reveal-row"><p class="reveal-label">바르게 고친 표현</p><p class="reveal-text correct">너를 꼭 초대할게</p></div>
+      </div>
+    </div>
+
+    <div class="err-card" style="--c:#3A6B4A; --tag-bg:#E8F2EC; --tag-color:#23472F;">
+      <div class="card-front">
+        <span class="err-tag">🙏 높임 표현</span>
+        <p class="wrong-text">나에게 반갑게 웃어주실 거지?</p>
+        <p class="hint-line">높임의 대상이 맞지 않아요.</p>
+        <p class="open-indicator">눌러서 확인 ▾</p>
+      </div>
+      <div class="card-reveal">
+        <div class="reveal-row"><p class="reveal-label">어색한 이유</p><p class="reveal-text reason">친구(민주)에게 '-주실'이라는 높임 표현을 쓸 필요가 없어요.</p></div>
+        <div class="reveal-row"><p class="reveal-label">바르게 고친 표현</p><p class="reveal-text correct">나에게 반갑게 웃어줄 거지?</p></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ============================================================ 2단계 -->
+<div class="panel" id="p2">
+  <button class="toggle-letter-btn" data-target="letter2">📄 편지 전문 펼쳐보기 ▼</button>
+  <div class="letter-card" id="letter2" style="display:none; --accent-gold:#5A3E72; border-left-color:#5A3E72;">
+    <p class="letter-kicker" style="color:#5A3E72;">민주의 답장 편지</p>
+    <p class="letter-text">철수야 안녕, 나 민주야. 편지 잘 받았어. 갑자기 편지를 받아서 <mark>내가 내일 아주 당황했다</mark>. 너의 마음은 고맙지만, 사실 네가 편지에 쓴 말들이 조금 이상해서 <mark>마음이 여간 어색해</mark>. 너는 편지에 나를 <mark>결코 좋아한다</mark>고 했잖아. 그리고 지난주 미술 시간에 <mark>내가 너를 도와주셔서 고맙다고 하셨는데</mark>, 친구 사이에 그런 높임말을 쓰니까 마음이 조금 부끄럽더라고. 그리고 나는 <mark>반드시</mark> 친구로서 너를 도와준거야. <mark>왜냐하면 네가 나를 좋아하는 마음은 잘 알겠다</mark>. 그렇지만 나는 아직 누군가를 사귈 생각이 <mark>전혀 많지 않아</mark>. 네가 준 고백 편지는 내 책상 서랍에 잘 <mark>모셔 둘게</mark>. 앞으로도 교실에서 나를 만나면 <mark>깍듯이 인사해 주십시오</mark>. 우리 그냥 편한 친구로 <mark>과거에 잘 지내자</mark>!
+
+철수의 편지를 읽고 깜짝 놀란 민주가</p>
+  </div>
+
+  <div class="legend">
+    <span class="legend-item"><span class="legend-dot" style="background:#E07B3A;"></span>시간 호응</span>
+    <span class="legend-item"><span class="legend-dot" style="background:#B65C4A;"></span>부정 호응</span>
+    <span class="legend-item"><span class="legend-dot" style="background:#3A6B4A;"></span>높임 표현</span>
+    <span class="legend-item"><span class="legend-dot" style="background:#5A3E72;"></span>왜냐하면 호응</span>
+  </div>
+
+  <p class="section-heading">총 9개의 어색한 표현 — 눌러서 이유와 바른 표현 확인하기</p>
+  <div class="cards-grid" data-panel="p2">
+
+    <div class="err-card" style="--c:#E07B3A; --tag-bg:#FFF0E5; --tag-color:#9B4A18;">
+      <div class="card-front"><span class="err-tag">⏱ 시간 호응</span>
+        <p class="wrong-text">내가 내일 아주 당황했다</p>
+        <p class="hint-line">시간 표현이 서술어와 어울리지 않아요.</p>
+        <p class="open-indicator">눌러서 확인 ▾</p>
+      </div>
+      <div class="card-reveal">
+        <div class="reveal-row"><p class="reveal-label">어색한 이유</p><p class="reveal-text reason">'내일'은 미래를 가리키는데, 서술어는 과거(-했다)로 썼어요. 시간 표현이 서로 맞지 않아요.</p></div>
+        <div class="reveal-row"><p class="reveal-label">바르게 고친 표현</p><p class="reveal-text correct">내가 오늘 / 어제 아주 당황했어</p></div>
+      </div>
+    </div>
+
+    <div class="err-card" style="--c:#B65C4A; --tag-bg:#FCEDEA; --tag-color:#7A2B1E;">
+      <div class="card-front"><span class="err-tag">✗ 부정 호응</span>
+        <p class="wrong-text">마음이 여간 어색해</p>
+        <p class="hint-line">'여간'은 부정 표현과 함께 써야 해요.</p>
+        <p class="open-indicator">눌러서 확인 ▾</p>
+      </div>
+      <div class="card-reveal">
+        <div class="reveal-row"><p class="reveal-label">어색한 이유</p><p class="reveal-text reason">'여간'은 부정 서술어와 어울려 '보통이 아니게'라는 뜻을 완성해요.</p></div>
+        <div class="reveal-row"><p class="reveal-label">바르게 고친 표현</p><p class="reveal-text correct">마음이 여간 어색한 게 아니야</p></div>
+      </div>
+    </div>
+
+    <div class="err-card" style="--c:#B65C4A; --tag-bg:#FCEDEA; --tag-color:#7A2B1E;">
+      <div class="card-front"><span class="err-tag">✗ 부정 호응</span>
+        <p class="wrong-text">나를 결코 좋아한다고 했잖아</p>
+        <p class="hint-line">'결코'는 긍정 표현과 함께 쓸 수 없어요.</p>
+        <p class="open-indicator">눌러서 확인 ▾</p>
+      </div>
+      <div class="card-reveal">
+        <div class="reveal-row"><p class="reveal-label">어색한 이유</p><p class="reveal-text reason">'결코'는 부정 서술어와만 쓸 수 있어요. 문맥상 긍정의 뜻이므로 다른 부사로 바꿔야 해요.</p></div>
+        <div class="reveal-row"><p class="reveal-label">바르게 고친 표현</p><p class="reveal-text correct">나를 아주 / 진짜 좋아한다고 했잖아</p></div>
+      </div>
+    </div>
+
+    <div class="err-card" style="--c:#3A6B4A; --tag-bg:#E8F2EC; --tag-color:#23472F;">
+      <div class="card-front"><span class="err-tag">🙏 높임 표현</span>
+        <p class="wrong-text">내가 너를 도와주셔서 / 고맙다고 하셨는데</p>
+        <p class="hint-line">높임의 대상이 맞지 않아요.</p>
+        <p class="open-indicator">눌러서 확인 ▾</p>
+      </div>
+      <div class="card-reveal">
+        <div class="reveal-row"><p class="reveal-label">어색한 이유</p><p class="reveal-text reason">친구(민주)가 친구(철수)에게 한 행동에 '-주셔서', '-하셨는데' 같은 높임말은 맞지 않아요.</p></div>
+        <div class="reveal-row"><p class="reveal-label">바르게 고친 표현</p><p class="reveal-text correct">내가 너를 도와줘서 고맙다고 했는데</p></div>
+      </div>
+    </div>
+
+    <div class="err-card" style="--c:#5A3E72; --tag-bg:#F0EBF8; --tag-color:#3A2550;">
+      <div class="card-front"><span class="err-tag">↩ 왜냐하면 호응</span>
+        <p class="wrong-text">왜냐하면 … 잘 알겠다</p>
+        <p class="hint-line">'왜냐하면'의 짝이 없어요.</p>
+        <p class="open-indicator">눌러서 확인 ▾</p>
+      </div>
+      <div class="card-reveal">
+        <div class="reveal-row"><p class="reveal-label">어색한 이유</p><p class="reveal-text reason">'왜냐하면'은 '~기 때문이다'와 짝을 이뤄야 해요. 또한 앞 문장과 인과 관계도 자연스럽지 않아요.</p></div>
+        <div class="reveal-row"><p class="reveal-label">바르게 고친 표현</p><p class="reveal-text correct">그래도 / 하지만 네가 나를 좋아하는 마음은 잘 알겠어</p></div>
+      </div>
+    </div>
+
+    <div class="err-card" style="--c:#B65C4A; --tag-bg:#FCEDEA; --tag-color:#7A2B1E;">
+      <div class="card-front"><span class="err-tag">✗ 부정 호응</span>
+        <p class="wrong-text">사귈 생각이 전혀 많지 않아</p>
+        <p class="hint-line">'전혀'와 어울리는 서술어를 확인해 보세요.</p>
+        <p class="open-indicator">눌러서 확인 ▾</p>
+      </div>
+      <div class="card-reveal">
+        <div class="reveal-row"><p class="reveal-label">어색한 이유</p><p class="reveal-text reason">'전혀'는 '없다/아니다'처럼 완전한 부정 표현과 써야 더 자연스러워요.</p></div>
+        <div class="reveal-row"><p class="reveal-label">바르게 고친 표현</p><p class="reveal-text correct">사귈 생각이 전혀 없어</p></div>
+      </div>
+    </div>
+
+    <div class="err-card" style="--c:#3A6B4A; --tag-bg:#E8F2EC; --tag-color:#23472F;">
+      <div class="card-front"><span class="err-tag">🙏 높임 표현</span>
+        <p class="wrong-text">내 책상 서랍에 잘 모셔 둘게</p>
+        <p class="hint-line">'모시다'는 사람에게 쓰는 높임 동사예요.</p>
+        <p class="open-indicator">눌러서 확인 ▾</p>
+      </div>
+      <div class="card-reveal">
+        <div class="reveal-row"><p class="reveal-label">어색한 이유</p><p class="reveal-text reason">'모셔 두다'는 사람을 공경해 모실 때 쓰는 표현이에요. 편지(물건)에는 쓸 수 없어요.</p></div>
+        <div class="reveal-row"><p class="reveal-label">바르게 고친 표현</p><p class="reveal-text correct">내 책상 서랍에 잘 넣어 둘게 / 보관할게</p></div>
+      </div>
+    </div>
+
+    <div class="err-card" style="--c:#3A6B4A; --tag-bg:#E8F2EC; --tag-color:#23472F;">
+      <div class="card-front"><span class="err-tag">🙏 높임 표현</span>
+        <p class="wrong-text">나를 만나면 깍듯이 인사해 주십시오</p>
+        <p class="hint-line">높임의 대상이 맞지 않아요.</p>
+        <p class="open-indicator">눌러서 확인 ▾</p>
+      </div>
+      <div class="card-reveal">
+        <div class="reveal-row"><p class="reveal-label">어색한 이유</p><p class="reveal-text reason">친구에게 '-주십시오'라는 격식 높임 표현은 어색해요.</p></div>
+        <div class="reveal-row"><p class="reveal-label">바르게 고친 표현</p><p class="reveal-text correct">나를 만나면 반갑게 인사해 줘</p></div>
+      </div>
+    </div>
+
+    <div class="err-card" style="--c:#E07B3A; --tag-bg:#FFF0E5; --tag-color:#9B4A18;">
+      <div class="card-front"><span class="err-tag">⏱ 시간 호응</span>
+        <p class="wrong-text">편한 친구로 과거에 잘 지내자</p>
+        <p class="hint-line">앞으로의 이야기에 과거 표현을 썼어요.</p>
+        <p class="open-indicator">눌러서 확인 ▾</p>
+      </div>
+      <div class="card-reveal">
+        <div class="reveal-row"><p class="reveal-label">어색한 이유</p><p class="reveal-text reason">앞으로의 다짐을 말하는 문장이므로 '과거에'는 맞지 않아요.</p></div>
+        <div class="reveal-row"><p class="reveal-label">바르게 고친 표현</p><p class="reveal-text correct">편한 친구로 앞으로 잘 지내자</p></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ============================================================ 3단계 -->
+<div class="panel" id="p3">
+  <button class="toggle-letter-btn" data-target="letter3">📄 편지 전문 펼쳐보기 ▼</button>
+  <div class="letter-card" id="letter3" style="display:none; border-left-color:#8B5530;">
+    <p class="letter-kicker" style="color:#8B5530;">영수의 질투 편지</p>
+    <p class="letter-text">야 김철수, 나 같은 반 영수다. 너 어제 민주한테 고백 편지 줬다며? <mark>내가 내일 그 소식을 듣고 화가 났다</mark>. 너 혹시 알고 있었니? 사실 <mark>내가 아주 오래전부터 많이</mark> 좋아하고 있었다는 것을. 체육 시간에 민주가 피구 할 때 너는 <mark>공을 여간 못 피하더라</mark>. 민도도 너랑 피구 할 때 마음이 많이 답답했을 것이다. <mark>왜냐하면 민주는 나처럼 운동 잘하는 남학생을 좋아한다</mark>. 그리고 지난주에 민주가 너한테 미술 재료 빌려준 건 <mark>네가 불쌍해서 도와주신 거야</mark>. 철수야, 민주한테 자꾸 어색하게 굴지 마. <mark>민주는 결코 너를 좋아하는 마음이 가득해</mark>. 그러니까 민주한테 고백하는 건 <mark>지난주에 그만뒀다</mark>. 만약 네가 계속 민주한테 편지를 쓰면 <mark>내가 너에게 대결을 신청할 것입니다</mark>. 나랑 선의의 경쟁을 펼치고 싶다면 내일 방과 후에 운동장에서 나를 기다려라!
+
+민주를 짝사랑하는 라이벌 영수가</p>
+  </div>
+
+  <p class="section-heading">총 8개의 어색한 표현 — 눌러서 이유와 바른 표현 확인하기</p>
+  <div class="cards-grid" data-panel="p3">
+
+    <div class="err-card" style="--c:#E07B3A; --tag-bg:#FFF0E5; --tag-color:#9B4A18;">
+      <div class="card-front"><span class="err-tag">⏱ 시간 호응</span>
+        <p class="wrong-text">내가 내일 그 소식을 듣고 화가 났다</p>
+        <p class="hint-line">시간 표현이 서술어와 어울리지 않아요.</p>
+        <p class="open-indicator">눌러서 확인 ▾</p>
+      </div>
+      <div class="card-reveal">
+        <div class="reveal-row"><p class="reveal-label">어색한 이유</p><p class="reveal-text reason">'내일'은 미래인데 서술어(화가 났다)는 과거예요. 시간 표현이 맞지 않아요.</p></div>
+        <div class="reveal-row"><p class="reveal-label">바르게 고친 표현</p><p class="reveal-text correct">내가 오늘 / 아까 그 소식을 듣고 화가 났어</p></div>
+      </div>
+    </div>
+
+    <div class="err-card" style="--c:#2D6B6B; --tag-bg:#E3F2F2; --tag-color:#1A4444;">
+      <div class="card-front"><span class="err-tag">🔍 목적어 빠짐</span>
+        <p class="wrong-text">내가 아주 오래전부터 많이 (좋아하고)</p>
+        <p class="hint-line">꼭 필요한 문장 성분이 빠져 있어요.</p>
+        <p class="open-indicator">눌러서 확인 ▾</p>
+      </div>
+      <div class="card-reveal">
+        <div class="reveal-row"><p class="reveal-label">어색한 이유</p><p class="reveal-text reason">'좋아하고'의 목적어(누구를)가 빠져서 문장이 불완전해요.</p></div>
+        <div class="reveal-row"><p class="reveal-label">바르게 고친 표현</p><p class="reveal-text correct">내가 아주 오래전부터 민주를 많이 좋아하고 있었다</p></div>
+      </div>
+    </div>
+
+    <div class="err-card" style="--c:#B65C4A; --tag-bg:#FCEDEA; --tag-color:#7A2B1E;">
+      <div class="card-front"><span class="err-tag">✗ 부정 호응</span>
+        <p class="wrong-text">공을 여간 못 피하더라</p>
+        <p class="hint-line">'여간'과 어울리는 표현을 확인해봐요.</p>
+        <p class="open-indicator">눌러서 확인 ▾</p>
+      </div>
+      <div class="card-reveal">
+        <div class="reveal-row"><p class="reveal-label">어색한 이유</p><p class="reveal-text reason">'여간'은 '~이 아니다' 형태의 부정 서술어와 함께 '보통이 아니게'라는 뜻을 완성해요.</p></div>
+        <div class="reveal-row"><p class="reveal-label">바르게 고친 표현</p><p class="reveal-text correct">공을 여간 못 피하는 게 아니더라</p></div>
+      </div>
+    </div>
+
+    <div class="err-card" style="--c:#5A3E72; --tag-bg:#F0EBF8; --tag-color:#3A2550;">
+      <div class="card-front"><span class="err-tag">↩ 왜냐하면 호응</span>
+        <p class="wrong-text">왜냐하면 … 남학생을 좋아한다</p>
+        <p class="hint-line">'왜냐하면'의 짝이 없어요.</p>
+        <p class="open-indicator">눌러서 확인 ▾</p>
+      </div>
+      <div class="card-reveal">
+        <div class="reveal-row"><p class="reveal-label">어색한 이유</p><p class="reveal-text reason">'왜냐하면'은 반드시 '~기 때문이다/이야'로 끝나야 해요.</p></div>
+        <div class="reveal-row"><p class="reveal-label">바르게 고친 표현</p><p class="reveal-text correct">왜냐하면 민주는 나처럼 운동 잘하는 남학생을 좋아하기 때문이다</p></div>
+      </div>
+    </div>
+
+    <div class="err-card" style="--c:#3A6B4A; --tag-bg:#E8F2EC; --tag-color:#23472F;">
+      <div class="card-front"><span class="err-tag">🙏 높임 표현</span>
+        <p class="wrong-text">네가 불쌍해서 도와주신 거야</p>
+        <p class="hint-line">높임의 대상이 맞지 않아요.</p>
+        <p class="open-indicator">눌러서 확인 ▾</p>
+      </div>
+      <div class="card-reveal">
+        <div class="reveal-row"><p class="reveal-label">어색한 이유</p><p class="reveal-text reason">민주가 철수(친구)를 도와준 것이므로 '-주신'이라는 높임 표현은 필요 없어요.</p></div>
+        <div class="reveal-row"><p class="reveal-label">바르게 고친 표현</p><p class="reveal-text correct">네가 불쌍해서 도와준 거야</p></div>
+      </div>
+    </div>
+
+    <div class="err-card" style="--c:#B65C4A; --tag-bg:#FCEDEA; --tag-color:#7A2B1E;">
+      <div class="card-front"><span class="err-tag">✗ 부정 호응</span>
+        <p class="wrong-text">민주는 결코 너를 좋아하는 마음이 가득해</p>
+        <p class="hint-line">'결코'는 긍정 표현과 함께 쓸 수 없어요.</p>
+        <p class="open-indicator">눌러서 확인 ▾</p>
+      </div>
+      <div class="card-reveal">
+        <div class="reveal-row"><p class="reveal-label">어색한 이유</p><p class="reveal-text reason">'결코'는 부정 서술어와만 어울려요. 문맥상 부정의 뜻이므로 서술어도 바꿔야 해요.</p></div>
+        <div class="reveal-row"><p class="reveal-label">바르게 고친 표현</p><p class="reveal-text correct">민주는 절대 너를 좋아하지 않아</p></div>
+      </div>
+    </div>
+
+    <div class="err-card" style="--c:#E07B3A; --tag-bg:#FFF0E5; --tag-color:#9B4A18;">
+      <div class="card-front"><span class="err-tag">⏱ 시간 호응</span>
+        <p class="wrong-text">고백하는 건 지난주에 그만뒀다</p>
+        <p class="hint-line">아직 일어나지 않은 일에 과거 표현을 썼어요.</p>
+        <p class="open-indicator">눌러서 확인 ▾</p>
+      </div>
+      <div class="card-reveal">
+        <div class="reveal-row"><p class="reveal-label">어색한 이유</p><p class="reveal-text reason">상대에게 앞으로 그만두라는 명령이므로 '지난주에 그만뒀다'는 시제가 맞지 않아요.</p></div>
+        <div class="reveal-row"><p class="reveal-label">바르게 고친 표현</p><p class="reveal-text correct">지금부터 / 이제 그만두어라</p></div>
+      </div>
+    </div>
+
+    <div class="err-card" style="--c:#3A6B4A; --tag-bg:#E8F2EC; --tag-color:#23472F;">
+      <div class="card-front"><span class="err-tag">🙏 높임 표현</span>
+        <p class="wrong-text">대결을 신청할 것입니다</p>
+        <p class="hint-line">높임의 대상이 맞지 않아요.</p>
+        <p class="open-indicator">눌러서 확인 ▾</p>
+      </div>
+      <div class="card-reveal">
+        <div class="reveal-row"><p class="reveal-label">어색한 이유</p><p class="reveal-text reason">친구(철수)에게 '-습니다'라는 격식 높임말을 쓸 필요가 없어요.</p></div>
+        <div class="reveal-row"><p class="reveal-label">바르게 고친 표현</p><p class="reveal-text correct">대결을 신청할 거다 / 신청하겠다</p></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ============================================================ 4단계 -->
+<div class="panel" id="p4">
+  <button class="toggle-letter-btn" data-target="letter4">📄 편지 전문 펼쳐보기 ▼</button>
+  <div class="letter-card" id="letter4" style="display:none; border-left-color:#1F3350;">
+    <p class="letter-kicker" style="color:#1F3350;">유리의 사건 정리 편지</p>
+    <p class="letter-text">사랑하는 5학년 1반 친구들아, 나 반장 유리야. 요즘 우리 반에 철수랑 영수, 민주 때문에 <mark>사건이 전혀 터졌지</mark>? 어제 방과 후에 철수랑 영수가 운동장에서 심하게 싸우더라고. 두 사람이 민주 때문에 다투는 모습을 보니 <mark>내 마음이 여간 기쁘지 않았어</mark>. 우리가 같은 반이 된 지 <mark>벌써 6개월 전인데</mark>, 서로 싸우는 모습은 <mark>전혀 보기 좋기 때문이야</mark>. 그리고 철수랑 영수는 민주에게 자꾸 이상한 고백을 <mark>던지고 계십니다</mark>. 왜냐하면 민주는 너희 둘 다 아무 관심이 없기 때문이다. 친구들아, 서로 좋아하는 마음은 아름답지만 남을 괴롭히면서 고백하면 <mark>결코 멋있어</mark>. 앞으로는 다투지 말고 사이좋게 지내자. 내일부터는 우리 반 모두가 서로를 <mark>존중하고 아껴 주십시오</mark>. 모두 즐거운 학교생활을 만들자!
+
+우리 반의 평화를 바라는 반장 유리가</p>
+  </div>
+
+  <p class="section-heading">총 7개의 어색한 표현 — 눌러서 이유와 바른 표현 확인하기</p>
+  <div class="cards-grid" data-panel="p4">
+
+    <div class="err-card" style="--c:#B65C4A; --tag-bg:#FCEDEA; --tag-color:#7A2B1E;">
+      <div class="card-front"><span class="err-tag">✗ 부정 호응</span>
+        <p class="wrong-text">사건이 전혀 터졌지?</p>
+        <p class="hint-line">'전혀'는 부정 표현과 함께 써야 해요.</p>
+        <p class="open-indicator">눌러서 확인 ▾</p>
+      </div>
+      <div class="card-reveal">
+        <div class="reveal-row"><p class="reveal-label">어색한 이유</p><p class="reveal-text reason">'전혀'는 부정 서술어와 어울리는 부사예요. 사건이 '터졌다'는 긍정적 사실 서술이므로 맞지 않아요.</p></div>
+        <div class="reveal-row"><p class="reveal-label">바르게 고친 표현</p><p class="reveal-text correct">사건이 크게 / 크게 한 번 터졌지?</p></div>
+      </div>
+    </div>
+
+    <div class="err-card" style="--c:#B65C4A; --tag-bg:#FCEDEA; --tag-color:#7A2B1E;">
+      <div class="card-front"><span class="err-tag">✗ 부정 호응</span>
+        <p class="wrong-text">내 마음이 여간 기쁘지 않았어</p>
+        <p class="hint-line">이 표현이 실제로 어떤 뜻인지 생각해보세요.</p>
+        <p class="open-indicator">눌러서 확인 ▾</p>
+      </div>
+      <div class="card-reveal">
+        <div class="reveal-row"><p class="reveal-label">어색한 이유</p><p class="reveal-text reason">'여간 기쁘지 않다'는 '매우 기쁘다'는 뜻이에요. 문맥상(싸우는 것을 봐서 불편함) 뜻이 반대가 돼요.</p></div>
+        <div class="reveal-row"><p class="reveal-label">바르게 고친 표현</p><p class="reveal-text correct">내 마음이 여간 불편하지 않았어 / 전혀 기쁘지 않았어</p></div>
+      </div>
+    </div>
+
+    <div class="err-card" style="--c:#E07B3A; --tag-bg:#FFF0E5; --tag-color:#9B4A18;">
+      <div class="card-front"><span class="err-tag">⏱ 시간 호응</span>
+        <p class="wrong-text">같은 반이 된 지 벌써 6개월 전인데</p>
+        <p class="hint-line">기간을 나타내는 표현을 확인해보세요.</p>
+        <p class="open-indicator">눌러서 확인 ▾</p>
+      </div>
+      <div class="card-reveal">
+        <div class="reveal-row"><p class="reveal-label">어색한 이유</p><p class="reveal-text reason">'된 지 6개월 전'은 어색한 표현이에요. '6개월이 지났다/째다'로 써야 자연스러워요.</p></div>
+        <div class="reveal-row"><p class="reveal-label">바르게 고친 표현</p><p class="reveal-text correct">같은 반이 된 지 벌써 6개월이 지났는데 / 6개월째인데</p></div>
+      </div>
+    </div>
+
+    <div class="err-card" style="--c:#B65C4A; --tag-bg:#FCEDEA; --tag-color:#7A2B1E;">
+      <div class="card-front"><span class="err-tag">✗ 부정 호응</span>
+        <p class="wrong-text">서로 싸우는 모습은 전혀 보기 좋기 때문이야</p>
+        <p class="hint-line">'전혀'와 어울리는 서술어를 확인해봐요.</p>
+        <p class="open-indicator">눌러서 확인 ▾</p>
+      </div>
+      <div class="card-reveal">
+        <div class="reveal-row"><p class="reveal-label">어색한 이유</p><p class="reveal-text reason">'전혀'는 '좋지 않다'처럼 부정 서술어와 어울려야 해요.</p></div>
+        <div class="reveal-row"><p class="reveal-label">바르게 고친 표현</p><p class="reveal-text correct">서로 싸우는 모습은 전혀 보기 좋지 않기 때문이야</p></div>
+      </div>
+    </div>
+
+    <div class="err-card" style="--c:#3A6B4A; --tag-bg:#E8F2EC; --tag-color:#23472F;">
+      <div class="card-front"><span class="err-tag">🙏 높임 표현</span>
+        <p class="wrong-text">이상한 고백을 던지고 계십니다</p>
+        <p class="hint-line">높임의 대상이 맞지 않아요.</p>
+        <p class="open-indicator">눌러서 확인 ▾</p>
+      </div>
+      <div class="card-reveal">
+        <div class="reveal-row"><p class="reveal-label">어색한 이유</p><p class="reveal-text reason">편지를 쓰는 대상(철수, 영수)은 같은 반 친구이므로 '-계십니다'라는 높임 표현은 맞지 않아요.</p></div>
+        <div class="reveal-row"><p class="reveal-label">바르게 고친 표현</p><p class="reveal-text correct">이상한 고백을 하고 있어 / 던지고 있어</p></div>
+      </div>
+    </div>
+
+    <div class="err-card" style="--c:#B65C4A; --tag-bg:#FCEDEA; --tag-color:#7A2B1E;">
+      <div class="card-front"><span class="err-tag">✗ 부정 호응</span>
+        <p class="wrong-text">고백하면 결코 멋있어</p>
+        <p class="hint-line">'결코'는 부정 표현과 함께 써야 해요.</p>
+        <p class="open-indicator">눌러서 확인 ▾</p>
+      </div>
+      <div class="card-reveal">
+        <div class="reveal-row"><p class="reveal-label">어색한 이유</p><p class="reveal-text reason">'결코'는 부정 서술어와만 어울려요. 문맥상 '멋없다'는 뜻이니 서술어도 부정형으로 바꿔야 해요.</p></div>
+        <div class="reveal-row"><p class="reveal-label">바르게 고친 표현</p><p class="reveal-text correct">고백하면 결코 멋있지 않아</p></div>
+      </div>
+    </div>
+
+    <div class="err-card" style="--c:#3A6B4A; --tag-bg:#E8F2EC; --tag-color:#23472F;">
+      <div class="card-front"><span class="err-tag">🙏 높임 표현</span>
+        <p class="wrong-text">서로를 존중하고 아껴 주십시오</p>
+        <p class="hint-line">높임의 대상이 맞지 않아요.</p>
+        <p class="open-indicator">눌러서 확인 ▾</p>
+      </div>
+      <div class="card-reveal">
+        <div class="reveal-row"><p class="reveal-label">어색한 이유</p><p class="reveal-text reason">같은 반 친구들에게 '-주십시오'라는 격식 높임 표현은 어색해요.</p></div>
+        <div class="reveal-row"><p class="reveal-label">바르게 고친 표현</p><p class="reveal-text correct">서로를 존중하고 아껴 주자</p></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+</div><!-- /main -->
+
+<!-- 진행 표시 (sticky) -->
+<div class="progress-bar-wrap">
+  <div class="progress-pill">
+    <span id="progressText">0 / 10 확인함</span>
+    <div class="progress-track"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+    <button class="review-btn" id="reviewBtn" type="button" style="display:none;">접기 ▲</button>
+  </div>
+</div>
+
+<script>
+  /* ─── TABS ─── */
+  const tabBtns = document.querySelectorAll('.tab-btn');
+  const panels = document.querySelectorAll('.panel');
+  tabBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      tabBtns.forEach(b => b.classList.remove('active'));
+      panels.forEach(p => p.classList.remove('visible'));
+      btn.classList.add('active');
+      document.getElementById(btn.dataset.panel).classList.add('visible');
+      updateProgress();
+    });
+  });
+
+  /* ─── LETTER TOGGLE ─── */
+  document.querySelectorAll('.toggle-letter-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const target = document.getElementById(btn.dataset.target);
+      const isOpen = target.style.display !== 'none';
+      target.style.display = isOpen ? 'none' : 'block';
+      btn.textContent = isOpen ? '📄 편지 전문 펼쳐보기 ▼' : '📄 편지 전문 접기 ▲';
+    });
+  });
+
+  /* ─── FLIP CARDS ─── */
+  document.querySelectorAll('.err-card').forEach(card => {
+    card.addEventListener('click', () => {
+      card.classList.toggle('open');
+      updateProgress();
+    });
+  });
+
+  /* ─── PROGRESS ─── */
+  const panelTotals = { p1: 10, p2: 9, p3: 8, p4: 7 };
+
+  function updateProgress() {
+    const activePanel = document.querySelector('.panel.visible');
+    if (!activePanel) return;
+    const panelId = activePanel.id;
+    const total = panelTotals[panelId] || 0;
+    const opened = activePanel.querySelectorAll('.err-card.open').length;
+    document.getElementById('progressText').textContent = `${opened} / ${total} 확인함`;
+    document.getElementById('progressFill').style.width = total ? `${(opened / total) * 100}%` : '0%';
+    document.getElementById('reviewBtn').style.display = opened > 0 ? 'inline-block' : 'none';
+  }
+
+  document.getElementById('reviewBtn').addEventListener('click', () => {
+    const activePanel = document.querySelector('.panel.visible');
+    activePanel.querySelectorAll('.err-card.open').forEach(c => c.classList.remove('open'));
+    updateProgress();
+  });
+
+  updateProgress();
+</script>
+</body>
+</html>
