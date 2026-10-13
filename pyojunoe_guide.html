@@ -1,0 +1,1092 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>표준어와 방언 알기 – 안내자료 & 퀴즈</title>
+<link href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=Gowun+Dodum&display=swap" rel="stylesheet">
+<style>
+:root{
+  --navy:#1F3350;
+  --gold:#B5933A;
+  --teal:#2D7A6B;
+  --bg:#F8F5EF;
+  --pink:#E8A0BF;
+  --pink-light:#FBF0F6;
+  --purple:#8B5CF6;
+  --green:#10B981;
+  --red:#EF4444;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{
+  font-family:'Gowun Dodum',sans-serif;
+  background:var(--bg);
+  color:#222;
+  min-height:100vh;
+}
+
+/* ── header ── */
+header{
+  background:linear-gradient(135deg,var(--navy) 0%,#2E4A6E 100%);
+  color:#fff;
+  padding:28px 20px 22px;
+  text-align:center;
+  box-shadow:0 3px 12px rgba(0,0,0,.25);
+}
+header .badge{
+  display:inline-block;
+  background:var(--gold);
+  color:#fff;
+  font-size:.75rem;
+  font-weight:700;
+  padding:3px 10px;
+  border-radius:20px;
+  margin-bottom:10px;
+  letter-spacing:.05em;
+}
+header h1{
+  font-family:'Gowun Batang',serif;
+  font-size:1.75rem;
+  font-weight:700;
+  letter-spacing:-.01em;
+}
+header p{
+  margin-top:6px;
+  font-size:.9rem;
+  opacity:.85;
+}
+
+/* ── tab nav ── */
+.tab-nav{
+  display:flex;
+  gap:0;
+  background:var(--navy);
+  position:sticky;
+  top:0;
+  z-index:100;
+}
+.tab-btn{
+  flex:1;
+  padding:14px 10px;
+  background:none;
+  border:none;
+  color:rgba(255,255,255,.65);
+  font-family:'Gowun Dodum',sans-serif;
+  font-size:1rem;
+  font-weight:700;
+  cursor:pointer;
+  transition:.2s;
+  border-bottom:3px solid transparent;
+}
+.tab-btn.active{
+  color:#fff;
+  border-bottom-color:var(--gold);
+}
+.tab-btn:hover{color:#fff;}
+
+/* ── page sections ── */
+.page{display:none;padding:24px 16px 60px;}
+.page.active{display:block;}
+
+/* ── section card ── */
+.section-card{
+  background:#fff;
+  border-radius:16px;
+  padding:24px;
+  margin-bottom:22px;
+  box-shadow:0 2px 10px rgba(0,0,0,.08);
+  border-left:5px solid var(--teal);
+}
+.section-card.gold{border-left-color:var(--gold);}
+.section-card.pink{border-left-color:var(--pink);}
+.section-card.navy{border-left-color:var(--navy);}
+.section-card h2{
+  font-family:'Gowun Batang',serif;
+  font-size:1.15rem;
+  color:var(--navy);
+  margin-bottom:14px;
+  display:flex;
+  align-items:center;
+  gap:8px;
+}
+.section-card h2 .ico{
+  font-size:1.3rem;
+}
+
+/* definition box */
+.def-box{
+  background:#EFF6FF;
+  border-radius:10px;
+  padding:16px 18px;
+  margin-bottom:12px;
+}
+.def-box .term{
+  font-family:'Gowun Batang',serif;
+  font-size:1.2rem;
+  font-weight:700;
+  color:var(--navy);
+  margin-bottom:4px;
+}
+.def-box .meaning{
+  color:#444;
+  line-height:1.7;
+}
+
+/* dialect map table */
+.dialect-table{
+  width:100%;
+  border-collapse:collapse;
+  margin-top:12px;
+  border-radius:10px;
+  overflow:hidden;
+  font-size:.95rem;
+}
+.dialect-table th{
+  background:var(--teal);
+  color:#fff;
+  padding:10px 14px;
+  text-align:center;
+  font-weight:700;
+}
+.dialect-table td{
+  padding:10px 14px;
+  text-align:center;
+  border-bottom:1px solid #E8E8E8;
+}
+.dialect-table tr:last-child td{border-bottom:none;}
+.dialect-table tr:nth-child(even) td{background:#F4FAF8;}
+.dialect-word{
+  font-family:'Gowun Batang',serif;
+  font-size:1.1rem;
+  font-weight:700;
+  color:var(--teal);
+}
+
+/* info list */
+.info-list{
+  list-style:none;
+  padding:0;
+}
+.info-list li{
+  padding:9px 0;
+  padding-left:22px;
+  position:relative;
+  line-height:1.65;
+  border-bottom:1px solid #F0F0F0;
+  color:#333;
+}
+.info-list li:last-child{border-bottom:none;}
+.info-list li::before{
+  content:"✦";
+  position:absolute;
+  left:0;
+  color:var(--gold);
+  font-size:.8rem;
+  top:12px;
+}
+
+/* highlight box */
+.highlight-box{
+  background:linear-gradient(135deg,#FFFBEB,#FEF3C7);
+  border:1.5px solid var(--gold);
+  border-radius:12px;
+  padding:16px 18px;
+  margin:12px 0;
+  color:#333;
+  line-height:1.7;
+}
+.highlight-box strong{color:var(--navy);}
+
+/* korean.go.kr link banner */
+.link-banner{
+  display:flex;
+  align-items:center;
+  gap:14px;
+  background:linear-gradient(135deg,var(--navy),#2E4A6E);
+  border-radius:14px;
+  padding:18px 22px;
+  color:#fff;
+  text-decoration:none;
+  transition:transform .15s, box-shadow .15s;
+  margin-top:16px;
+}
+.link-banner:hover{
+  transform:translateY(-2px);
+  box-shadow:0 8px 24px rgba(31,51,80,.3);
+}
+.link-banner .link-ico{
+  font-size:2.4rem;
+  flex-shrink:0;
+}
+.link-banner .link-text .link-title{
+  font-family:'Gowun Batang',serif;
+  font-size:1.1rem;
+  font-weight:700;
+  margin-bottom:3px;
+}
+.link-banner .link-text .link-url{
+  font-size:.8rem;
+  opacity:.75;
+}
+
+/* step flow */
+.step-flow{
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+  margin-top:12px;
+}
+.step-item{
+  display:flex;
+  align-items:flex-start;
+  gap:12px;
+  background:#F9F9F9;
+  border-radius:10px;
+  padding:12px 14px;
+}
+.step-num{
+  background:var(--teal);
+  color:#fff;
+  font-weight:700;
+  border-radius:50%;
+  width:28px;
+  height:28px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  flex-shrink:0;
+  font-size:.9rem;
+}
+.step-text{line-height:1.6;color:#333;}
+.step-text strong{color:var(--navy);}
+
+/* ── quiz section ── */
+.quiz-meta{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  background:#fff;
+  border-radius:14px;
+  padding:16px 20px;
+  margin-bottom:20px;
+  box-shadow:0 2px 10px rgba(0,0,0,.07);
+}
+.quiz-meta .score-wrap{
+  margin-left:auto;
+  text-align:right;
+}
+.quiz-meta .score-num{
+  font-family:'Gowun Batang',serif;
+  font-size:1.6rem;
+  font-weight:700;
+  color:var(--teal);
+}
+.quiz-meta .score-label{font-size:.8rem;color:#666;}
+
+.quiz-card{
+  background:#fff;
+  border-radius:16px;
+  padding:24px;
+  margin-bottom:18px;
+  box-shadow:0 2px 10px rgba(0,0,0,.08);
+}
+.quiz-card .q-head{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  margin-bottom:16px;
+}
+.q-num{
+  background:var(--navy);
+  color:#fff;
+  font-weight:700;
+  border-radius:8px;
+  padding:4px 10px;
+  font-size:.85rem;
+}
+.q-text{
+  font-family:'Gowun Batang',serif;
+  font-size:1.05rem;
+  line-height:1.65;
+  color:#222;
+  flex:1;
+}
+.q-type-badge{
+  font-size:.72rem;
+  padding:2px 8px;
+  border-radius:12px;
+  font-weight:700;
+}
+.q-type-badge.ox{background:#FEF3C7;color:#92400E;}
+.q-type-badge.mc{background:#E0F2FE;color:#075985;}
+.q-type-badge.fill{background:#F3E8FF;color:#6B21A8;}
+
+/* OX buttons */
+.ox-buttons{
+  display:flex;
+  gap:10px;
+  margin-top:4px;
+}
+.ox-btn{
+  flex:1;
+  padding:12px;
+  border:2px solid #DDD;
+  border-radius:12px;
+  background:#fff;
+  font-size:1.6rem;
+  cursor:pointer;
+  transition:.15s;
+  font-family:'Gowun Dodum',sans-serif;
+}
+.ox-btn:hover:not([disabled]){border-color:var(--teal);background:#F0FAF8;}
+.ox-btn.selected-O{border-color:var(--green);background:#ECFDF5;color:var(--green);}
+.ox-btn.selected-X{border-color:var(--red);background:#FEF2F2;color:var(--red);}
+
+/* MC options */
+.mc-options{
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+  margin-top:4px;
+}
+.mc-btn{
+  padding:11px 16px;
+  border:2px solid #DDD;
+  border-radius:10px;
+  background:#fff;
+  text-align:left;
+  cursor:pointer;
+  font-family:'Gowun Dodum',sans-serif;
+  font-size:.95rem;
+  transition:.15s;
+  color:#333;
+}
+.mc-btn:hover:not([disabled]){border-color:var(--teal);background:#F0FAF8;}
+.mc-btn.selected{border-color:var(--navy);background:#EFF6FF;color:var(--navy);font-weight:700;}
+.mc-btn.correct{border-color:var(--green);background:#ECFDF5;color:#065F46;font-weight:700;}
+.mc-btn.wrong{border-color:var(--red);background:#FEF2F2;color:#991B1B;font-weight:700;}
+
+/* fill-in */
+.fill-input{
+  width:100%;
+  padding:12px 14px;
+  border:2px solid #DDD;
+  border-radius:10px;
+  font-family:'Gowun Dodum',sans-serif;
+  font-size:1rem;
+  margin-top:4px;
+  outline:none;
+  transition:.15s;
+}
+.fill-input:focus{border-color:var(--teal);}
+.fill-input.correct{border-color:var(--green);background:#ECFDF5;}
+.fill-input.wrong{border-color:var(--red);background:#FEF2F2;}
+
+/* feedback */
+.q-feedback{
+  margin-top:12px;
+  padding:10px 14px;
+  border-radius:10px;
+  font-size:.9rem;
+  display:none;
+  line-height:1.6;
+}
+.q-feedback.show{display:block;}
+.q-feedback.ok{background:#ECFDF5;color:#065F46;border-left:4px solid var(--green);}
+.q-feedback.ng{background:#FEF2F2;color:#991B1B;border-left:4px solid var(--red);}
+
+/* submit / result */
+.submit-wrap{
+  text-align:center;
+  padding:20px 0 40px;
+}
+.submit-btn{
+  background:var(--teal);
+  color:#fff;
+  border:none;
+  border-radius:14px;
+  padding:16px 48px;
+  font-family:'Gowun Batang',serif;
+  font-size:1.15rem;
+  font-weight:700;
+  cursor:pointer;
+  transition:.15s;
+  box-shadow:0 4px 14px rgba(45,122,107,.3);
+}
+.submit-btn:hover{background:#235f54;transform:translateY(-1px);}
+.submit-btn:disabled{background:#A0AEC0;cursor:not-allowed;transform:none;box-shadow:none;}
+
+.result-card{
+  background:#fff;
+  border-radius:16px;
+  padding:30px 24px;
+  text-align:center;
+  box-shadow:0 4px 20px rgba(0,0,0,.1);
+  margin-top:20px;
+  display:none;
+}
+.result-card.show{display:block;}
+.result-emoji{font-size:3.5rem;margin-bottom:10px;}
+.result-score{
+  font-family:'Gowun Batang',serif;
+  font-size:2rem;
+  font-weight:700;
+  color:var(--navy);
+}
+.result-msg{color:#555;margin-top:8px;line-height:1.7;}
+.result-bar{
+  background:#EEE;
+  border-radius:20px;
+  height:14px;
+  margin:16px 0;
+  overflow:hidden;
+}
+.result-bar-fill{
+  height:100%;
+  border-radius:20px;
+  background:linear-gradient(90deg,var(--teal),var(--gold));
+  transition:width 1s ease;
+  width:0%;
+}
+.retry-btn{
+  margin-top:16px;
+  background:none;
+  border:2px solid var(--teal);
+  color:var(--teal);
+  border-radius:10px;
+  padding:10px 28px;
+  font-family:'Gowun Dodum',sans-serif;
+  font-size:.95rem;
+  font-weight:700;
+  cursor:pointer;
+  transition:.15s;
+}
+.retry-btn:hover{background:var(--teal);color:#fff;}
+
+/* tag */
+.tag{
+  display:inline-block;
+  background:#EFF6FF;
+  color:var(--navy);
+  border-radius:20px;
+  padding:3px 10px;
+  font-size:.78rem;
+  font-weight:700;
+  margin-right:5px;
+}
+
+/* ── dialect input table ── */
+.dialect-input{
+  width:100%;
+  padding:9px 12px;
+  border:2px solid #DDD;
+  border-radius:8px;
+  font-family:'Gowun Batang',serif;
+  font-size:1rem;
+  text-align:center;
+  outline:none;
+  transition:.15s;
+  color:var(--navy);
+}
+.dialect-input:focus{border-color:var(--teal);}
+.dialect-input.correct{border-color:var(--green);background:#ECFDF5;color:#065F46;font-weight:700;}
+.dialect-input.wrong{border-color:var(--red);background:#FEF2F2;color:#991B1B;}
+.dialect-input:disabled{cursor:default;}
+
+.hint-badge{
+  display:inline-block;
+  background:#EDE9FE;
+  color:#5B21B6;
+  border-radius:8px;
+  padding:4px 10px;
+  font-size:.85rem;
+  font-weight:700;
+  letter-spacing:.15em;
+}
+
+.check-btn{
+  padding:10px 22px;
+  background:var(--teal);
+  color:#fff;
+  border:none;
+  border-radius:10px;
+  font-family:'Gowun Dodum',sans-serif;
+  font-size:.95rem;
+  font-weight:700;
+  cursor:pointer;
+  transition:.15s;
+}
+.check-btn:hover{background:#235f54;}
+
+/* ── responsive ── */
+@media(min-width:640px){
+  .page{max-width:720px;margin:0 auto;padding:28px 24px 60px;}
+  header h1{font-size:2rem;}
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="badge">5-2 국어 · 표준어와 방언</div>
+  <h1>📚 표준어와 방언 알기</h1>
+  <p>안내자료 &amp; 퀴즈 — 국립국어원 누리집을 활용해요!</p>
+</header>
+
+<div class="tab-nav">
+  <button class="tab-btn active" onclick="switchTab('guide')">📖 안내자료</button>
+  <button class="tab-btn" onclick="switchTab('quiz')">✏️ 퀴즈</button>
+</div>
+
+<!-- ══════════ 안내자료 탭 ══════════ -->
+<div id="tab-guide" class="page active">
+
+  <!-- ① 표준어란? -->
+  <div class="section-card gold">
+    <h2><span class="ico">📌</span> 표준어란 무엇일까요?</h2>
+    <div class="def-box">
+      <div class="term">표준어 (標準語)</div>
+      <div class="meaning">한 나라에서 공식적으로 정해 온 나라 사람들이 함께 사용하도록 한 말입니다.<br>
+      우리나라 표준어는 <strong>문화체육관광부</strong>에서 정합니다.</div>
+    </div>
+    <ul class="info-list">
+      <li>표준어는 교육, 방송, 공식적인 자리에서 주로 사용합니다.</li>
+      <li>전국 어디서든 서로 쉽게 이해할 수 있도록 도와줍니다.</li>
+      <li>현재 우리나라 표준어는 <strong>교양 있는 사람들이 두루 쓰는 현대 서울말</strong>을 기준으로 합니다.</li>
+    </ul>
+  </div>
+
+  <!-- ② 방언이란? -->
+  <div class="section-card">
+    <h2><span class="ico">🗺️</span> 방언이란 무엇일까요?</h2>
+    <div class="def-box">
+      <div class="term">방언 (方言) · 사투리</div>
+      <div class="meaning">특정 지역에서 주로 사용하는 말로, 표준어와 다른 표현을 가진 말입니다.<br>
+      지역의 역사와 문화를 담고 있는 소중한 언어 자산입니다.</div>
+    </div>
+    <ul class="info-list">
+      <li>우리나라는 산과 강이 많아 지역마다 고유한 방언이 발달했습니다.</li>
+      <li>방언은 그 지역 사람들의 생활과 정서를 담고 있습니다.</li>
+      <li>방언도 연구와 보존의 가치가 있는 중요한 언어 문화입니다.</li>
+      <li>방언은 언어의 다양성을 보여 주며, 시간이 지나면 표준어로 인정받기도 합니다.</li>
+    </ul>
+  </div>
+
+  <!-- ③ 국립국어원 링크 (먼저!) -->
+  <div class="section-card navy">
+    <h2><span class="ico">🔗</span> 국립국어원 누리집 활용하기</h2>
+    <p style="color:#555;margin-bottom:14px;line-height:1.65;">
+      국립국어원 누리집에서 <strong>지역별 방언을 검색하고 소리로 들을 수 있어요!</strong><br>
+      아래 단계를 따라 해 보세요.
+    </p>
+    <div class="step-flow">
+      <div class="step-item">
+        <div class="step-num">1</div>
+        <div class="step-text">국립국어원 누리집(<strong>korean.go.kr</strong>)에 접속합니다.</div>
+      </div>
+      <div class="step-item">
+        <div class="step-num">2</div>
+        <div class="step-text">검색창에 찾고 싶은 단어(예: <strong>'부추'</strong>)를 입력하고 검색합니다.</div>
+      </div>
+      <div class="step-item">
+        <div class="step-num">3</div>
+        <div class="step-text">검색 결과 맨 아래 <strong>'기타'</strong> 메뉴의 <strong>'지역어 듣기'</strong>를 클릭합니다.</div>
+      </div>
+      <div class="step-item">
+        <div class="step-num">4</div>
+        <div class="step-text">각 지역에서 그 단어를 어떻게 부르는지 확인하고 <strong>소리도 들어 보세요!</strong></div>
+      </div>
+    </div>
+
+    <a href="https://www.korean.go.kr" target="_blank" rel="noopener" class="link-banner">
+      <div class="link-ico">🏛️</div>
+      <div class="link-text">
+        <div class="link-title">국립국어원 누리집 바로가기</div>
+        <div class="link-url">www.korean.go.kr</div>
+      </div>
+      <div style="margin-left:auto;font-size:1.3rem;">→</div>
+    </a>
+  </div>
+
+  <!-- ④ 부추 방언 – 학생 직접 입력 -->
+  <div class="section-card pink">
+    <h2><span class="ico">🧅</span> '부추'를 지역마다 뭐라고 할까요?</h2>
+    <p style="color:#555;margin-bottom:16px;line-height:1.65;">
+      국립국어원 누리집에서 <strong>'부추'</strong>를 검색해 지역어 듣기를 확인하고,<br>
+      각 지역에서 부추를 뭐라고 부르는지 아래 빈칸에 써 보세요! 🖊️
+    </p>
+
+    <!-- 입력 테이블 -->
+    <div style="overflow-x:auto;">
+      <table class="dialect-table" id="dialectTable">
+        <thead>
+          <tr>
+            <th>지역</th>
+            <th>방언 표현 (직접 써 보기)</th>
+            <th>초성 힌트</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>강원도</strong><br><span style="font-size:.78rem;color:#777;">원주, 양양 등</span></td>
+            <td><input type="text" class="dialect-input" id="d-강원" placeholder="여기에 쓰세요" maxlength="6"></td>
+            <td><span class="hint-badge">ㅂ ㅊ</span></td>
+          </tr>
+          <tr>
+            <td><strong>경상도</strong><br><span style="font-size:.78rem;color:#777;">상주, 고령 등</span></td>
+            <td><input type="text" class="dialect-input" id="d-경상" placeholder="여기에 쓰세요" maxlength="6"></td>
+            <td><span class="hint-badge">ㅈ ㄱ ㅈ</span></td>
+          </tr>
+          <tr>
+            <td><strong>전라도</strong><br><span style="font-size:.78rem;color:#777;">산청, 남해 등</span></td>
+            <td><input type="text" class="dialect-input" id="d-전라" placeholder="여기에 쓰세요" maxlength="6"></td>
+            <td><span class="hint-badge">ㅅ ㅍ</span></td>
+          </tr>
+          <tr>
+            <td><strong>제주도</strong><br><span style="font-size:.78rem;color:#777;">서귀포, 한경 등</span></td>
+            <td><input type="text" class="dialect-input" id="d-제주" placeholder="여기에 쓰세요" maxlength="6"></td>
+            <td><span class="hint-badge">ㅅ ㅇ ㄹ</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- 확인 버튼 -->
+    <div style="display:flex;gap:10px;margin-top:16px;flex-wrap:wrap;">
+      <button class="check-btn" onclick="checkDialects()">✅ 정답 확인</button>
+      <button class="check-btn" style="background:#fff;color:var(--teal);border:2px solid var(--teal);" onclick="resetDialects()">🔄 다시 쓰기</button>
+    </div>
+
+    <!-- 결과 피드백 -->
+    <div id="dialectResult" style="display:none;margin-top:14px;"></div>
+
+    <div class="highlight-box" style="margin-top:16px;">
+      💡 <strong>같은 채소인데 지역마다 이름이 다르다니 신기하죠?</strong><br>
+      이렇듯 방언은 같은 대상을 다양한 말로 표현하는 언어의 다양성을 보여 줍니다.
+    </div>
+  </div>
+
+  <!-- ⑤ 표준어 vs 방언 비교 -->
+  <div class="section-card">
+    <h2><span class="ico">⚖️</span> 표준어와 방언의 차이</h2>
+    <div style="overflow-x:auto;">
+      <table class="dialect-table">
+        <thead>
+          <tr>
+            <th>구분</th>
+            <th>표준어</th>
+            <th>방언(사투리)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>사용 범위</strong></td>
+            <td>전국 어디서나</td>
+            <td>특정 지역 중심</td>
+          </tr>
+          <tr>
+            <td><strong>정하는 곳</strong></td>
+            <td>문화체육관광부</td>
+            <td>자연스럽게 형성</td>
+          </tr>
+          <tr>
+            <td><strong>사용 상황</strong></td>
+            <td>공식적·공적인 상황</td>
+            <td>가정·지역 커뮤니티</td>
+          </tr>
+          <tr>
+            <td><strong>가치</strong></td>
+            <td>통일된 소통 수단</td>
+            <td>지역 문화·역사 보존</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="highlight-box" style="margin-top:14px;">
+      🌟 <strong>표준어와 방언은 우열이 없습니다!</strong><br>
+      표준어가 중요하지만, 방언도 우리 언어 문화의 소중한 부분입니다.
+      방언을 사용한다고 해서 나쁜 것이 아니에요.
+      다양한 방언을 이해하고 존중하는 태도가 중요합니다.
+    </div>
+  </div>
+
+  <div style="text-align:center;padding:10px 0 20px;">
+    <button class="submit-btn" onclick="switchTab('quiz')" style="background:var(--gold);">
+      ✏️ 퀴즈 풀러 가기 →
+    </button>
+  </div>
+
+</div><!-- /tab-guide -->
+
+<!-- ══════════ 퀴즈 탭 ══════════ -->
+<div id="tab-quiz" class="page">
+
+  <div class="quiz-meta">
+    <div>
+      <div style="font-family:'Gowun Batang',serif;font-size:1.1rem;font-weight:700;color:var(--navy);">📝 표준어와 방언 퀴즈</div>
+      <div style="font-size:.82rem;color:#666;margin-top:2px;">총 10문제 · OX / 선택 / 빈칸</div>
+    </div>
+    <div class="score-wrap">
+      <div class="score-num" id="score-display">0</div>
+      <div class="score-label">/ 10 정답</div>
+    </div>
+  </div>
+
+  <!-- Q1 -->
+  <div class="quiz-card" id="qcard-1">
+    <div class="q-head">
+      <span class="q-num">Q1</span>
+      <span class="q-type-badge ox">O/X</span>
+    </div>
+    <div class="q-text">표준어는 교육부에서 정한다. (O / X)</div>
+    <div class="ox-buttons" style="margin-top:12px;">
+      <button class="ox-btn" onclick="answerOX(1,'O','X','❌ 표준어는 <strong>문화체육관광부</strong>에서 정합니다. 교육부가 아니에요!')">⭕</button>
+      <button class="ox-btn" onclick="answerOX(1,'X','X','✅ 맞아요! 표준어는 <strong>문화체육관광부</strong>에서 정합니다.')">✕</button>
+    </div>
+    <div class="q-feedback" id="qfb-1"></div>
+  </div>
+
+  <!-- Q2 -->
+  <div class="quiz-card" id="qcard-2">
+    <div class="q-head">
+      <span class="q-num">Q2</span>
+      <span class="q-type-badge ox">O/X</span>
+    </div>
+    <div class="q-text">방언은 특정 지역에서 주로 사용하는 말로, 표준어가 아닌 말을 가리킨다. (O / X)</div>
+    <div class="ox-buttons" style="margin-top:12px;">
+      <button class="ox-btn" onclick="answerOX(2,'O','O','✅ 정확합니다! 방언은 특정 지역에서 주로 사용하는 표준어가 아닌 말입니다.')">⭕</button>
+      <button class="ox-btn" onclick="answerOX(2,'X','O','❌ 방언은 특정 지역에서 주로 사용하는 표준어가 아닌 말입니다. O가 정답이에요!')">✕</button>
+    </div>
+    <div class="q-feedback" id="qfb-2"></div>
+  </div>
+
+  <!-- Q3 -->
+  <div class="quiz-card" id="qcard-3">
+    <div class="q-head">
+      <span class="q-num">Q3</span>
+      <span class="q-type-badge mc">선택형</span>
+    </div>
+    <div class="q-text">경상도(상주, 고령 등)에서 '부추'를 무엇이라고 부르나요?</div>
+    <div class="mc-options" style="margin-top:12px;">
+      <button class="mc-btn" onclick="answerMC(3,this,'정구지','정구지')">① 정구지</button>
+      <button class="mc-btn" onclick="answerMC(3,this,'분추','정구지')">② 분추</button>
+      <button class="mc-btn" onclick="answerMC(3,this,'소풀','정구지')">③ 소풀</button>
+      <button class="mc-btn" onclick="answerMC(3,this,'세우리','정구지')">④ 세우리</button>
+    </div>
+    <div class="q-feedback" id="qfb-3"></div>
+  </div>
+
+  <!-- Q4 -->
+  <div class="quiz-card" id="qcard-4">
+    <div class="q-head">
+      <span class="q-num">Q4</span>
+      <span class="q-type-badge mc">선택형</span>
+    </div>
+    <div class="q-text">강원도(원주, 양양 등)에서 '부추'를 무엇이라고 부르나요?</div>
+    <div class="mc-options" style="margin-top:12px;">
+      <button class="mc-btn" onclick="answerMC(4,this,'정구지','분추')">① 정구지</button>
+      <button class="mc-btn" onclick="answerMC(4,this,'분추','분추')">② 분추</button>
+      <button class="mc-btn" onclick="answerMC(4,this,'소풀','분추')">③ 소풀</button>
+      <button class="mc-btn" onclick="answerMC(4,this,'세우리','분추')">④ 세우리</button>
+    </div>
+    <div class="q-feedback" id="qfb-4"></div>
+  </div>
+
+  <!-- Q5 -->
+  <div class="quiz-card" id="qcard-5">
+    <div class="q-head">
+      <span class="q-num">Q5</span>
+      <span class="q-type-badge mc">선택형</span>
+    </div>
+    <div class="q-text">제주도(서귀포 등)에서 '부추'를 무엇이라고 부르나요?</div>
+    <div class="mc-options" style="margin-top:12px;">
+      <button class="mc-btn" onclick="answerMC(5,this,'소풀','세우리')">① 소풀</button>
+      <button class="mc-btn" onclick="answerMC(5,this,'정구지','세우리')">② 정구지</button>
+      <button class="mc-btn" onclick="answerMC(5,this,'분추','세우리')">③ 분추</button>
+      <button class="mc-btn" onclick="answerMC(5,this,'세우리','세우리')">④ 세우리</button>
+    </div>
+    <div class="q-feedback" id="qfb-5"></div>
+  </div>
+
+  <!-- Q6 -->
+  <div class="quiz-card" id="qcard-6">
+    <div class="q-head">
+      <span class="q-num">Q6</span>
+      <span class="q-type-badge fill">빈칸</span>
+    </div>
+    <div class="q-text">전라도(산청 등)에서 '부추'를 ( _____ )(이)라고 부릅니다.</div>
+    <input type="text" class="fill-input" id="qfill-6" placeholder="답을 입력하세요" oninput="this.classList.remove('correct','wrong')">
+    <button onclick="checkFill(6,'소풀',['소풀'])" style="margin-top:8px;padding:8px 20px;background:var(--teal);color:#fff;border:none;border-radius:8px;cursor:pointer;font-family:'Gowun Dodum',sans-serif;font-weight:700;">확인</button>
+    <div class="q-feedback" id="qfb-6"></div>
+  </div>
+
+  <!-- Q7 -->
+  <div class="quiz-card" id="qcard-7">
+    <div class="q-head">
+      <span class="q-num">Q7</span>
+      <span class="q-type-badge ox">O/X</span>
+    </div>
+    <div class="q-text">방언은 지역마다 다르기 때문에 표준어보다 가치가 낮다. (O / X)</div>
+    <div class="ox-buttons" style="margin-top:12px;">
+      <button class="ox-btn" onclick="answerOX(7,'O','X','❌ 방언과 표준어에는 우열이 없습니다! 방언도 소중한 언어 문화입니다.')">⭕</button>
+      <button class="ox-btn" onclick="answerOX(7,'X','X','✅ 맞아요! 방언은 표준어보다 낮은 것이 아니라, 지역 문화와 역사를 담은 소중한 언어입니다.')">✕</button>
+    </div>
+    <div class="q-feedback" id="qfb-7"></div>
+  </div>
+
+  <!-- Q8 -->
+  <div class="quiz-card" id="qcard-8">
+    <div class="q-head">
+      <span class="q-num">Q8</span>
+      <span class="q-type-badge mc">선택형</span>
+    </div>
+    <div class="q-text">지역별 방언(사투리)을 소리로 들을 수 있는 곳은 어디인가요?</div>
+    <div class="mc-options" style="margin-top:12px;">
+      <button class="mc-btn" onclick="answerMC(8,this,'교육부 누리집','국립국어원 누리집')">① 교육부 누리집</button>
+      <button class="mc-btn" onclick="answerMC(8,this,'국립국어원 누리집','국립국어원 누리집')">② 국립국어원 누리집</button>
+      <button class="mc-btn" onclick="answerMC(8,this,'문화체육관광부 누리집','국립국어원 누리집')">③ 문화체육관광부 누리집</button>
+      <button class="mc-btn" onclick="answerMC(8,this,'한국민속촌 누리집','국립국어원 누리집')">④ 한국민속촌 누리집</button>
+    </div>
+    <div class="q-feedback" id="qfb-8"></div>
+  </div>
+
+  <!-- Q9 -->
+  <div class="quiz-card" id="qcard-9">
+    <div class="q-head">
+      <span class="q-num">Q9</span>
+      <span class="q-type-badge ox">O/X</span>
+    </div>
+    <div class="q-text">우리나라는 산과 강이 많은 지형적 특성 때문에 지역마다 다른 방언이 발달했다. (O / X)</div>
+    <div class="ox-buttons" style="margin-top:12px;">
+      <button class="ox-btn" onclick="answerOX(9,'O','O','✅ 정확합니다! 산과 강이 많아 지역 간 교류가 제한되면서 고유한 방언이 발달했습니다.')">⭕</button>
+      <button class="ox-btn" onclick="answerOX(9,'X','O','❌ O가 정답이에요! 우리나라의 지형적 특성(산·강)이 방언 발달에 영향을 주었습니다.')">✕</button>
+    </div>
+    <div class="q-feedback" id="qfb-9"></div>
+  </div>
+
+  <!-- Q10 -->
+  <div class="quiz-card" id="qcard-10">
+    <div class="q-head">
+      <span class="q-num">Q10</span>
+      <span class="q-type-badge fill">빈칸</span>
+    </div>
+    <div class="q-text">국립국어원 누리집에서 방언을 검색할 때, 검색 결과 맨 아래 '기타' 메뉴의 ( _____ )를 클릭하면 지역별 발음을 들을 수 있습니다.</div>
+    <input type="text" class="fill-input" id="qfill-10" placeholder="답을 입력하세요" oninput="this.classList.remove('correct','wrong')">
+    <button onclick="checkFill(10,'지역어 듣기',['지역어 듣기','지역어듣기'])" style="margin-top:8px;padding:8px 20px;background:var(--teal);color:#fff;border:none;border-radius:8px;cursor:pointer;font-family:'Gowun Dodum',sans-serif;font-weight:700;">확인</button>
+    <div class="q-feedback" id="qfb-10"></div>
+  </div>
+
+  <!-- Submit -->
+  <div class="submit-wrap">
+    <button class="submit-btn" id="submit-btn" onclick="submitQuiz()">📊 최종 결과 확인</button>
+  </div>
+
+  <!-- Result -->
+  <div class="result-card" id="result-card">
+    <div class="result-emoji" id="result-emoji">🎉</div>
+    <div class="result-score" id="result-score">0 / 10</div>
+    <div class="result-bar"><div class="result-bar-fill" id="result-bar-fill"></div></div>
+    <div class="result-msg" id="result-msg"></div>
+    <button class="retry-btn" onclick="retryQuiz()">🔄 다시 풀기</button>
+  </div>
+
+</div><!-- /tab-quiz -->
+
+<script>
+// ── Dialect fill-in (안내자료 탭) ──
+const DIALECT_ANSWERS = {
+  '강원': ['분추'],
+  '경상': ['정구지'],
+  '전라': ['소풀'],
+  '제주': ['세우리']
+};
+
+function checkDialects(){
+  let correctCount = 0;
+  const total = Object.keys(DIALECT_ANSWERS).length;
+  const rows = [];
+
+  Object.entries(DIALECT_ANSWERS).forEach(([region, answers])=>{
+    const input = document.getElementById(`d-${region}`);
+    const val = input.value.trim();
+    if(!val){ input.focus(); return; }
+    const isOk = answers.includes(val);
+    if(isOk) correctCount++;
+    input.disabled = true;
+    input.classList.add(isOk ? 'correct' : 'wrong');
+    rows.push(`<tr>
+      <td style="padding:8px 10px;font-weight:700;">${region}도</td>
+      <td style="padding:8px 10px;">${isOk ? '⭕' : '❌'} 내 답: <strong>${val||'(빈칸)'}</strong></td>
+      <td style="padding:8px 10px;color:var(--teal);font-weight:700;">${isOk ? '' : '정답: '+answers[0]}</td>
+    </tr>`);
+  });
+
+  const resultEl = document.getElementById('dialectResult');
+  const allAnswered = [...document.querySelectorAll('.dialect-input')].every(i => i.value.trim() !== '');
+  if(!allAnswered){ alert('모든 빈칸을 채워 주세요!'); return; }
+
+  let emoji = correctCount === total ? '🎉' : correctCount >= 2 ? '😊' : '💪';
+  let msg = correctCount === total
+    ? '완벽해요! 모든 지역 방언을 맞혔어요!'
+    : `${correctCount}개 맞았어요! 틀린 부분을 확인해 보세요.`;
+
+  resultEl.innerHTML = `
+    <div style="background:#fff;border-radius:12px;padding:16px;box-shadow:0 2px 8px rgba(0,0,0,.08);">
+      <div style="text-align:center;font-family:'Gowun Batang',serif;font-size:1.2rem;margin-bottom:12px;">
+        ${emoji} ${msg} <strong style="color:var(--teal);">${correctCount}/${total}</strong>
+      </div>
+      <table style="width:100%;border-collapse:collapse;font-size:.9rem;">${rows.join('')}</table>
+    </div>`;
+  resultEl.style.display = 'block';
+}
+
+function resetDialects(){
+  ['강원','경상','전라','제주'].forEach(r=>{
+    const input = document.getElementById(`d-${r}`);
+    input.value = '';
+    input.disabled = false;
+    input.classList.remove('correct','wrong');
+  });
+  document.getElementById('dialectResult').style.display = 'none';
+}
+
+// ── Tab switch ──
+function switchTab(name){
+  document.querySelectorAll('.tab-btn').forEach((b,i)=>{
+    b.classList.toggle('active', ['guide','quiz'][i]===name);
+  });
+  document.querySelectorAll('.page').forEach((p,i)=>{
+    p.classList.toggle('active', ['tab-guide','tab-quiz'][i]==='tab-'+name);
+  });
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+// ── Quiz state ──
+const total = 10;
+const answered = {}; // qnum -> {correct:bool}
+
+function updateScoreDisplay(){
+  const correct = Object.values(answered).filter(a=>a.correct).length;
+  document.getElementById('score-display').textContent = correct;
+}
+
+// ── OX answer ──
+function answerOX(qnum, chosen, correct, msg){
+  if(answered[qnum]) return;
+  const btns = document.querySelectorAll(`#qcard-${qnum} .ox-btn`);
+  btns.forEach(b=>b.disabled=true);
+  const isCorrect = chosen===correct;
+  answered[qnum]={correct:isCorrect};
+  // style chosen btn
+  const idx = chosen==='O'?0:1;
+  btns[idx].classList.add('selected-'+chosen);
+  // feedback
+  const fb=document.getElementById(`qfb-${qnum}`);
+  fb.innerHTML=(isCorrect?'✅ ':'❌ ')+msg;
+  fb.className='q-feedback show '+(isCorrect?'ok':'ng');
+  updateScoreDisplay();
+}
+
+// ── MC answer ──
+function answerMC(qnum, btn, chosen, correct){
+  if(answered[qnum]) return;
+  const allBtns = document.querySelectorAll(`#qcard-${qnum} .mc-btn`);
+  allBtns.forEach(b=>b.disabled=true);
+  const isCorrect = chosen===correct;
+  answered[qnum]={correct:isCorrect};
+  btn.classList.add(isCorrect?'correct':'wrong');
+  if(!isCorrect){
+    allBtns.forEach(b=>{
+      if(b.textContent.includes(correct)) b.classList.add('correct');
+    });
+  }
+  const fb=document.getElementById(`qfb-${qnum}`);
+  fb.innerHTML = isCorrect
+    ? `✅ 정답이에요! <strong>'${correct}'</strong>가 맞습니다.`
+    : `❌ 정답은 <strong>'${correct}'</strong>입니다.`;
+  fb.className='q-feedback show '+(isCorrect?'ok':'ng');
+  updateScoreDisplay();
+}
+
+// ── Fill answer ──
+function checkFill(qnum, correct, alternates){
+  if(answered[qnum]) return;
+  const input=document.getElementById(`qfill-${qnum}`);
+  const val=input.value.trim();
+  if(!val){alert('답을 입력해 주세요!');return;}
+  const isCorrect = alternates.some(a=>a===val);
+  answered[qnum]={correct:isCorrect};
+  input.disabled=true;
+  input.classList.add(isCorrect?'correct':'wrong');
+  const fb=document.getElementById(`qfb-${qnum}`);
+  fb.innerHTML = isCorrect
+    ? `✅ 정답이에요! <strong>'${correct}'</strong>가 맞습니다.`
+    : `❌ 정답은 <strong>'${correct}'</strong>입니다. 입력한 답: '${val}'`;
+  fb.className='q-feedback show '+(isCorrect?'ok':'ng');
+  updateScoreDisplay();
+}
+
+// ── Submit ──
+function submitQuiz(){
+  const answeredCount = Object.keys(answered).length;
+  if(answeredCount < total){
+    const remain = total - answeredCount;
+    if(!confirm(`아직 ${remain}문제가 남았어요. 그래도 결과를 확인할까요?`)) return;
+  }
+  const correct = Object.values(answered).filter(a=>a.correct).length;
+  const pct = Math.round((correct/total)*100);
+
+  let emoji='😊', msg='';
+  if(correct===total){emoji='🏆';msg='완벽해요! 표준어와 방언에 대해 완전히 이해했군요! 훌륭합니다! 🎉';}
+  else if(correct>=8){emoji='🌟';msg='아주 잘했어요! 조금만 더 복습하면 완벽해질 거예요!';}
+  else if(correct>=6){emoji='😊';msg='잘 했어요! 안내자료를 다시 읽으며 틀린 문제를 복습해 보세요.';}
+  else if(correct>=4){emoji='📚';msg='조금 더 노력이 필요해요. 안내자료를 꼼꼼히 읽고 다시 도전해 보세요!';}
+  else{emoji='💪';msg='아직 어렵게 느껴지나요? 안내자료를 천천히 읽고 다시 도전해 봐요!';}
+
+  document.getElementById('result-emoji').textContent=emoji;
+  document.getElementById('result-score').textContent=`${correct} / ${total}`;
+  document.getElementById('result-msg').textContent=msg;
+  document.getElementById('submit-btn').disabled=true;
+
+  const card=document.getElementById('result-card');
+  card.classList.add('show');
+  setTimeout(()=>{
+    document.getElementById('result-bar-fill').style.width=pct+'%';
+  },200);
+  card.scrollIntoView({behavior:'smooth',block:'start'});
+}
+
+// ── Retry ──
+function retryQuiz(){
+  if(!confirm('퀴즈를 다시 시작할까요? 모든 답이 초기화됩니다.')) return;
+  Object.keys(answered).forEach(k=>delete answered[k]);
+  // reset OX buttons
+  document.querySelectorAll('.ox-btn').forEach(b=>{
+    b.disabled=false;
+    b.classList.remove('selected-O','selected-X');
+  });
+  // reset MC buttons
+  document.querySelectorAll('.mc-btn').forEach(b=>{
+    b.disabled=false;
+    b.classList.remove('selected','correct','wrong');
+  });
+  // reset fill inputs
+  document.querySelectorAll('.fill-input').forEach(inp=>{
+    inp.disabled=false;
+    inp.value='';
+    inp.classList.remove('correct','wrong');
+  });
+  // reset feedbacks
+  document.querySelectorAll('.q-feedback').forEach(fb=>{
+    fb.className='q-feedback';
+    fb.textContent='';
+  });
+  document.getElementById('score-display').textContent='0';
+  document.getElementById('submit-btn').disabled=false;
+  document.getElementById('result-card').classList.remove('show');
+  document.getElementById('result-bar-fill').style.width='0%';
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+</script>
+</body>
+</html>
