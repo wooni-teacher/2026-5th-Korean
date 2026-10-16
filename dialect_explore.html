@@ -1,0 +1,955 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>온라인 사전을 활용한 방언 탐구 활동지</title>
+<link href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=Gowun+Dodum&display=swap" rel="stylesheet">
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
+<style>
+:root{
+  --navy:#1F3350;
+  --gold:#B5933A;
+  --teal:#2D7A6B;
+  --bg:#F8F5EF;
+  --green:#10B981;
+  --red:#EF4444;
+  --orange:#F59E0B;
+  --purple:#7C3AED;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Gowun Dodum',sans-serif;background:var(--bg);color:#222;min-height:100vh;}
+
+/* ── header ── */
+header{
+  background:linear-gradient(135deg,var(--navy) 0%,#2E4A6E 100%);
+  color:#fff;
+  padding:24px 20px 20px;
+  text-align:center;
+  box-shadow:0 3px 12px rgba(0,0,0,.25);
+}
+header .badge{
+  display:inline-block;
+  background:var(--gold);
+  color:#fff;
+  font-size:.75rem;
+  font-weight:700;
+  padding:3px 12px;
+  border-radius:20px;
+  margin-bottom:10px;
+  letter-spacing:.05em;
+}
+header h1{
+  font-family:'Gowun Batang',serif;
+  font-size:1.6rem;
+  font-weight:700;
+}
+header .sub{margin-top:5px;font-size:.85rem;opacity:.8;}
+
+/* ── tab nav ── */
+.tab-nav{
+  display:flex;
+  background:var(--navy);
+  position:sticky;
+  top:0;
+  z-index:100;
+}
+.tab-btn{
+  flex:1;
+  padding:13px 8px;
+  background:none;
+  border:none;
+  color:rgba(255,255,255,.6);
+  font-family:'Gowun Dodum',sans-serif;
+  font-size:.95rem;
+  font-weight:700;
+  cursor:pointer;
+  border-bottom:3px solid transparent;
+  transition:.2s;
+}
+.tab-btn.active{color:#fff;border-bottom-color:var(--gold);}
+.tab-btn:hover{color:#fff;}
+
+/* ── pages ── */
+.page{display:none;padding:20px 16px 70px;max-width:760px;margin:0 auto;}
+.page.active{display:block;}
+
+/* ── student header ── */
+.student-bar{
+  display:flex;
+  gap:12px;
+  align-items:center;
+  background:#fff;
+  border-radius:14px;
+  padding:14px 18px;
+  margin-bottom:20px;
+  box-shadow:0 2px 8px rgba(0,0,0,.07);
+  flex-wrap:wrap;
+}
+.student-bar label{font-weight:700;color:var(--navy);font-size:.9rem;white-space:nowrap;}
+.student-select{
+  padding:7px 12px;
+  border:2px solid #DDD;
+  border-radius:8px;
+  font-family:'Gowun Dodum',sans-serif;
+  font-size:.95rem;
+  outline:none;
+  flex:1;
+  min-width:120px;
+}
+.student-select:focus{border-color:var(--teal);}
+
+/* ── info box ── */
+.info-box{
+  background:linear-gradient(135deg,#EFF6FF,#F0FDF4);
+  border:1.5px solid #BFDBFE;
+  border-radius:14px;
+  padding:16px 18px;
+  margin-bottom:20px;
+  font-size:.88rem;
+  line-height:1.75;
+  color:#333;
+}
+.info-box .info-title{
+  font-family:'Gowun Batang',serif;
+  font-weight:700;
+  color:var(--navy);
+  font-size:1rem;
+  margin-bottom:8px;
+  display:flex;
+  align-items:center;
+  gap:6px;
+}
+.method-row{
+  display:flex;
+  flex-direction:column;
+  gap:6px;
+}
+.method-item{
+  display:flex;
+  align-items:flex-start;
+  gap:8px;
+}
+.method-badge{
+  background:var(--teal);
+  color:#fff;
+  font-size:.72rem;
+  font-weight:700;
+  padding:2px 8px;
+  border-radius:10px;
+  white-space:nowrap;
+  flex-shrink:0;
+  margin-top:2px;
+}
+.link-row{
+  display:flex;
+  gap:10px;
+  margin-top:10px;
+  flex-wrap:wrap;
+}
+.ext-link{
+  display:inline-flex;
+  align-items:center;
+  gap:5px;
+  padding:6px 14px;
+  border-radius:8px;
+  font-size:.82rem;
+  font-weight:700;
+  text-decoration:none;
+  transition:.15s;
+}
+.ext-link.korean{background:var(--navy);color:#fff;}
+.ext-link.naver{background:#03C75A;color:#fff;}
+.ext-link:hover{opacity:.85;transform:translateY(-1px);}
+
+/* ── goal box ── */
+.goal-box{
+  background:#FFF8E7;
+  border-left:4px solid var(--gold);
+  border-radius:0 10px 10px 0;
+  padding:10px 14px;
+  margin-bottom:20px;
+  font-size:.9rem;
+  color:#444;
+}
+.goal-box strong{color:var(--navy);}
+
+/* ── explore table ── */
+.section-title{
+  font-family:'Gowun Batang',serif;
+  font-size:1.05rem;
+  font-weight:700;
+  color:var(--navy);
+  margin-bottom:12px;
+  display:flex;
+  align-items:center;
+  gap:8px;
+}
+.explore-table{
+  width:100%;
+  border-collapse:collapse;
+  background:#fff;
+  border-radius:14px;
+  overflow:hidden;
+  box-shadow:0 2px 10px rgba(0,0,0,.07);
+  margin-bottom:20px;
+}
+.explore-table th{
+  background:var(--navy);
+  color:#fff;
+  padding:11px 10px;
+  font-size:.85rem;
+  text-align:center;
+  font-weight:700;
+}
+.explore-table th:first-child{width:52px;}
+.explore-table th:nth-child(2){width:110px;}
+.explore-table td{
+  padding:10px 10px;
+  border-bottom:1px solid #EEE;
+  vertical-align:middle;
+  text-align:center;
+}
+.explore-table tr:last-child td{border-bottom:none;}
+.explore-table tr:nth-child(even) td{background:#FAFAF7;}
+
+.row-num{
+  font-family:'Gowun Batang',serif;
+  font-size:1.1rem;
+  font-weight:700;
+  color:var(--teal);
+}
+.std-word{
+  font-family:'Gowun Batang',serif;
+  font-size:1rem;
+  font-weight:700;
+  color:var(--navy);
+  padding:4px 6px;
+  background:#EFF6FF;
+  border-radius:6px;
+}
+.std-input{
+  width:100%;
+  padding:7px 10px;
+  border:1.5px solid #DDD;
+  border-radius:8px;
+  font-family:'Gowun Batang',serif;
+  font-size:.95rem;
+  text-align:center;
+  outline:none;
+  transition:.15s;
+  color:var(--navy);
+}
+.std-input:focus{border-color:var(--teal);}
+.dialect-textarea{
+  width:100%;
+  padding:8px 10px;
+  border:1.5px solid #DDD;
+  border-radius:8px;
+  font-family:'Gowun Dodum',sans-serif;
+  font-size:.88rem;
+  resize:vertical;
+  min-height:52px;
+  outline:none;
+  line-height:1.5;
+  transition:.15s;
+}
+.dialect-textarea:focus{border-color:var(--teal);}
+.example-tag{
+  display:inline-block;
+  background:#FFF3CD;
+  color:#856404;
+  border-radius:6px;
+  padding:1px 7px;
+  font-size:.72rem;
+  font-weight:700;
+  margin-right:4px;
+}
+
+/* ── card section ── */
+.card-guide{
+  background:#F3E8FF;
+  border-radius:12px;
+  padding:14px 16px;
+  margin-bottom:18px;
+  font-size:.88rem;
+  line-height:1.7;
+  color:#4C1D95;
+  border-left:4px solid var(--purple);
+}
+.card-guide strong{color:#3B0764;}
+
+.dialect-card-wrap{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:14px;
+  margin-bottom:18px;
+}
+@media(max-width:500px){.dialect-card-wrap{grid-template-columns:1fr;}}
+
+.dialect-card{
+  background:#fff;
+  border-radius:14px;
+  box-shadow:0 2px 10px rgba(0,0,0,.09);
+  overflow:hidden;
+  border:1.5px solid #DDD;
+}
+.card-front,.card-back{
+  padding:16px;
+}
+.card-front{
+  background:linear-gradient(135deg,#1F3350,#2E4A6E);
+  color:#fff;
+  min-height:100px;
+}
+.card-front-label{
+  font-size:.7rem;
+  opacity:.6;
+  margin-bottom:6px;
+  letter-spacing:.05em;
+}
+.card-front-dialect{
+  font-family:'Gowun Batang',serif;
+  font-size:1.4rem;
+  font-weight:700;
+  margin-bottom:4px;
+  min-height:1.8rem;
+}
+.card-front-region{
+  font-size:.8rem;
+  opacity:.75;
+  min-height:1.2rem;
+}
+.card-back{
+  border-top:1.5px dashed #DDD;
+  background:#FAFAF7;
+}
+.card-back-label{
+  font-size:.7rem;
+  color:#888;
+  margin-bottom:4px;
+  letter-spacing:.05em;
+}
+.card-back-std{
+  font-family:'Gowun Batang',serif;
+  font-size:1.1rem;
+  font-weight:700;
+  color:var(--teal);
+  min-height:1.5rem;
+}
+
+.card-input{
+  width:100%;
+  border:none;
+  background:transparent;
+  font-family:'Gowun Batang',serif;
+  font-size:1.2rem;
+  font-weight:700;
+  color:#fff;
+  outline:none;
+  padding:0;
+}
+.card-input::placeholder{color:rgba(255,255,255,.4);}
+.card-input-region{
+  width:100%;
+  border:none;
+  background:transparent;
+  font-family:'Gowun Dodum',sans-serif;
+  font-size:.82rem;
+  color:rgba(255,255,255,.8);
+  outline:none;
+  padding:0;
+}
+.card-input-region::placeholder{color:rgba(255,255,255,.3);}
+.card-back-std-input{
+  width:100%;
+  border:none;
+  background:transparent;
+  font-family:'Gowun Batang',serif;
+  font-size:1rem;
+  font-weight:700;
+  color:var(--teal);
+  outline:none;
+  padding:0;
+}
+.card-back-std-input::placeholder{color:#AAA;}
+
+/* ── submit ── */
+.submit-area{
+  text-align:center;
+  padding:10px 0 20px;
+}
+.submit-btn{
+  background:var(--teal);
+  color:#fff;
+  border:none;
+  border-radius:14px;
+  padding:15px 44px;
+  font-family:'Gowun Batang',serif;
+  font-size:1.1rem;
+  font-weight:700;
+  cursor:pointer;
+  transition:.15s;
+  box-shadow:0 4px 14px rgba(45,122,107,.3);
+}
+.submit-btn:hover{background:#235f54;transform:translateY(-1px);}
+.submit-btn:disabled{background:#A0AEC0;cursor:not-allowed;transform:none;box-shadow:none;}
+
+.save-status{
+  margin-top:10px;
+  font-size:.85rem;
+  color:#555;
+  min-height:1.2rem;
+}
+.save-status.ok{color:var(--green);}
+.save-status.err{color:var(--red);}
+
+/* ── admin tab ── */
+.admin-login{
+  background:#fff;
+  border-radius:16px;
+  padding:30px 24px;
+  text-align:center;
+  box-shadow:0 2px 10px rgba(0,0,0,.08);
+  max-width:380px;
+  margin:0 auto;
+}
+.admin-login h3{font-family:'Gowun Batang',serif;color:var(--navy);margin-bottom:16px;font-size:1.1rem;}
+.pw-input{
+  width:100%;
+  padding:11px 14px;
+  border:2px solid #DDD;
+  border-radius:10px;
+  font-size:1rem;
+  font-family:'Gowun Dodum',sans-serif;
+  text-align:center;
+  outline:none;
+  margin-bottom:12px;
+  letter-spacing:.2em;
+}
+.pw-input:focus{border-color:var(--teal);}
+.pw-btn{
+  width:100%;
+  padding:11px;
+  background:var(--navy);
+  color:#fff;
+  border:none;
+  border-radius:10px;
+  font-family:'Gowun Dodum',sans-serif;
+  font-size:1rem;
+  font-weight:700;
+  cursor:pointer;
+}
+.pw-btn:hover{background:#2E4A6E;}
+
+.admin-panel{display:none;}
+.admin-panel.show{display:block;}
+
+.admin-card{
+  background:#fff;
+  border-radius:14px;
+  padding:20px;
+  margin-bottom:16px;
+  box-shadow:0 2px 8px rgba(0,0,0,.07);
+}
+.admin-card .student-name{
+  font-family:'Gowun Batang',serif;
+  font-size:1.05rem;
+  font-weight:700;
+  color:var(--navy);
+  margin-bottom:14px;
+  padding-bottom:8px;
+  border-bottom:2px solid #EEE;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  flex-wrap:wrap;
+  gap:8px;
+}
+.admin-time{font-size:.75rem;color:#999;font-weight:400;font-family:'Gowun Dodum',sans-serif;}
+.admin-rows{width:100%;border-collapse:collapse;font-size:.88rem;}
+.admin-rows th{background:#F0F0F0;padding:7px 10px;text-align:left;color:#555;font-weight:700;}
+.admin-rows td{padding:7px 10px;border-bottom:1px solid #F5F5F5;vertical-align:top;line-height:1.5;}
+.admin-rows tr:last-child td{border-bottom:none;}
+.admin-rows .std-col{width:90px;font-weight:700;color:var(--navy);}
+.admin-rows .dialect-col{color:#333;}
+
+.admin-controls{
+  display:flex;
+  gap:10px;
+  margin-bottom:20px;
+  flex-wrap:wrap;
+}
+.ctrl-btn{
+  padding:9px 20px;
+  border-radius:10px;
+  border:none;
+  font-family:'Gowun Dodum',sans-serif;
+  font-size:.88rem;
+  font-weight:700;
+  cursor:pointer;
+  transition:.15s;
+}
+.ctrl-btn.print{background:var(--navy);color:#fff;}
+.ctrl-btn.reset{background:#FEF2F2;color:var(--red);border:1.5px solid var(--red);}
+.ctrl-btn:hover{opacity:.85;}
+
+.no-data{text-align:center;padding:40px;color:#AAA;font-size:.9rem;}
+
+/* ── cards in admin ── */
+.admin-cards-row{
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap;
+  margin-top:8px;
+}
+.admin-mini-card{
+  background:var(--navy);
+  color:#fff;
+  border-radius:10px;
+  padding:10px 14px;
+  font-size:.85rem;
+  min-width:100px;
+}
+.admin-mini-card .mc-dialect{font-family:'Gowun Batang',serif;font-size:1rem;font-weight:700;}
+.admin-mini-card .mc-region{font-size:.72rem;opacity:.7;margin:2px 0;}
+.admin-mini-card .mc-std{font-size:.72rem;opacity:.6;border-top:1px dashed rgba(255,255,255,.3);padding-top:5px;margin-top:5px;}
+
+@media(min-width:640px){
+  .page{padding:24px 20px 70px;}
+  header h1{font-size:1.9rem;}
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="badge">5-2 국어 3단원 · 3차시</div>
+  <h1>🔍 온라인 사전으로 방언 탐구</h1>
+  <div class="sub">국립국어원 &amp; 네이버 사전을 활용해 방언을 찾아봐요!</div>
+</header>
+
+<div class="tab-nav">
+  <button class="tab-btn active" onclick="switchTab('explore')">🔍 방언 탐구</button>
+  <button class="tab-btn" onclick="switchTab('card')">🃏 방언 카드</button>
+  <button class="tab-btn" onclick="switchTab('admin')">🔐 관리자</button>
+</div>
+
+<!-- ══════════ 방언 탐구 탭 ══════════ -->
+<div id="tab-explore" class="page active">
+
+  <!-- 학생 선택 -->
+  <div class="student-bar">
+    <label>👤 이름:</label>
+    <select class="student-select" id="studentSelect" onchange="onStudentChange()">
+      <option value="">-- 내 이름을 선택하세요 --</option>
+      <option>1_김다온</option><option>2_이서준</option><option>3_박지우</option>
+      <option>4_최하은</option><option>5_정민준</option><option>6_윤서아</option>
+      <option>7_강도윤</option><option>8_임지민</option><option>9_한소율</option>
+      <option>10_오주원</option><option>11_신예린</option><option>12_황태양</option>
+      <option>13_백나은</option><option>14_류찬우</option><option>15_조하린</option>
+    </select>
+    <div id="autoSaveStatus" class="save-status"></div>
+  </div>
+
+  <!-- 배움 목표 -->
+  <div class="goal-box">
+    🎯 <strong>배움 목표:</strong> 표준어와 방언을 조사하고 알아봅시다.
+  </div>
+
+  <!-- 온라인 사전 안내 -->
+  <div class="info-box">
+    <div class="info-title">🌐 온라인 사전 활용 안내</div>
+    <div class="method-row">
+      <div class="method-item">
+        <span class="method-badge">방법 1</span>
+        <span><strong>국립국어원 어휘 조사:</strong> [조사 자료 검색] → [어휘 조사] → '표준어' 선택 후 검색</span>
+      </div>
+      <div class="method-item">
+        <span class="method-badge">방법 2</span>
+        <span><strong>국립국어원 지역어 지도:</strong> [지역어 지도] 탭 선택 → 지도에서 각 지역별 방언 확인</span>
+      </div>
+      <div class="method-item">
+        <span class="method-badge">방법 3</span>
+        <span><strong>네이버 국어사전:</strong> 알고 있는 방언 낱말 직접 검색(예: 정구지) → 뜻풀이에서 '표준어' 확인</span>
+      </div>
+    </div>
+    <div class="link-row">
+      <a href="https://www.korean.go.kr" target="_blank" rel="noopener" class="ext-link korean">🏛️ 국립국어원</a>
+      <a href="https://ko.dict.naver.com" target="_blank" rel="noopener" class="ext-link naver">📗 네이버 국어사전</a>
+      <a href="https://dialect.korean.go.kr" target="_blank" rel="noopener" class="ext-link" style="background:#E8F4FD;color:#1a6fa3;">🗺️ 지역어 종합 정보</a>
+    </div>
+  </div>
+
+  <!-- 탐구 표 -->
+  <div class="section-title">📋 방언 탐구 기록표</div>
+  <p style="font-size:.83rem;color:#777;margin-bottom:12px;">* 내가 먼저 방언을 찾아 적고, 빈 칸은 친구들의 발표를 들으며 추가로 채워봐요!</p>
+
+  <table class="explore-table" id="exploreTable">
+    <thead>
+      <tr>
+        <th>순번</th>
+        <th>표준어<br>(찾고 싶은 낱말)</th>
+        <th>찾은 방언 (사용 지역)</th>
+      </tr>
+    </thead>
+    <tbody id="exploreTbody">
+      <!-- JS로 렌더링 -->
+    </tbody>
+  </table>
+
+  <div class="submit-area">
+    <button class="submit-btn" id="submitExploreBtn" onclick="submitExplore()">
+      💾 탐구 내용 저장하기
+    </button>
+    <div class="save-status" id="submitStatus"></div>
+  </div>
+
+</div><!-- /tab-explore -->
+
+<!-- ══════════ 방언 카드 탭 ══════════ -->
+<div id="tab-card" class="page">
+
+  <div class="student-bar" style="margin-bottom:16px;">
+    <label>👤 이름:</label>
+    <select class="student-select" id="studentSelectCard" onchange="onStudentChange()">
+      <option value="">-- 내 이름을 선택하세요 --</option>
+      <option>1_김다온</option><option>2_이서준</option><option>3_박지우</option>
+      <option>4_최하은</option><option>5_정민준</option><option>6_윤서아</option>
+      <option>7_강도윤</option><option>8_임지민</option><option>9_한소율</option>
+      <option>10_오주원</option><option>11_신예린</option><option>12_황태양</option>
+      <option>13_백나은</option><option>14_류찬우</option><option>15_조하린</option>
+    </select>
+  </div>
+
+  <div class="card-guide">
+    🃏 <strong>[발표 준비] 방언 카드 만들기</strong><br>
+    위에서 찾은 방언 중 <strong>몇 가지를 골라</strong> 방언 카드를 만들어요.<br>
+    앞면: 방언 낱말 + 사용 지역 &nbsp;|&nbsp; 뒷면: 알맞은 <strong>표준어</strong>
+  </div>
+
+  <div class="dialect-card-wrap" id="cardWrap">
+    <!-- JS로 렌더링 -->
+  </div>
+
+  <div style="text-align:center;margin-bottom:20px;">
+    <button onclick="addCard()" style="padding:9px 22px;background:var(--purple);color:#fff;border:none;border-radius:10px;font-family:'Gowun Dodum',sans-serif;font-weight:700;cursor:pointer;font-size:.9rem;">
+      ＋ 카드 추가
+    </button>
+  </div>
+
+  <div class="submit-area">
+    <button class="submit-btn" id="submitCardBtn" onclick="submitCards()" style="background:var(--purple);">
+      💾 방언 카드 저장하기
+    </button>
+    <div class="save-status" id="submitCardStatus"></div>
+  </div>
+
+</div><!-- /tab-card -->
+
+<!-- ══════════ 관리자 탭 ══════════ -->
+<div id="tab-admin" class="page">
+
+  <!-- 로그인 -->
+  <div class="admin-login" id="adminLogin">
+    <h3>🔐 관리자 로그인</h3>
+    <input type="password" class="pw-input" id="pwInput" placeholder="비밀번호" onkeydown="if(event.key==='Enter')checkPw()">
+    <button class="pw-btn" onclick="checkPw()">확인</button>
+    <div style="margin-top:8px;color:var(--red);font-size:.85rem;" id="pwErr"></div>
+  </div>
+
+  <div class="admin-panel" id="adminPanel">
+    <div class="admin-controls">
+      <button class="ctrl-btn print" onclick="printAdmin()">🖨️ 인쇄</button>
+      <button class="ctrl-btn reset" onclick="resetAll()">🗑️ 전체 초기화</button>
+    </div>
+    <div id="adminContent"><div class="no-data">데이터를 불러오는 중...</div></div>
+  </div>
+
+</div><!-- /tab-admin -->
+
+<script>
+// ── Firebase ──
+firebase.initializeApp({
+  apiKey:"AIzaSyExample-replaceWithRealKey",
+  authDomain:"banwel-51.firebaseapp.com",
+  databaseURL:"https://banwel-51-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId:"banwel-51"
+});
+const db = firebase.database();
+const REF = 'classroom/dialect_explore';
+
+// ── 탐구 항목 데이터 ──
+const EXPLORE_ITEMS = [
+  { id:1, std:'부추',    fixed:true,  hint:'예시: 정구지(경남), 분추(강원도/충청북도),' },
+  { id:2, std:'깨끗하다', fixed:true,  hint:'예시: 깨갓하다(전라/충청), 깔끔하다(충청북도),' },
+  { id:3, std:'할머니',   fixed:true,  hint:'' },
+  { id:4, std:'',        fixed:false, hint:'' },
+  { id:5, std:'',        fixed:false, hint:'' },
+  { id:6, std:'',        fixed:false, hint:'' },
+  { id:7, std:'',        fixed:false, hint:'' },
+  { id:8, std:'',        fixed:false, hint:'' },
+];
+
+// ── 학생 상태 ──
+let currentStudent = '';
+let exploreData = {}; // {std_1:'', dialect_1:'', ...}
+let cardData = [];    // [{dialect:'', region:'', std:''}, ...]
+
+// ── Tab switch ──
+function switchTab(name){
+  ['explore','card','admin'].forEach((t,i)=>{
+    document.querySelectorAll('.tab-btn')[i].classList.toggle('active', t===name);
+    document.getElementById(`tab-${t}`).classList.toggle('active', t===name);
+  });
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+// ── Student change ──
+function onStudentChange(){
+  const s1 = document.getElementById('studentSelect').value;
+  const s2 = document.getElementById('studentSelectCard').value;
+  const newStudent = s1 || s2;
+
+  // sync both selects
+  document.getElementById('studentSelect').value = newStudent;
+  document.getElementById('studentSelectCard').value = newStudent;
+
+  if(newStudent === currentStudent) return;
+  currentStudent = newStudent;
+  if(!currentStudent) return;
+  loadStudentData();
+}
+
+// ── Render explore tbody ──
+function renderExploreTbody(){
+  const tbody = document.getElementById('exploreTbody');
+  tbody.innerHTML = '';
+  EXPLORE_ITEMS.forEach(item=>{
+    const tr = document.createElement('tr');
+    const stdVal = exploreData[`std_${item.id}`] ?? item.std;
+    const dialectVal = exploreData[`dialect_${item.id}`] ?? '';
+
+    let stdCell = item.fixed
+      ? `<span class="std-word">${item.std}</span>`
+      : `<input type="text" class="std-input" id="std_${item.id}" placeholder="낱말 입력" value="${stdVal}" oninput="exploreData['std_${item.id}']=this.value">`;
+
+    let hintHtml = item.hint ? `<div style="margin-bottom:4px;"><span class="example-tag">예시</span><span style="font-size:.8rem;color:#888;">${item.hint}</span></div>` : '';
+
+    tr.innerHTML = `
+      <td><span class="row-num">${item.id}</span></td>
+      <td>${stdCell}</td>
+      <td>
+        ${hintHtml}
+        <textarea class="dialect-textarea" id="dialect_${item.id}" placeholder="방언과 사용 지역을 써 보세요&#10;예: 정구지(경남), 분추(강원)" oninput="exploreData['dialect_${item.id}']=this.value">${dialectVal}</textarea>
+      </td>`;
+    tbody.appendChild(tr);
+    if(item.fixed) tr.querySelector('.std-input')?.addEventListener('input', e=>{ exploreData[`std_${item.id}`]=e.target.value; });
+  });
+}
+
+// ── Render cards ──
+function renderCards(){
+  const wrap = document.getElementById('cardWrap');
+  wrap.innerHTML = '';
+  if(cardData.length === 0){
+    // 기본 카드 3개
+    cardData = [{dialect:'',region:'',std:''},{dialect:'',region:'',std:''},{dialect:'',region:'',std:''}];
+  }
+  cardData.forEach((c,i)=>{
+    const div = document.createElement('div');
+    div.className = 'dialect-card';
+    div.innerHTML = `
+      <div class="card-front">
+        <div class="card-front-label">앞면 · 방언 낱말</div>
+        <input class="card-input" id="cd_${i}" placeholder="방언 낱말" value="${c.dialect}" oninput="cardData[${i}].dialect=this.value">
+        <input class="card-input-region" id="cr_${i}" placeholder="사용 지역 (예: 경남)" value="${c.region}" oninput="cardData[${i}].region=this.value">
+      </div>
+      <div class="card-back">
+        <div class="card-back-label">뒷면 · 표준어</div>
+        <input class="card-back-std-input" id="cs_${i}" placeholder="표준어를 쓰세요" value="${c.std}" oninput="cardData[${i}].std=this.value">
+      </div>`;
+    wrap.appendChild(div);
+  });
+}
+
+function addCard(){
+  cardData.push({dialect:'',region:'',std:''});
+  renderCards();
+}
+
+// ── Load ──
+function loadStudentData(){
+  if(!currentStudent) return;
+  const key = currentStudent.replace(/[.#$/\[\]]/g,'_');
+  db.ref(`${REF}/${key}`).once('value').then(snap=>{
+    const data = snap.val() || {};
+    exploreData = data.explore || {};
+    cardData = data.cards || [];
+    renderExploreTbody();
+    renderCards();
+    document.getElementById('autoSaveStatus').textContent = data.savedAt
+      ? `최근 저장: ${new Date(data.savedAt).toLocaleString('ko-KR',{month:'numeric',day:'numeric',hour:'2-digit',minute:'2-digit'})}`
+      : '';
+    document.getElementById('autoSaveStatus').className = 'save-status';
+  });
+}
+
+// ── Submit explore ──
+function submitExplore(){
+  if(!currentStudent){ alert('먼저 이름을 선택해 주세요!'); return; }
+
+  // collect textarea values
+  EXPLORE_ITEMS.forEach(item=>{
+    const ta = document.getElementById(`dialect_${item.id}`);
+    if(ta) exploreData[`dialect_${item.id}`] = ta.value;
+    if(!item.fixed){
+      const si = document.getElementById(`std_${item.id}`);
+      if(si) exploreData[`std_${item.id}`] = si.value;
+    }
+  });
+
+  const key = currentStudent.replace(/[.#$/\[\]]/g,'_');
+  const btn = document.getElementById('submitExploreBtn');
+  const status = document.getElementById('submitStatus');
+  btn.disabled = true;
+  status.textContent = '저장 중...';
+
+  db.ref(`${REF}/${key}`).update({
+    name: currentStudent,
+    explore: exploreData,
+    savedAt: Date.now()
+  }).then(()=>{
+    status.textContent = '✅ 저장 완료!';
+    status.className = 'save-status ok';
+    document.getElementById('autoSaveStatus').textContent = `최근 저장: 방금`;
+    btn.disabled = false;
+    setTimeout(()=>{ status.textContent=''; status.className='save-status'; },3000);
+  }).catch(err=>{
+    status.textContent = '❌ 저장 실패: '+err.message;
+    status.className = 'save-status err';
+    btn.disabled = false;
+  });
+}
+
+// ── Submit cards ──
+function submitCards(){
+  if(!currentStudent){ alert('먼저 이름을 선택해 주세요!'); return; }
+
+  // collect inputs
+  cardData.forEach((c,i)=>{
+    c.dialect = document.getElementById(`cd_${i}`)?.value || c.dialect;
+    c.region  = document.getElementById(`cr_${i}`)?.value || c.region;
+    c.std     = document.getElementById(`cs_${i}`)?.value || c.std;
+  });
+
+  const key = currentStudent.replace(/[.#$/\[\]]/g,'_');
+  const btn = document.getElementById('submitCardBtn');
+  const status = document.getElementById('submitCardStatus');
+  btn.disabled = true;
+  status.textContent = '저장 중...';
+
+  db.ref(`${REF}/${key}`).update({
+    name: currentStudent,
+    cards: cardData,
+    savedAt: Date.now()
+  }).then(()=>{
+    status.textContent = '✅ 방언 카드 저장 완료!';
+    status.className = 'save-status ok';
+    btn.disabled = false;
+    setTimeout(()=>{ status.textContent=''; status.className='save-status'; },3000);
+  }).catch(err=>{
+    status.textContent = '❌ 저장 실패: '+err.message;
+    status.className = 'save-status err';
+    btn.disabled = false;
+  });
+}
+
+// ── Admin ──
+function checkPw(){
+  if(document.getElementById('pwInput').value === '126758'){
+    document.getElementById('adminLogin').style.display='none';
+    document.getElementById('adminPanel').classList.add('show');
+    loadAdminData();
+  } else {
+    document.getElementById('pwErr').textContent='비밀번호가 틀렸습니다.';
+  }
+}
+
+function loadAdminData(){
+  db.ref(REF).once('value').then(snap=>{
+    const data = snap.val();
+    const container = document.getElementById('adminContent');
+    if(!data){ container.innerHTML='<div class="no-data">아직 제출된 내용이 없습니다.</div>'; return; }
+
+    let html = '';
+    Object.values(data).sort((a,b)=>(a.name||'').localeCompare(b.name||'')).forEach(student=>{
+      const name = student.name || '이름 없음';
+      const exp = student.explore || {};
+      const cards = student.cards || [];
+      const time = student.savedAt ? new Date(student.savedAt).toLocaleString('ko-KR',{month:'numeric',day:'numeric',hour:'2-digit',minute:'2-digit'}) : '';
+
+      // explore rows
+      let expRows = '';
+      EXPLORE_ITEMS.forEach(item=>{
+        const stdVal = item.fixed ? item.std : (exp[`std_${item.id}`]||'');
+        const dialVal = exp[`dialect_${item.id}`]||'';
+        if(!stdVal && !dialVal) return;
+        expRows += `<tr>
+          <td class="std-col">${item.id}. ${stdVal||'(미입력)'}</td>
+          <td class="dialect-col">${dialVal||'—'}</td>
+        </tr>`;
+      });
+
+      // cards
+      let cardHtml = '';
+      if(cards.length){
+        const validCards = cards.filter(c=>c.dialect||c.std);
+        if(validCards.length){
+          cardHtml = `<div style="margin-top:10px;font-size:.82rem;font-weight:700;color:var(--purple);margin-bottom:6px;">🃏 방언 카드 (${validCards.length}장)</div>
+          <div class="admin-cards-row">
+            ${validCards.map(c=>`<div class="admin-mini-card">
+              <div class="mc-dialect">${c.dialect||'—'}</div>
+              <div class="mc-region">${c.region||''}</div>
+              <div class="mc-std">표준어: ${c.std||'—'}</div>
+            </div>`).join('')}
+          </div>`;
+        }
+      }
+
+      html += `<div class="admin-card">
+        <div class="student-name">
+          <span>${name}</span>
+          <span class="admin-time">${time}</span>
+        </div>
+        ${expRows ? `<table class="admin-rows">
+          <thead><tr><th>표준어</th><th>찾은 방언 (사용 지역)</th></tr></thead>
+          <tbody>${expRows}</tbody>
+        </table>` : '<div style="color:#AAA;font-size:.85rem;padding:6px 0;">탐구 기록 없음</div>'}
+        ${cardHtml}
+      </div>`;
+    });
+    container.innerHTML = html || '<div class="no-data">데이터가 없습니다.</div>';
+  });
+}
+
+function printAdmin(){
+  window.print();
+}
+
+function resetAll(){
+  if(!confirm('⚠️ 모든 학생의 데이터를 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.')) return;
+  if(!confirm('정말로 전체 데이터를 삭제하시겠습니까?')) return;
+  db.ref(REF).remove().then(()=>{
+    alert('삭제 완료');
+    loadAdminData();
+  });
+}
+
+// ── Init ──
+renderExploreTbody();
+renderCards();
+</script>
+</body>
+</html>
