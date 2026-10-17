@@ -715,7 +715,7 @@ function renderTurnUI(players, s){
 
   if(curKey&&players[curKey]){
     const cp=players[curKey];
-    badge.textContent=`${cp.piece} ${(cp.name||'').replace(/^\d+_/','')}의 차례`;
+    badge.textContent=`${cp.piece} ${(cp.name||'').replace(/^\d+_/,'')}의 차례`;
   }
   const me=players[`${myG}_${myN}`];
   if(me) myInfo.textContent=`${me.piece||''} ${(me.name||'').replace(/^\d+_/,'')} · ${me.letters||0}글자`;
