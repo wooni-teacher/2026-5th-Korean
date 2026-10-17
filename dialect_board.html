@@ -367,10 +367,10 @@ const TARGET = '표준어와방언을알아봐요'; // 11글자
 const LETTERS = [...TARGET];
 
 const MEMBERS = {
-  1:['1_김다온','2_김도영','3_김채화','4_백수민'],
-  2:['5_소진호','6_신은비','7_유준선','8_윤하늘'],
-  3:['9_이보현','10_이지은','11_임규원','12_임휘재'],
-  4:['13_장문혁','14_장준혁','15_한승우'],
+  1:['신은비','소진호','장준혁','백수민'],
+  2:['김채화','임규원','유준선','윤하늘'],
+  3:['김다온','김도영','장문혁','이보현'],
+  4:['이지은','임휘재','한승우'],
 };
 const GCOLORS = { 1:'#E74C3C', 2:'#2D7A6B', 3:'#7C3AED', 4:'#B5933A' };
 const MEDALS = ['🥇','🥈','🥉','4️⃣','5️⃣','6️⃣'];
@@ -500,7 +500,7 @@ function renderNames(data={}){
   (MEMBERS[myG]||[]).forEach(name=>{
     const btn=document.createElement('button');
     btn.className='name-chip'+(myN===name?' selected':'')+(taken[name]&&myN!==name?' taken':'');
-    btn.textContent=name.replace(/^\d+_/,'');
+    btn.textContent=name;
     btn.onclick=()=>{
       if(taken[name]&&myN!==name) return;
       myN=name;
@@ -538,7 +538,7 @@ function renderWait(data={}){
   const wl=document.getElementById('waitList');
   if(!wl) return;
   const all=Object.values(data);
-  wl.innerHTML=all.map(p=>`<div class="wait-chip ${p.ready?'ready':''}">${p.piece||'?'} ${(p.name||'').replace(/^\d+_/,'')} ${p.ready?'✓':''}</div>`).join('');
+  wl.innerHTML=all.map(p=>`<div class="wait-chip ${p.ready?'ready':''}">${p.piece||'?'} ${p.name||''} ${p.ready?'✓':''}</div>`).join('');
   const sb=document.getElementById('startBtn');
   if(sb) sb.disabled=all.filter(p=>p.ready).length<2;
 }
@@ -653,7 +653,7 @@ function renderBoard(players, s){
             const t=document.createElement('span');
             t.className='token';
             t.textContent=p.piece;
-            t.title=(p.name||'').replace(/^\d+_/,'');
+            t.title=(p.name||'');
             tDiv.appendChild(t);
           }
         });
@@ -689,7 +689,7 @@ function renderScores(players){
     const isMe=p.name===myN&&p.group===myG;
     return `<div class="sc-row" style="${isMe?'font-weight:700;':''}">
       <span>${p.piece||'?'}</span>
-      <span class="sc-name" style="color:${c}">${(p.name||'').replace(/^\d+_/,'')}</span>
+      <span class="sc-name" style="color:${c}">${p.name||''}</span>
       <span class="sc-val" style="color:${c}">${p.letters||0}</span>
     </div>
     <div class="sc-bar-bg"><div class="sc-bar" style="width:${pct}%;background:${c}"></div></div>`;
@@ -715,10 +715,10 @@ function renderTurnUI(players, s){
 
   if(curKey&&players[curKey]){
     const cp=players[curKey];
-    badge.textContent=`${cp.piece} ${(cp.name||'').replace(/^\d+_/,'')}의 차례`;
+    badge.textContent=`${cp.piece} ${cp.name||''}의 차례`;
   }
   const me=players[`${myG}_${myN}`];
-  if(me) myInfo.textContent=`${me.piece||''} ${(me.name||'').replace(/^\d+_/,'')} · ${me.letters||0}글자`;
+  if(me) myInfo.textContent=`${me.piece||''} ${me.name||''} · ${me.letters||0}글자`;
 
   if(dBtn) dBtn.disabled=!isMyTurn||s.phase!=='rolling';
 
@@ -953,7 +953,7 @@ function openRPS(deduct){
           others.sort((a,b)=>(b[1].letters||0)-(a[1].letters||0));
           const [tk,tp]=others[0];
           loseLetters(tk,deduct);
-          document.getElementById('rpsRes').textContent=`${(tp.name||'').replace(/^\d+_/,'')}에게서 바둑알 ${deduct}개를 빼앗았어요!`;
+          document.getElementById('rpsRes').textContent=`${tp.name||''}에게서 바둑알 ${deduct}개를 빼앗았어요!`;
         }
         setTimeout(()=>{document.getElementById('rpsModal').hidden=true; doEndTurn();},1200);
       });
@@ -1001,7 +1001,7 @@ function showEnd(players){
     <div class="rank-row">
       <div class="rank-medal">${MEDALS[i]||''}</div>
       <div class="rank-info">
-        <div class="rank-name">${p.piece||''} ${(p.name||'').replace(/^\d+_/,'')}</div>
+        <div class="rank-name">${p.piece||''} ${p.name||''}</div>
         <div class="rank-word">${LETTERS.slice(0,p.letters||0).join('')}${p.letters?'':' (0글자)'}</div>
       </div>
       <div class="rank-score">${p.letters||0}글자</div>
