@@ -1,0 +1,803 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>표준어와 방언 – 상황 퀴즈</title>
+<link href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=Gowun+Dodum&display=swap" rel="stylesheet">
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
+<style>
+:root{
+  --navy:#1F3350; --gold:#B5933A; --teal:#2D7A6B; --bg:#F8F5EF;
+  --red:#EF4444; --green:#10B981; --orange:#F59E0B;
+  --g1:#E74C3C; --g2:#2D7A6B; --g3:#7C3AED; --g4:#B5933A;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Gowun Dodum',sans-serif;background:var(--bg);color:#222;min-height:100vh;}
+
+/* ── 선택 화면 ── */
+#selectScreen{
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+  min-height:100vh; padding:30px 20px; text-align:center;
+}
+#selectScreen h1{
+  font-family:'Gowun Batang',serif; font-size:1.7rem; color:var(--navy);
+  margin-bottom:8px;
+}
+#selectScreen .sub{font-size:.9rem; color:#777; margin-bottom:36px;}
+.group-btns{display:grid; grid-template-columns:1fr 1fr; gap:16px; width:100%; max-width:400px; margin-bottom:24px;}
+.group-btn{
+  padding:28px 10px; border:3px solid #DDD; border-radius:18px;
+  background:#fff; font-family:'Gowun Batang',serif; font-size:1.3rem; font-weight:700;
+  cursor:pointer; transition:.2s; color:var(--navy);
+}
+.group-btn:hover{transform:translateY(-3px); box-shadow:0 6px 18px rgba(0,0,0,.12);}
+.group-btn[data-g="1"]{border-color:var(--g1); color:var(--g1);}
+.group-btn[data-g="2"]{border-color:var(--g2); color:var(--g2);}
+.group-btn[data-g="3"]{border-color:var(--g3); color:var(--g3);}
+.group-btn[data-g="4"]{border-color:var(--g4); color:var(--g4);}
+.admin-link{font-size:.85rem; color:#AAA; cursor:pointer; text-decoration:underline;}
+.admin-link:hover{color:var(--navy);}
+
+/* ── 앱 영역 (모둠/관리자 공통 wrapper) ── */
+#appScreen{display:none;}
+
+/* ── 헤더 ── */
+header{
+  background:linear-gradient(135deg, var(--navy) 0%, #2E4A6E 100%);
+  color:#fff; padding:16px 20px; display:flex; align-items:center;
+  justify-content:space-between; gap:10px;
+}
+header h1{font-family:'Gowun Batang',serif; font-size:1.15rem; flex:1;}
+.group-badge{
+  padding:5px 14px; border-radius:20px; font-weight:700; font-size:.88rem;
+  background:rgba(255,255,255,.15); color:#fff; flex-shrink:0;
+}
+
+/* ── 어두운 대기 화면 ── */
+#darkScreen{
+  display:none; position:fixed; inset:0; background:#111;
+  z-index:500; align-items:center; justify-content:center; flex-direction:column;
+  color:#fff; text-align:center;
+}
+#darkScreen.show{display:flex;}
+#darkScreen .dark-msg{font-family:'Gowun Batang',serif; font-size:1.6rem; margin-bottom:12px;}
+#darkScreen .dark-sub{font-size:.95rem; opacity:.65;}
+
+/* ── 내 번호 확인 화면 ── */
+#myTurnScreen{
+  display:none; position:fixed; inset:0; background:var(--navy);
+  z-index:600; align-items:center; justify-content:center; flex-direction:column;
+  color:#fff; text-align:center; padding:30px;
+}
+#myTurnScreen.show{display:flex;}
+#myTurnScreen .myturn-label{font-size:1rem; opacity:.7; margin-bottom:12px;}
+#myTurnScreen .myturn-sentence{
+  font-family:'Gowun Batang',serif; font-size:1.55rem; font-weight:700;
+  line-height:1.55; margin-bottom:28px; max-width:500px;
+  background:rgba(255,255,255,.1); border-radius:16px; padding:20px 24px;
+}
+#myTurnScreen .myturn-hint{font-size:.85rem; opacity:.6; margin-bottom:20px;}
+.ok-btn{
+  padding:14px 40px; background:var(--gold); color:#fff; border:none;
+  border-radius:14px; font-family:'Gowun Batang',serif; font-size:1.1rem;
+  font-weight:700; cursor:pointer;
+}
+.ok-btn:hover{background:#9a7d30;}
+
+/* ── 라운드 메인 ── */
+#roundScreen{padding:20px 16px 30px; max-width:700px; margin:0 auto;}
+.round-status{
+  display:flex; align-items:center; gap:10px; margin-bottom:18px; flex-wrap:wrap;
+}
+.round-label{
+  font-family:'Gowun Batang',serif; font-size:1.1rem; color:var(--navy); font-weight:700;
+}
+.phase-badge{
+  padding:4px 12px; border-radius:12px; font-size:.78rem; font-weight:700;
+}
+.phase-badge.wait{background:#FEF3C7; color:#92400E;}
+.phase-badge.discuss{background:#D1FAE5; color:#065F46;}
+.phase-badge.vote{background:#EDE9FE; color:#4C1D95;}
+.phase-badge.result{background:#FEE2E2; color:#7F1D1D;}
+
+.timer-bar-wrap{flex:1; background:#E5E7EB; border-radius:10px; height:10px; min-width:80px;}
+.timer-bar{height:100%; border-radius:10px; background:var(--teal); transition:width .1s linear;}
+
+/* 라운드 안내 박스 */
+.info-box{
+  background:#fff; border-radius:14px; padding:16px 18px;
+  box-shadow:0 2px 8px rgba(0,0,0,.07); margin-bottom:16px;
+  font-size:.9rem; line-height:1.7; color:#444;
+  border-left:4px solid var(--teal);
+}
+.info-box .ib-title{font-weight:700; color:var(--navy); margin-bottom:6px; font-family:'Gowun Batang',serif; font-size:1rem;}
+
+/* 보기 그리드 */
+.choices-grid{
+  display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:20px;
+}
+.choice-card{
+  background:#fff; border:2.5px solid #DDD; border-radius:14px;
+  padding:20px 14px; font-family:'Gowun Batang',serif; font-size:1rem;
+  text-align:center; line-height:1.5; cursor:pointer;
+  transition:.18s; color:var(--navy); font-weight:700;
+  min-height:80px; display:flex; align-items:center; justify-content:center;
+  word-break:keep-all;
+}
+.choice-card:hover:not(.disabled){border-color:var(--teal); box-shadow:0 4px 12px rgba(45,122,107,.2); transform:translateY(-2px);}
+.choice-card.selected{border-color:var(--navy); background:#EFF6FF;}
+.choice-card.correct{border-color:var(--green); background:#D1FAE5; color:#065F46;}
+.choice-card.wrong{border-color:var(--red); background:#FEE2E2; color:#7F1D1D;}
+.choice-card.disabled{cursor:default; opacity:.6;}
+.choice-card.reveal-correct{border-color:var(--green); background:#D1FAE5; color:#065F46;}
+
+/* 대기 오버레이 (투표 전) */
+.wait-overlay{
+  text-align:center; padding:30px; color:#888;
+  font-size:1rem; background:#fff; border-radius:14px;
+  box-shadow:0 2px 8px rgba(0,0,0,.07); margin-bottom:16px;
+}
+.wait-overlay .wo-icon{font-size:2.5rem; margin-bottom:8px;}
+
+/* 결과 */
+.result-card{
+  background:#fff; border-radius:16px; padding:24px;
+  box-shadow:0 3px 12px rgba(0,0,0,.1); text-align:center; margin-bottom:16px;
+}
+.result-card .rc-emoji{font-size:3rem; margin-bottom:8px;}
+.result-card .rc-title{font-family:'Gowun Batang',serif; font-size:1.3rem; font-weight:700; margin-bottom:4px;}
+.result-card .rc-score{font-size:1rem; color:var(--teal);}
+
+/* ── 점수판 ── */
+#scoreboard{
+  background:#fff; border-radius:14px; padding:16px;
+  box-shadow:0 2px 8px rgba(0,0,0,.07); margin-bottom:16px;
+}
+#scoreboard .sb-title{
+  font-family:'Gowun Batang',serif; font-weight:700; color:var(--navy);
+  font-size:.95rem; margin-bottom:12px;
+}
+.sb-row{
+  display:flex; align-items:center; gap:10px; margin-bottom:8px;
+}
+.sb-name{width:70px; font-weight:700; font-size:.88rem;}
+.sb-bar-wrap{flex:1; background:#F3F4F6; border-radius:8px; height:22px; overflow:hidden;}
+.sb-bar{height:100%; border-radius:8px; transition:width .5s ease; min-width:4px;}
+.sb-pts{width:44px; text-align:right; font-weight:700; font-size:.88rem; color:var(--navy);}
+
+/* ── 관리자 화면 ── */
+#adminScreen{padding:20px 16px 40px; max-width:760px; margin:0 auto;}
+.admin-panel-title{
+  font-family:'Gowun Batang',serif; font-size:1.1rem; color:var(--navy);
+  font-weight:700; margin-bottom:14px; display:flex; align-items:center; gap:8px;
+}
+.ctrl-row{display:flex; gap:10px; flex-wrap:wrap; margin-bottom:18px;}
+.ctrl-btn{
+  padding:10px 22px; border-radius:12px; border:none; font-family:'Gowun Dodum',sans-serif;
+  font-size:.9rem; font-weight:700; cursor:pointer; transition:.15s;
+}
+.ctrl-btn:hover{opacity:.85; transform:translateY(-1px);}
+.ctrl-btn.start{background:var(--teal); color:#fff;}
+.ctrl-btn.next{background:var(--navy); color:#fff;}
+.ctrl-btn.reveal{background:var(--gold); color:#fff;}
+.ctrl-btn.discuss{background:#7C3AED; color:#fff;}
+.ctrl-btn.vote-open{background:#059669; color:#fff;}
+.ctrl-btn.reset{background:#FEF2F2; color:var(--red); border:1.5px solid var(--red);}
+
+.round-cards{display:grid; grid-template-columns:repeat(4,1fr); gap:8px; margin-bottom:18px;}
+.round-dot{
+  padding:10px 4px; border-radius:10px; text-align:center; font-size:.82rem;
+  font-weight:700; background:#F3F4F6; color:#888; cursor:pointer; transition:.15s;
+  border:2px solid transparent;
+}
+.round-dot.done{background:#D1FAE5; color:#065F46;}
+.round-dot.active{background:var(--navy); color:#fff; border-color:var(--gold);}
+.round-dot:hover{border-color:var(--teal);}
+
+.admin-info{
+  background:#EFF6FF; border-radius:12px; padding:14px 16px;
+  font-size:.88rem; line-height:1.7; color:#334; margin-bottom:16px;
+  border-left:4px solid #3B82F6;
+}
+.admin-info .ai-title{font-weight:700; color:var(--navy); margin-bottom:6px;}
+
+.vote-tally{display:flex; gap:10px; flex-wrap:wrap; margin-bottom:16px;}
+.tally-card{
+  flex:1; min-width:100px; background:#fff; border-radius:12px; padding:12px 14px;
+  box-shadow:0 1px 6px rgba(0,0,0,.07); text-align:center;
+}
+.tally-card .tc-group{font-size:.8rem; font-weight:700; color:#888; margin-bottom:4px;}
+.tally-card .tc-answer{font-family:'Gowun Batang',serif; font-size:.95rem; font-weight:700; color:var(--navy); min-height:1.4rem;}
+.tally-card .tc-badge{font-size:.72rem; margin-top:4px; padding:2px 8px; border-radius:8px; display:inline-block;}
+.tc-badge.correct{background:#D1FAE5; color:#065F46;}
+.tc-badge.wrong{background:#FEE2E2; color:#7F1D1D;}
+.tc-badge.pending{background:#F3F4F6; color:#888;}
+
+.final-scoreboard{background:#fff; border-radius:16px; padding:24px; box-shadow:0 3px 12px rgba(0,0,0,.1);}
+.final-title{font-family:'Gowun Batang',serif; font-size:1.2rem; font-weight:700; color:var(--navy); margin-bottom:16px; text-align:center;}
+.final-row{
+  display:flex; align-items:center; gap:12px; padding:10px 0;
+  border-bottom:1px solid #F0F0F0;
+}
+.final-row:last-child{border-bottom:none;}
+.final-rank{font-size:1.3rem; width:32px; text-align:center;}
+.final-name{font-family:'Gowun Batang',serif; font-size:1.05rem; font-weight:700; flex:1;}
+.final-pts{font-size:1.1rem; font-weight:700; color:var(--teal);}
+
+/* ── 관리자 로그인 ── */
+#adminLoginWrap{
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+  min-height:80vh; padding:30px;
+}
+.pw-box{
+  background:#fff; border-radius:16px; padding:30px 24px;
+  box-shadow:0 2px 10px rgba(0,0,0,.08); text-align:center; width:100%; max-width:340px;
+}
+.pw-box h3{font-family:'Gowun Batang',serif; color:var(--navy); margin-bottom:16px;}
+.pw-input{
+  width:100%; padding:11px 14px; border:2px solid #DDD; border-radius:10px;
+  font-size:1rem; font-family:'Gowun Dodum',sans-serif; text-align:center;
+  outline:none; margin-bottom:12px; letter-spacing:.2em;
+}
+.pw-input:focus{border-color:var(--teal);}
+.pw-btn{width:100%; padding:11px; background:var(--navy); color:#fff; border:none; border-radius:10px; font-family:'Gowun Dodum',sans-serif; font-size:1rem; font-weight:700; cursor:pointer;}
+.pw-btn:hover{background:#2E4A6E;}
+
+@media(max-width:500px){
+  .choices-grid{grid-template-columns:1fr;}
+  .round-cards{grid-template-columns:repeat(4,1fr);}
+  .group-btns{grid-template-columns:1fr 1fr;}
+}
+</style>
+</head>
+<body>
+
+<!-- ══════════ 선택 화면 ══════════ -->
+<div id="selectScreen">
+  <h1>🗣️ 표준어와 방언</h1>
+  <div class="sub">5-2 국어 3단원 · 상황 퀴즈</div>
+  <div class="group-btns">
+    <button class="group-btn" data-g="1" onclick="enterGroup(1)">1모둠</button>
+    <button class="group-btn" data-g="2" onclick="enterGroup(2)">2모둠</button>
+    <button class="group-btn" data-g="3" onclick="enterGroup(3)">3모둠</button>
+    <button class="group-btn" data-g="4" onclick="enterGroup(4)">4모둠</button>
+  </div>
+  <span class="admin-link" onclick="enterAdmin()">🔐 관리자</span>
+</div>
+
+<!-- ══════════ 앱 화면 ══════════ -->
+<div id="appScreen">
+  <header>
+    <h1 id="headerTitle">표준어·방언 퀴즈</h1>
+    <div class="group-badge" id="groupBadge"></div>
+  </header>
+
+  <!-- 어두운 대기 -->
+  <div id="darkScreen">
+    <div class="dark-msg" id="darkMsg">잠시 기다려 주세요</div>
+    <div class="dark-sub" id="darkSub">선생님의 안내를 들으세요</div>
+  </div>
+
+  <!-- 내 번호 확인 -->
+  <div id="myTurnScreen">
+    <div class="myturn-label" id="myTurnLabel"></div>
+    <div class="myturn-sentence" id="myTurnSentence"></div>
+    <div class="myturn-hint">문장을 기억한 뒤 확인 버튼을 누르세요</div>
+    <button class="ok-btn" onclick="confirmMyTurn()">✅ 확인했어요</button>
+  </div>
+
+  <!-- 라운드 화면 -->
+  <div id="roundScreen">
+    <div class="round-status">
+      <span class="round-label" id="roundLabel">라운드 1</span>
+      <span class="phase-badge wait" id="phaseBadge">대기 중</span>
+      <div class="timer-bar-wrap" id="timerBarWrap" style="display:none;">
+        <div class="timer-bar" id="timerBar" style="width:100%;"></div>
+      </div>
+    </div>
+
+    <!-- 점수판 -->
+    <div id="scoreboard">
+      <div class="sb-title">📊 모둠 점수</div>
+      <div id="sbRows"></div>
+    </div>
+
+    <!-- 대기/투표/결과 영역 -->
+    <div id="phaseArea"></div>
+  </div>
+
+  <!-- 관리자 로그인 -->
+  <div id="adminLoginWrap" style="display:none;">
+    <div class="pw-box">
+      <h3>🔐 관리자 로그인</h3>
+      <input type="password" class="pw-input" id="pwInput" placeholder="비밀번호" onkeydown="if(event.key==='Enter')checkPw()">
+      <button class="pw-btn" onclick="checkPw()">확인</button>
+      <div style="color:var(--red);font-size:.85rem;margin-top:8px;" id="pwErr"></div>
+    </div>
+  </div>
+
+  <!-- 관리자 화면 -->
+  <div id="adminScreen" style="display:none;"></div>
+</div>
+
+<script>
+// ══════════ Firebase ══════════
+firebase.initializeApp({
+  apiKey:"AIzaSyExample-replaceWithRealKey",
+  authDomain:"banwel-51.firebaseapp.com",
+  databaseURL:"https://banwel-51-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId:"banwel-51"
+});
+const db = firebase.database();
+const REF = 'classroom/dialect_quiz';
+
+// ══════════ 퀴즈 데이터 ══════════
+// 각 라운드: 4개 보기, correctIdx = 정답 인덱스(0~3)
+// 각 번호(1~4)가 보는 sentence가 다름 → sentences[0~3]
+const ROUNDS = [
+  {
+    title:'라운드 1',
+    question:'다음 중 방언을 사용하는 상황에 해당하는 것은?',
+    choices:['뉴스 진행을 할 때','기상 캐스터가 일기 예보를 할 때','많은 사람 앞에서 발표를 할 때','지방에 사는 가족과 전화 통화를 할 때'],
+    correctIdx:3,
+    sentences:['나는 뉴스를 진행합니다.','나는 일기 예보를 합니다.','나는 많은 사람 앞에서 발표합니다.','나는 지방 가족과 전화를 합니다.']
+  },
+  {
+    title:'라운드 2',
+    question:'다음 중 방언을 사용하는 상황에 해당하는 것은?',
+    choices:['공식적인 회의의 사회를 볼 때','홈쇼핑에서 물건 광고를 할 때','지역 축제에서 사회를 볼 때','많은 사람들에게 중요한 내용을 전달할 때'],
+    correctIdx:2,
+    sentences:['나는 공식 회의 사회를 봅니다.','나는 홈쇼핑 광고를 합니다.','나는 지역 축제에서 사회를 봅니다.','나는 많은 사람들에게 내용을 전달합니다.']
+  },
+  {
+    title:'라운드 3',
+    question:'다음 중 방언을 사용하는 상황에 해당하는 것은?',
+    choices:['전화 통화로 고객들을 상담할 때','지방 시장에서 물건을 사고 팔 때','전라도에 사는 친구와 대화할 때','오랜만에 고향에 사는 친척을 만났을 때'],
+    correctIdx:0,
+    sentences:['나는 전화로 고객을 상담합니다.','나는 지방 시장에서 물건을 팝니다.','나는 전라도 친구와 대화합니다.','나는 고향 친척을 만났습니다.']
+  },
+  {
+    title:'라운드 4',
+    question:'다음 중 표준어를 사용해야 하는 상황은?',
+    choices:['친밀감을 표현하는 것이 목적인 대화','정겹게 대화하는 것이 목적인 대화','지역 사람들과 화합하는 것이 목적인 대화','정확한 내용을 전달하는 것이 목적인 대화'],
+    correctIdx:3,
+    sentences:['친밀감 표현이 목적인 대화입니다.','정겹게 대화하는 것이 목적입니다.','지역 사람들과 화합이 목적입니다.','정확한 내용 전달이 목적입니다.']
+  },
+  {
+    title:'라운드 5',
+    question:'다음 중 방언을 사용하는 상황에 해당하는 것은?',
+    choices:['기자가 되어서 취재 내용을 소개할 때','제주도에 사는 사람들의 이야기를 담은 드라마를 찍을 때','대통령과의 대화에서 사회를 볼 때','많은 사람들 앞에서 발표를 할 때'],
+    correctIdx:1,
+    sentences:['나는 기자로 취재 내용을 소개합니다.','나는 제주도 이야기 드라마를 찍습니다.','나는 대통령과의 대화를 진행합니다.','나는 많은 사람 앞에서 발표합니다.']
+  },
+  {
+    title:'라운드 6',
+    question:'다음 중 표준어를 사용해야 하는 상황은?',
+    choices:['고향에 가서 친밀감을 표현할 때','지역 특산물 광고와 홍보','지역색이 강한 문학 작품을 쓸 때','대학교에서 논문을 여러 사람 앞에서 발표할 때'],
+    correctIdx:3,
+    sentences:['고향에서 친밀감을 표현합니다.','지역 특산물을 광고합니다.','지역색 강한 문학 작품을 씁니다.','대학교에서 논문을 발표합니다.']
+  },
+  {
+    title:'라운드 7',
+    question:'다음 중 방언을 사용하는 상황에 해당하는 것은?',
+    choices:['학생들에게 정확한 발음으로 공부할 내용을 전달할 때','지역 시장에 가서 떡볶이를 사 먹을 때','책, 신문 등 공식적인 문서를 쓸 때','콜센터 상담원으로서 전화를 받을 때'],
+    correctIdx:1,
+    sentences:['학생들에게 정확한 발음으로 설명합니다.','지역 시장에서 떡볶이를 삽니다.','공식 문서를 작성합니다.','콜센터 상담원으로 전화를 받습니다.']
+  },
+  {
+    title:'라운드 8',
+    question:'다음 중 표준어를 사용해야 하는 상황은?',
+    choices:['평생 충청도에서 산 과일 장수의 손님 맞이','경상도에서 나고 자란 할머니와의 대화','뉴스 앵커의 진행','전라도에서 나고 자란 친구들의 대화'],
+    correctIdx:2,
+    sentences:['충청도 과일 장수가 손님을 맞이합니다.','경상도 할머니와 대화합니다.','뉴스 앵커가 방송을 진행합니다.','전라도 친구들이 대화합니다.']
+  }
+];
+
+const GROUP_COLORS = {1:'#E74C3C',2:'#2D7A6B',3:'#7C3AED',4:'#B5933A'};
+const GROUP_NAMES = {1:'1모둠',2:'2모둠',3:'3모둠',4:'4모둠'};
+
+// ══════════ 상태 ══════════
+let myGroup = null;   // 1~4
+let isAdmin = false;
+let gameState = {};   // Firebase에서 받아온 게임 상태
+let timerInterval = null;
+
+// ══════════ 진입 ══════════
+function enterGroup(g){
+  myGroup = g;
+  document.getElementById('selectScreen').style.display='none';
+  document.getElementById('appScreen').style.display='block';
+  document.getElementById('headerTitle').textContent = `표준어·방언 퀴즈`;
+  const badge = document.getElementById('groupBadge');
+  badge.textContent = GROUP_NAMES[g];
+  badge.style.background = GROUP_COLORS[g];
+  document.getElementById('roundScreen').style.display='block';
+  subscribeGame();
+}
+
+function enterAdmin(){
+  document.getElementById('selectScreen').style.display='none';
+  document.getElementById('appScreen').style.display='block';
+  document.getElementById('headerTitle').textContent = '🛠️ 관리자';
+  document.getElementById('groupBadge').textContent = 'ADMIN';
+  document.getElementById('roundScreen').style.display='none';
+  document.getElementById('adminLoginWrap').style.display='flex';
+}
+
+function checkPw(){
+  if(document.getElementById('pwInput').value === '126758'){
+    isAdmin = true;
+    document.getElementById('adminLoginWrap').style.display='none';
+    document.getElementById('adminScreen').style.display='block';
+    subscribeGame();
+    renderAdminBase();
+  } else {
+    document.getElementById('pwErr').textContent='비밀번호가 틀렸습니다.';
+  }
+}
+
+// ══════════ Firebase 구독 ══════════
+function subscribeGame(){
+  db.ref(REF+'/state').on('value', snap=>{
+    gameState = snap.val() || {round:0, phase:'waiting', scores:{1:0,2:0,3:0,4:0}, votes:{}, revealed:false};
+    if(!gameState.scores) gameState.scores = {1:0,2:0,3:0,4:0};
+    if(!gameState.votes) gameState.votes = {};
+    if(isAdmin){ renderAdmin(); }
+    else { renderGroup(); }
+  });
+}
+
+// ══════════ 모둠 화면 렌더 ══════════
+function renderGroup(){
+  const {round, phase, scores, votes, revealed, darkGroup, myTurnGroup} = gameState;
+  const rIdx = (round||1)-1;
+  const rData = ROUNDS[rIdx] || ROUNDS[0];
+
+  // 점수판
+  renderScoreboard(scores);
+
+  // 라운드 레이블
+  document.getElementById('roundLabel').textContent = `라운드 ${round||1} / 8`;
+
+  // 어두운 화면 처리
+  const dark = document.getElementById('darkScreen');
+  const myTurn = document.getElementById('myTurnScreen');
+
+  if(phase === 'dark_all'){
+    dark.classList.add('show');
+    myTurn.classList.remove('show');
+    document.getElementById('darkMsg').textContent='📵 화면을 엎드려 주세요';
+    document.getElementById('darkSub').textContent='선생님이 번호를 부를 때까지 기다려요';
+  } else if(phase === `myturn_${myGroup}`){
+    dark.classList.remove('show');
+    myTurn.classList.add('show');
+    const memberIdx = myGroup - 1;
+    document.getElementById('myTurnLabel').textContent = `${GROUP_NAMES[myGroup]} · ${myGroup}번 문장`;
+    document.getElementById('myTurnSentence').textContent = rData.choices[memberIdx];
+  } else if(phase === `myturn_done_${myGroup}` || (phase && phase.startsWith('myturn') && !phase.endsWith(`${myGroup}`))){
+    // 다른 모둠 차례이거나 내 차례 완료 → 다시 엎드림
+    dark.classList.add('show');
+    myTurn.classList.remove('show');
+    document.getElementById('darkMsg').textContent='잠시 기다려 주세요';
+    document.getElementById('darkSub').textContent='다른 모둠원이 확인 중이에요';
+  } else {
+    dark.classList.remove('show');
+    myTurn.classList.remove('show');
+  }
+
+  // 페이즈 뱃지
+  const pb = document.getElementById('phaseBadge');
+  const phaseArea = document.getElementById('phaseArea');
+
+  if(phase === 'waiting' || round === 0){
+    pb.className='phase-badge wait'; pb.textContent='대기 중';
+    phaseArea.innerHTML=`<div class="wait-overlay"><div class="wo-icon">⏳</div>선생님이 시작할 때까지 기다리세요!</div>`;
+    document.getElementById('timerBarWrap').style.display='none';
+  }
+  else if(phase === 'discuss'){
+    pb.className='phase-badge discuss'; pb.textContent='토의 중';
+    phaseArea.innerHTML=`<div class="info-box"><div class="ib-title">🗣️ 모둠 토의 시간!</div>
+      각자 확인한 문장을 공유하고, 방언을 사용하는 상황(또는 표준어를 써야 하는 상황)이 어느 것인지 의논하세요.</div>`;
+    document.getElementById('timerBarWrap').style.display='flex';
+    startClientTimer(gameState.discussEnd);
+  }
+  else if(phase === 'vote'){
+    pb.className='phase-badge vote'; pb.textContent='투표 중';
+    document.getElementById('timerBarWrap').style.display='none';
+    clearClientTimer();
+    const myVote = votes[myGroup];
+    if(myVote !== undefined){
+      phaseArea.innerHTML=`<div class="info-box" style="text-align:center;">
+        <div class="ib-title">✅ 투표 완료!</div>
+        <strong>${rData.choices[myVote]}</strong>를 선택했어요.<br>다른 모둠의 투표를 기다리는 중...</div>`;
+    } else {
+      let choicesHtml = `<p style="font-family:'Gowun Batang',serif;font-size:.95rem;color:#444;margin-bottom:12px;text-align:center;">${rData.question}</p>
+        <div class="choices-grid">`;
+      rData.choices.forEach((c,i)=>{
+        choicesHtml+=`<div class="choice-card" onclick="vote(${i})">${c}</div>`;
+      });
+      choicesHtml+='</div>';
+      phaseArea.innerHTML=choicesHtml;
+    }
+  }
+  else if(phase === 'result'){
+    pb.className='phase-badge result'; pb.textContent='결과 확인';
+    document.getElementById('timerBarWrap').style.display='none';
+    clearClientTimer();
+    const correct = rData.correctIdx;
+    const myVote = votes[myGroup];
+    const isCorrect = myVote === correct;
+
+    let choicesHtml = `<p style="font-family:'Gowun Batang',serif;font-size:.95rem;color:#444;margin-bottom:12px;text-align:center;">${rData.question}</p>
+      <div class="choices-grid">`;
+    rData.choices.forEach((c,i)=>{
+      let cls = 'choice-card disabled';
+      if(i === correct) cls += ' reveal-correct';
+      else if(i === myVote) cls += ' wrong';
+      choicesHtml+=`<div class="${cls}">${c}${i===correct?' ✅':''}</div>`;
+    });
+    choicesHtml+='</div>';
+
+    const resultHtml = `<div class="result-card">
+      <div class="rc-emoji">${isCorrect?'🎉':'😢'}</div>
+      <div class="rc-title">${isCorrect?'정답입니다! +10점':'아쉽네요!'}</div>
+      <div class="rc-score">${GROUP_NAMES[myGroup]}: ${scores[myGroup]||0}점</div>
+    </div>`;
+    phaseArea.innerHTML = resultHtml + choicesHtml;
+  }
+  else if(phase === 'final'){
+    pb.className='phase-badge result'; pb.textContent='최종 결과';
+    renderFinalGroup(scores);
+  }
+  else {
+    // dark/myturn phases → phaseArea 비움
+    phaseArea.innerHTML='';
+  }
+}
+
+// ══════════ 투표 ══════════
+function vote(idx){
+  if(!myGroup) return;
+  db.ref(REF+'/state/votes/'+myGroup).set(idx).then(()=>{
+    // 자동으로 Firebase 업데이트 → renderGroup 재호출
+  });
+}
+
+function confirmMyTurn(){
+  // 내 확인 완료 → 다시 엎드리기 (관리자가 다음 번호 호출)
+  db.ref(REF+'/state/phase').set(`myturn_done_${myGroup}`);
+}
+
+// ══════════ 타이머 (클라이언트) ══════════
+function startClientTimer(endTime){
+  clearClientTimer();
+  if(!endTime) return;
+  const bar = document.getElementById('timerBar');
+  const total = 60000; // 1분
+  function tick(){
+    const left = endTime - Date.now();
+    const pct = Math.max(0, Math.min(100, (left/total)*100));
+    bar.style.width = pct+'%';
+    bar.style.background = pct > 50 ? 'var(--teal)' : pct > 20 ? 'var(--orange)' : 'var(--red)';
+    if(pct <= 0) clearClientTimer();
+  }
+  tick();
+  timerInterval = setInterval(tick, 200);
+}
+function clearClientTimer(){
+  if(timerInterval){ clearInterval(timerInterval); timerInterval=null; }
+}
+
+// ══════════ 점수판 ══════════
+function renderScoreboard(scores){
+  scores = scores || {};
+  const max = Math.max(80, ...Object.values(scores));
+  let html='';
+  [1,2,3,4].forEach(g=>{
+    const pts = scores[g]||0;
+    const pct = max>0 ? (pts/max*100) : 0;
+    html+=`<div class="sb-row">
+      <div class="sb-name" style="color:${GROUP_COLORS[g]}">${GROUP_NAMES[g]}</div>
+      <div class="sb-bar-wrap"><div class="sb-bar" style="width:${pct}%;background:${GROUP_COLORS[g]}"></div></div>
+      <div class="sb-pts">${pts}점</div>
+    </div>`;
+  });
+  document.getElementById('sbRows').innerHTML=html;
+}
+
+function renderFinalGroup(scores){
+  const sorted = [1,2,3,4].sort((a,b)=>(scores[b]||0)-(scores[a]||0));
+  const medals=['🥇','🥈','🥉','4️⃣'];
+  let html='<div class="final-scoreboard"><div class="final-title">🏆 최종 점수</div>';
+  sorted.forEach((g,i)=>{
+    html+=`<div class="final-row">
+      <span class="final-rank">${medals[i]}</span>
+      <span class="final-name" style="color:${GROUP_COLORS[g]}">${GROUP_NAMES[g]}</span>
+      <span class="final-pts">${scores[g]||0}점</span>
+    </div>`;
+  });
+  html+='</div>';
+  document.getElementById('phaseArea').innerHTML=html;
+}
+
+// ══════════ 관리자 화면 ══════════
+function renderAdminBase(){
+  document.getElementById('adminScreen').innerHTML=`
+    <div style="padding:20px 16px 40px;max-width:760px;margin:0 auto;">
+      <div class="admin-panel-title">🛠️ 관리자 제어판</div>
+
+      <div class="admin-info" id="adminInfo">
+        <div class="ai-title">📋 진행 방법</div>
+        ① 퀴즈 시작 → ② 화면 어둡게 → ③ 1번 호출 → 2번 → 3번 → 4번 → ④ 토의 시작(1분) → ⑤ 투표 열기 → ⑥ 정답 공개
+      </div>
+
+      <div class="round-cards" id="roundDots"></div>
+
+      <div class="ctrl-row" id="ctrlRow"></div>
+
+      <div id="voteStatus" style="margin-bottom:16px;"></div>
+
+      <div id="scoreSection">
+        <div class="admin-panel-title" style="font-size:.95rem;">📊 점수판</div>
+        <div id="adminSbRows"></div>
+      </div>
+    </div>`;
+}
+
+function renderAdmin(){
+  if(!document.getElementById('adminInfo')) return;
+  const {round, phase, scores, votes, revealed} = gameState;
+  const rIdx = (round||1)-1;
+  const rData = ROUNDS[rIdx] || ROUNDS[0];
+  const cur = round || 0;
+
+  // 라운드 점
+  let dotsHtml='';
+  for(let i=1;i<=8;i++){
+    const cls = i<cur?'round-dot done':i===cur?'round-dot active':'round-dot';
+    dotsHtml+=`<div class="${cls}" onclick="adminGoRound(${i})">R${i}${i<cur?' ✓':''}</div>`;
+  }
+  document.getElementById('roundDots').innerHTML=dotsHtml;
+
+  // 제어 버튼
+  let btns='';
+  if(cur===0){
+    btns=`<button class="ctrl-btn start" onclick="adminStart()">▶️ 퀴즈 시작</button>`;
+  } else {
+    if(phase==='waiting'){
+      btns+=`<button class="ctrl-btn next" onclick="adminDarkAll()">📵 화면 어둡게</button>`;
+    }
+    if(phase==='dark_all' || (phase&&phase.startsWith('myturn'))){
+      btns+=`<button class="ctrl-btn next" onclick="adminCallMember(1)">1번 호출</button>
+             <button class="ctrl-btn next" onclick="adminCallMember(2)">2번 호출</button>
+             <button class="ctrl-btn next" onclick="adminCallMember(3)">3번 호출</button>
+             <button class="ctrl-btn next" onclick="adminCallMember(4)">4번 호출</button>`;
+    }
+    if(phase==='dark_all' || (phase&&phase.startsWith('myturn'))){
+      btns+=`<button class="ctrl-btn discuss" onclick="adminDiscuss()">🗣️ 토의 시작</button>`;
+    }
+    if(phase==='discuss'){
+      btns+=`<button class="ctrl-btn vote-open" onclick="adminVote()">🗳️ 투표 열기</button>`;
+    }
+    if(phase==='vote'){
+      btns+=`<button class="ctrl-btn reveal" onclick="adminReveal()">✅ 정답 공개</button>`;
+    }
+    if(phase==='result'){
+      if(cur<8){
+        btns+=`<button class="ctrl-btn start" onclick="adminNextRound()">▶️ 다음 라운드</button>`;
+      } else {
+        btns+=`<button class="ctrl-btn start" onclick="adminFinal()">🏆 최종 결과</button>`;
+      }
+    }
+    if(phase!=='final'){
+      btns+=`<button class="ctrl-btn reset" onclick="adminReset()">🔄 전체 초기화</button>`;
+    }
+  }
+  document.getElementById('ctrlRow').innerHTML=btns;
+
+  // 투표 현황
+  let voteHtml='';
+  if(phase==='vote'||phase==='result'){
+    voteHtml=`<div class="admin-panel-title" style="font-size:.95rem;">🗳️ 투표 현황</div><div class="vote-tally">`;
+    [1,2,3,4].forEach(g=>{
+      const v = votes ? votes[g] : undefined;
+      const vText = v!==undefined ? rData.choices[v] : '미투표';
+      const isCorrect = v===rData.correctIdx;
+      const badgeClass = v===undefined?'pending':isCorrect?'correct':'wrong';
+      const badgeText = v===undefined?'대기중':isCorrect?'정답':'오답';
+      voteHtml+=`<div class="tally-card">
+        <div class="tc-group" style="color:${GROUP_COLORS[g]}">${GROUP_NAMES[g]}</div>
+        <div class="tc-answer">${vText}</div>
+        <span class="tc-badge ${badgeClass}">${badgeText}</span>
+      </div>`;
+    });
+    voteHtml+='</div>';
+
+    // 정답 표시
+    if(phase==='result'){
+      voteHtml+=`<div class="admin-info">✅ <strong>정답:</strong> ${rData.choices[rData.correctIdx]}</div>`;
+    }
+  }
+  document.getElementById('voteStatus').innerHTML=voteHtml;
+
+  // 점수판
+  const sc = scores||{};
+  const max = Math.max(80,...Object.values(sc));
+  let sbHtml='';
+  [1,2,3,4].forEach(g=>{
+    const pts=sc[g]||0;
+    const pct=max>0?(pts/max*100):0;
+    sbHtml+=`<div class="sb-row">
+      <div class="sb-name" style="color:${GROUP_COLORS[g]}">${GROUP_NAMES[g]}</div>
+      <div class="sb-bar-wrap"><div class="sb-bar" style="width:${pct}%;background:${GROUP_COLORS[g]}"></div></div>
+      <div class="sb-pts">${pts}점</div>
+    </div>`;
+  });
+  document.getElementById('adminSbRows').innerHTML=sbHtml;
+
+  // 현재 라운드 정보
+  if(cur>0){
+    document.getElementById('adminInfo').innerHTML=`
+      <div class="ai-title">📋 라운드 ${cur} · ${phase}</div>
+      <strong>문제:</strong> ${rData.question}<br>
+      <strong>정답:</strong> ${rData.choices[rData.correctIdx]}`;
+  }
+}
+
+// ══════════ 관리자 액션 ══════════
+function adminStart(){
+  db.ref(REF+'/state').set({round:1, phase:'waiting', scores:{1:0,2:0,3:0,4:0}, votes:{}, revealed:false});
+}
+
+function adminDarkAll(){
+  db.ref(REF+'/state/phase').set('dark_all');
+  db.ref(REF+'/state/votes').set({});
+}
+
+function adminCallMember(num){
+  db.ref(REF+'/state/phase').set(`myturn_${num}`);
+}
+
+function adminDiscuss(){
+  const endTime = Date.now() + 60000;
+  db.ref(REF+'/state').update({phase:'discuss', discussEnd:endTime});
+}
+
+function adminVote(){
+  db.ref(REF+'/state/phase').set('vote');
+}
+
+function adminReveal(){
+  const rIdx = (gameState.round||1)-1;
+  const correctIdx = ROUNDS[rIdx].correctIdx;
+  const votes = gameState.votes||{};
+  const scores = {...(gameState.scores||{1:0,2:0,3:0,4:0})};
+  [1,2,3,4].forEach(g=>{
+    if(votes[g]===correctIdx) scores[g]=(scores[g]||0)+10;
+  });
+  db.ref(REF+'/state').update({phase:'result', scores, revealed:true});
+}
+
+function adminNextRound(){
+  const next = (gameState.round||1)+1;
+  db.ref(REF+'/state').update({round:next, phase:'waiting', votes:{}, revealed:false});
+}
+
+function adminFinal(){
+  db.ref(REF+'/state/phase').set('final');
+}
+
+function adminGoRound(r){
+  if(!confirm(`라운드 ${r}로 이동할까요?`)) return;
+  db.ref(REF+'/state').update({round:r, phase:'waiting', votes:{}, revealed:false});
+}
+
+function adminReset(){
+  if(!confirm('전체 초기화할까요?')) return;
+  db.ref(REF+'/state').set({round:0, phase:'waiting', scores:{1:0,2:0,3:0,4:0}, votes:{}, revealed:false});
+}
+</script>
+</body>
+</html>
