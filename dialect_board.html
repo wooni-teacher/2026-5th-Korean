@@ -5,8 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>방언 말판놀이</title>
 <link href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=Gowun+Dodum&display=swap" rel="stylesheet">
-<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js" onerror="window._fbFail=true"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js" onerror="window._fbFail=true"></script>
 </head>
 <body>
 <style>
@@ -349,9 +349,14 @@ body{
 // ═══════════════════════════════════════════
 // Firebase
 // ═══════════════════════════════════════════
+if(window._fbFail || typeof firebase==='undefined'){
+  document.body.innerHTML='<div style="display:flex;align-items:center;justify-content:center;height:100vh;font-family:sans-serif;color:#c00;padding:20px;text-align:center;"><div><div style="font-size:2rem;margin-bottom:12px">⚠️</div><b>Firebase 로드 실패</b><br>학교 네트워크가 Firebase를 차단하고 있을 수 있어요.<br>Wi-Fi를 바꾸거나 선생님 핫스팟으로 접속해보세요.</div></div>';
+  throw new Error('Firebase not loaded');
+}
 const FB = { databaseURL: 'https://banwel-51-default-rtdb.asia-southeast1.firebasedatabase.app' };
-firebase.initializeApp(FB);
-const db = firebase.database();
+let _app;
+try { _app = firebase.app(); } catch(e) { _app = firebase.initializeApp(FB); }
+const db = firebase.database(_app);
 const ROOT = 'classroom/dialect_board';
 const ref = p => db.ref(`${ROOT}/${p}`);
 
@@ -1016,16 +1021,10 @@ function doReset(){
 // ═══════════════════════════════════════════
 (()=>{
   // 글자 바 초기화
-  const bar=document.getElementById('lettersBar');
-  if(bar) bar.innerHTML=LETTERS.map(()=>'<div class="l-tile"></div>').join('');
-
-  // 이미 게임 진행 중이면 복귀
-  ref('state').get().then(snap=>{
-    const s=snap.val();
-    if(s&&s.started){
-      // 재접속 처리: 로컬에 myG,myN이 없으면 접속화면으로
-    }
-  });
+  try {
+    const bar=document.getElementById('lettersBar');
+    if(bar) bar.innerHTML=LETTERS.map(()=>'<div class="l-tile"></div>').join('');
+  } catch(e) { console.warn('init bar error', e); }
 })();
 </script>
 </body>
