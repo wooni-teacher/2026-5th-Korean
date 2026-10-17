@@ -1,0 +1,1024 @@
+<title>방언 말판놀이</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=Gowun+Dodum&display=swap" rel="stylesheet">
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
+<style>
+:root {
+  --navy:#1F3350; --gold:#B5933A; --teal:#2D7A6B; --bg:#F8F5EF;
+  --card:#FFFFFF; --border:#DDD8CE; --fg:#222; --muted:#888;
+  --g1:#E74C3C; --g2:#2D7A6B; --g3:#7C3AED; --g4:#B5933A;
+  --q-bg:#EAF4F0; --special-bg:#FFF8E1; --mission-bg:#E8F5E9;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg:#1A1F2E; --card:#252B3B; --border:#3A4255; --fg:#E8E4DC; --muted:#8890A8;
+    --q-bg:#1A3028; --special-bg:#2A2510; --mission-bg:#152315; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg:#1A1F2E; --card:#252B3B; --border:#3A4255; --fg:#E8E4DC; --muted:#8890A8;
+  --q-bg:#1A3028; --special-bg:#2A2510; --mission-bg:#152315; color-scheme: dark;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+html,body{height:100%;font-family:'Gowun Dodum',sans-serif;background:var(--bg);color:var(--fg);}
+body{
+  padding-left:max(16px,env(safe-area-inset-left,0px));
+  padding-right:max(16px,env(safe-area-inset-right,0px));
+  padding-block:0;
+}
+
+/* 화면 */
+.screen{display:none;min-height:100vh;}
+.screen.active{display:flex;flex-direction:column;}
+
+/* 접속 화면 */
+#joinScreen{align-items:center;justify-content:center;text-align:center;padding:40px 16px;gap:18px;}
+.logo{font-size:.85rem;color:var(--muted);letter-spacing:.05em;}
+.big-title{font-family:'Gowun Batang',serif;font-size:2rem;font-weight:700;color:var(--navy);text-wrap:balance;}
+.join-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;width:100%;max-width:360px;}
+.join-btn{
+  padding:28px 10px;border:3px solid var(--border);border-radius:18px;
+  background:var(--card);font-family:'Gowun Batang',serif;font-size:1.25rem;font-weight:700;
+  cursor:pointer;transition:.2s;
+}
+.join-btn:hover{transform:translateY(-3px);box-shadow:0 6px 18px rgba(0,0,0,.12);}
+.join-btn[data-g="1"]{border-color:var(--g1);color:var(--g1);}
+.join-btn[data-g="2"]{border-color:var(--g2);color:var(--g2);}
+.join-btn[data-g="3"]{border-color:var(--g3);color:var(--g3);}
+.join-btn[data-g="4"]{border-color:var(--g4);color:var(--g4);}
+
+/* 이름/말 선택 */
+#nameScreen,#pieceScreen{align-items:center;justify-content:center;padding:40px 16px;gap:16px;text-align:center;}
+.sel-title{font-family:'Gowun Batang',serif;font-size:1.5rem;font-weight:700;color:var(--navy);}
+.name-grid{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;max-width:400px;}
+.name-chip{
+  padding:10px 20px;border:2px solid var(--border);border-radius:30px;
+  background:var(--card);font-size:.95rem;cursor:pointer;transition:.15s;
+}
+.name-chip:hover{border-color:var(--gold);}
+.name-chip.taken{opacity:.3;cursor:not-allowed;}
+.name-chip.selected{background:var(--gold);color:#fff;border-color:var(--gold);font-weight:700;}
+.piece-grid{display:flex;flex-wrap:wrap;gap:12px;justify-content:center;max-width:420px;}
+.piece-card{
+  width:82px;height:82px;border:3px solid var(--border);border-radius:16px;
+  background:var(--card);font-size:2rem;cursor:pointer;transition:.15s;
+  display:flex;align-items:center;justify-content:center;flex-direction:column;gap:1px;
+}
+.piece-card .pname{font-size:.58rem;color:var(--muted);}
+.piece-card:hover{transform:scale(1.08);border-color:var(--gold);}
+.piece-card.taken{opacity:.2;cursor:not-allowed;}
+.piece-card.selected{border-color:var(--gold);background:#FFF8E7;}
+
+/* 대기 */
+#waitScreen{align-items:center;justify-content:center;padding:40px 16px;gap:16px;text-align:center;}
+.wait-list{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;}
+.wait-chip{padding:10px 18px;border-radius:30px;border:2px solid var(--border);background:var(--card);font-size:.9rem;}
+.wait-chip.ready{border-color:var(--teal);color:var(--teal);font-weight:700;}
+.start-btn{
+  padding:15px 40px;background:var(--teal);color:#fff;border:none;border-radius:12px;
+  font-family:'Gowun Batang',serif;font-size:1.1rem;font-weight:700;cursor:pointer;
+}
+.start-btn:disabled{opacity:.4;cursor:not-allowed;}
+
+/* 게임 화면 */
+#gameScreen{padding:0;overflow:hidden;}
+#gameScreen.active{flex-direction:column;}
+.g-header{
+  background:linear-gradient(135deg,var(--navy),#2E4A6E);
+  color:#fff;padding:10px 16px;display:flex;align-items:center;justify-content:space-between;
+  position:sticky;top:env(safe-area-inset-top,0px);
+}
+.g-header h1{font-family:'Gowun Batang',serif;font-size:1rem;}
+.turn-badge{font-size:.82rem;background:rgba(255,255,255,.2);padding:4px 10px;border-radius:20px;}
+
+/* 글자 바 */
+.letters-bar{
+  background:var(--card);border-bottom:1px solid var(--border);
+  padding:7px 16px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;
+}
+.letters-label{font-size:.72rem;color:var(--muted);white-space:nowrap;}
+.letters{display:flex;gap:3px;flex-wrap:wrap;}
+.l-tile{
+  width:24px;height:24px;border-radius:5px;border:2px solid var(--border);
+  background:var(--card);display:flex;align-items:center;justify-content:center;
+  font-family:'Gowun Batang',serif;font-size:.78rem;transition:all .3s;
+}
+.l-tile.filled{background:var(--gold);color:#fff;border-color:var(--gold);font-weight:700;}
+.letters-goal{font-size:.7rem;color:var(--muted);margin-left:auto;white-space:nowrap;}
+
+/* 말판 + 사이드 */
+.g-body{display:flex;flex:1;overflow:hidden;}
+.board-wrap{flex:1;overflow:auto;display:flex;align-items:center;justify-content:center;padding:8px;}
+
+/* 말판 7×7 */
+.board{
+  display:grid;
+  grid-template-columns:repeat(7,1fr);
+  grid-template-rows:repeat(7,1fr);
+  gap:3px;
+  width:min(92vw,470px);
+  height:min(92vw,470px);
+  background:var(--navy);
+  border-radius:14px;
+  padding:6px;
+}
+.cell{
+  border-radius:7px;display:flex;align-items:center;justify-content:center;
+  text-align:center;padding:2px;position:relative;overflow:hidden;
+  background:var(--card);border:1.5px solid var(--border);
+}
+.cell-inner{font-size:.5rem;line-height:1.3;color:var(--fg);z-index:1;user-select:none;}
+.cell.type-start{background:linear-gradient(135deg,#E74C3C,#C0392B);color:#fff;}
+.cell.type-start .cell-inner{color:#fff;font-weight:700;font-family:'Gowun Batang',serif;font-size:.65rem;}
+.cell.type-q{background:var(--q-bg);}
+.cell.type-q .cell-inner{color:#1A4A38;}
+.cell.type-special{background:var(--special-bg);}
+.cell.type-mission{background:var(--mission-bg);}
+.cell.type-center{
+  background:linear-gradient(135deg,#1F3350,#2D7A6B);color:#fff;
+  grid-column:2/7;grid-row:2/7;border-radius:10px;
+}
+.cell.cur-turn{box-shadow:inset 0 0 0 2.5px var(--gold),0 0 10px rgba(181,147,58,.4);}
+.tokens{position:absolute;inset:0;display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:1px;pointer-events:none;}
+.token{font-size:1.05rem;line-height:1;filter:drop-shadow(0 1px 2px rgba(0,0,0,.3));}
+
+/* 사이드 */
+.side{width:150px;background:var(--card);border-left:1px solid var(--border);padding:10px 8px;display:flex;flex-direction:column;gap:8px;overflow-y:auto;}
+@media(max-width:520px){
+  .g-body{flex-direction:column;}
+  .side{width:100%;border-left:none;border-top:1px solid var(--border);flex-direction:row;flex-wrap:wrap;padding:8px 12px;gap:8px;}
+}
+.side-title{font-size:.68rem;color:var(--muted);letter-spacing:.05em;}
+.sc-row{display:flex;align-items:center;gap:5px;font-size:.78rem;margin-bottom:2px;}
+.sc-name{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.sc-val{font-variant-numeric:tabular-nums;font-weight:700;min-width:14px;text-align:right;}
+.sc-bar-bg{height:4px;background:var(--border);border-radius:2px;margin-bottom:6px;}
+.sc-bar{height:100%;border-radius:2px;transition:width .4s;}
+
+/* 액션 바 */
+.action-bar{
+  background:var(--card);border-top:1px solid var(--border);
+  padding:10px 16px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;
+}
+.dice-btn{
+  padding:11px 22px;background:var(--navy);color:#fff;border:none;border-radius:10px;
+  font-family:'Gowun Batang',serif;font-size:1rem;font-weight:700;cursor:pointer;white-space:nowrap;
+}
+.dice-btn:disabled{opacity:.35;cursor:not-allowed;}
+.dice-val{font-family:'Gowun Batang',serif;font-size:1.5rem;min-width:30px;text-align:center;}
+.t-wrap{flex:1;min-width:60px;}
+.t-bg{height:7px;background:var(--border);border-radius:4px;overflow:hidden;}
+.t-bar{height:100%;background:var(--teal);border-radius:4px;transition:width .15s linear;}
+.t-lbl{font-size:.72rem;color:var(--muted);margin-top:2px;font-variant-numeric:tabular-nums;}
+.my-info{font-size:.78rem;color:var(--muted);}
+
+/* 모달 공통 */
+.modal-bg{
+  position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:100;
+  display:flex;align-items:center;justify-content:center;padding:20px;
+}
+.modal-bg[hidden]{display:none;}
+.modal-box{background:var(--card);border-radius:20px;padding:28px 24px;max-width:440px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,.3);}
+
+/* 질문 모달 */
+.q-eyebrow{font-size:.72rem;color:var(--muted);letter-spacing:.06em;margin-bottom:6px;}
+.q-text{font-family:'Gowun Batang',serif;font-size:1.05rem;font-weight:700;color:var(--navy);line-height:1.55;text-wrap:balance;margin-bottom:16px;}
+.q-tbar-wrap{display:flex;align-items:center;gap:10px;margin-bottom:14px;}
+.q-tbar-bg{flex:1;height:6px;background:var(--border);border-radius:3px;overflow:hidden;}
+.q-tbar{height:100%;background:var(--teal);border-radius:3px;transition:width .1s linear,background .3s;}
+.q-tsec{font-size:.8rem;color:var(--muted);min-width:22px;text-align:right;font-variant-numeric:tabular-nums;}
+.q-inp{
+  width:100%;padding:11px 14px;border:2px solid var(--border);border-radius:10px;
+  background:var(--bg);color:var(--fg);font-family:'Gowun Dodum',sans-serif;font-size:.95rem;outline:none;margin-bottom:10px;
+}
+.q-inp:focus{border-color:var(--teal);}
+.q-result{font-size:.9rem;font-weight:700;text-align:center;margin-bottom:8px;min-height:20px;}
+.q-result.ok{color:var(--teal);}
+.q-result.fail{color:#E74C3C;}
+.q-reveal{font-size:.82rem;color:var(--muted);text-align:center;line-height:1.5;margin-bottom:12px;}
+.q-submit{
+  width:100%;padding:12px;background:var(--teal);color:#fff;border:none;border-radius:10px;
+  font-family:'Gowun Batang',serif;font-size:1rem;font-weight:700;cursor:pointer;
+}
+.q-submit:hover{opacity:.88;}
+
+/* 특수 모달 */
+.sp-icon{font-size:3rem;text-align:center;margin-bottom:10px;}
+.sp-title{font-family:'Gowun Batang',serif;font-size:1.2rem;font-weight:700;color:var(--navy);text-align:center;margin-bottom:8px;}
+.sp-desc{font-size:.88rem;color:var(--muted);text-align:center;line-height:1.6;margin-bottom:18px;}
+.sp-ok{display:block;margin:0 auto;padding:11px 32px;background:var(--navy);color:#fff;border:none;border-radius:10px;font-family:'Gowun Batang',serif;font-size:.95rem;cursor:pointer;}
+
+/* 가위바위보 */
+.rps-title{font-family:'Gowun Batang',serif;font-size:1.1rem;font-weight:700;color:var(--navy);text-align:center;margin-bottom:14px;}
+.rps-btns{display:flex;gap:12px;justify-content:center;margin-bottom:14px;}
+.rps-btn{width:68px;height:68px;font-size:2.2rem;border:3px solid var(--border);border-radius:14px;background:var(--card);cursor:pointer;transition:.15s;}
+.rps-btn:hover{border-color:var(--gold);transform:scale(1.1);}
+.rps-res{font-size:.95rem;font-weight:700;color:var(--teal);text-align:center;min-height:22px;margin-bottom:10px;}
+.rps-ok{display:block;margin:0 auto;padding:10px 28px;background:var(--navy);color:#fff;border:none;border-radius:10px;font-family:'Gowun Batang',serif;font-size:.9rem;cursor:pointer;}
+
+/* 최종 */
+#endScreen{align-items:center;justify-content:center;padding:40px 16px;gap:16px;text-align:center;}
+.end-title{font-family:'Gowun Batang',serif;font-size:1.8rem;font-weight:700;color:var(--navy);}
+.rank-list{display:flex;flex-direction:column;gap:10px;width:100%;max-width:380px;}
+.rank-row{display:flex;align-items:center;gap:12px;background:var(--card);border:1px solid var(--border);border-radius:14px;padding:12px 16px;}
+.rank-medal{font-size:1.5rem;}
+.rank-info{flex:1;}
+.rank-name{font-family:'Gowun Batang',serif;font-size:.95rem;font-weight:700;}
+.rank-word{font-size:.75rem;color:var(--muted);}
+.rank-score{font-family:'Gowun Batang',serif;font-size:1.1rem;color:var(--gold);font-weight:700;font-variant-numeric:tabular-nums;}
+.restart-btn{padding:13px 36px;background:var(--navy);color:#fff;border:none;border-radius:12px;font-family:'Gowun Batang',serif;font-size:1rem;cursor:pointer;margin-top:8px;}
+</style>
+
+<!-- 접속 -->
+<div id="joinScreen" class="screen active">
+  <div class="logo">5-2 국어 · 방언 단원</div>
+  <div class="big-title">🗺️ 방언 말판놀이</div>
+  <div style="font-size:.9rem;color:var(--muted);">모둠을 선택해 접속하세요</div>
+  <div class="join-grid">
+    <button class="join-btn" data-g="1" onclick="joinGroup(1)">1모둠</button>
+    <button class="join-btn" data-g="2" onclick="joinGroup(2)">2모둠</button>
+    <button class="join-btn" data-g="3" onclick="joinGroup(3)">3모둠</button>
+    <button class="join-btn" data-g="4" onclick="joinGroup(4)">4모둠</button>
+  </div>
+</div>
+
+<!-- 이름 선택 -->
+<div id="nameScreen" class="screen">
+  <div class="sel-title" id="nameTitle">이름을 선택하세요</div>
+  <div class="name-grid" id="nameGrid"></div>
+</div>
+
+<!-- 말 선택 -->
+<div id="pieceScreen" class="screen">
+  <div class="sel-title">말을 선택하세요 🐟</div>
+  <div class="piece-grid" id="pieceGrid"></div>
+</div>
+
+<!-- 대기 -->
+<div id="waitScreen" class="screen">
+  <div class="sel-title">🎲 모둠원 대기 중...</div>
+  <div class="wait-list" id="waitList"></div>
+  <button class="start-btn" id="startBtn" onclick="doStart()" disabled>게임 시작</button>
+  <div style="font-size:.8rem;color:var(--muted);">모둠원이 2명 이상 준비되면 시작 가능</div>
+</div>
+
+<!-- 게임 -->
+<div id="gameScreen" class="screen">
+  <div class="g-header">
+    <h1>🗺️ 방언 말판놀이</h1>
+    <div class="turn-badge" id="turnBadge">—</div>
+  </div>
+  <div class="letters-bar">
+    <div class="letters-label">수집 글자</div>
+    <div class="letters" id="lettersBar"></div>
+    <div class="letters-goal">목표: 11글자!</div>
+  </div>
+  <div class="g-body">
+    <div class="board-wrap"><div class="board" id="boardEl"></div></div>
+    <div class="side">
+      <div class="side-title">점수판</div>
+      <div id="scoreEl"></div>
+    </div>
+  </div>
+  <div class="action-bar">
+    <button class="dice-btn" id="diceBtn" onclick="doRoll()" disabled>🎲 주사위</button>
+    <div class="dice-val" id="diceVal">—</div>
+    <div class="t-wrap">
+      <div class="t-bg"><div class="t-bar" id="mainTBar" style="width:0%"></div></div>
+      <div class="t-lbl" id="mainTLbl">대기 중</div>
+    </div>
+    <div class="my-info" id="myInfoEl"></div>
+  </div>
+</div>
+
+<!-- 최종 -->
+<div id="endScreen" class="screen">
+  <div class="end-title">🎉 게임 종료!</div>
+  <div class="rank-list" id="rankList"></div>
+  <button class="restart-btn" onclick="doReset()">처음으로</button>
+</div>
+
+<!-- 질문 모달 -->
+<div class="modal-bg" id="qModal" hidden>
+  <div class="modal-box">
+    <div class="q-eyebrow">📚 방언 퀴즈</div>
+    <div class="q-text" id="qText"></div>
+    <div class="q-tbar-wrap">
+      <div class="q-tbar-bg"><div class="q-tbar" id="qTBar" style="width:100%"></div></div>
+      <div class="q-tsec" id="qTSec">10</div>
+    </div>
+    <input class="q-inp" id="qInp" placeholder="답을 입력하세요..." autocomplete="off">
+    <div class="q-result" id="qResult"></div>
+    <div class="q-reveal" id="qReveal"></div>
+    <button class="q-submit" id="qSubmit" onclick="onQSubmit()">제출하기</button>
+  </div>
+</div>
+
+<!-- 특수 모달 -->
+<div class="modal-bg" id="spModal" hidden>
+  <div class="modal-box">
+    <div class="sp-icon" id="spIcon"></div>
+    <div class="sp-title" id="spTitle"></div>
+    <div class="sp-desc" id="spDesc"></div>
+    <button class="sp-ok" onclick="closeSp()">확인</button>
+  </div>
+</div>
+
+<!-- 가위바위보 모달 -->
+<div class="modal-bg" id="rpsModal" hidden>
+  <div class="modal-box">
+    <div class="rps-title" id="rpsTitle">✌️ 가위바위보!</div>
+    <div class="rps-btns">
+      <button class="rps-btn" onclick="doRPS('가위')">✌️</button>
+      <button class="rps-btn" onclick="doRPS('바위')">✊</button>
+      <button class="rps-btn" onclick="doRPS('보')">🖐️</button>
+    </div>
+    <div class="rps-res" id="rpsRes"></div>
+    <button class="rps-ok" id="rpsOk" onclick="closeRPS()" hidden>확인</button>
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════
+// Firebase
+// ═══════════════════════════════════════════
+const FB = { databaseURL: 'https://banwel-51-default-rtdb.asia-southeast1.firebasedatabase.app' };
+firebase.initializeApp(FB);
+const db = firebase.database();
+const ROOT = 'classroom/dialect_board';
+const ref = p => db.ref(`${ROOT}/${p}`);
+
+// ═══════════════════════════════════════════
+// 데이터
+// ═══════════════════════════════════════════
+const TARGET = '표준어와방언을알아봐요'; // 11글자
+const LETTERS = [...TARGET];
+
+const MEMBERS = {
+  1:['1_김다온','2_김도영','3_김채화','4_백수민'],
+  2:['5_소진호','6_신은비','7_유준선','8_윤하늘'],
+  3:['9_이보현','10_이지은','11_임규원','12_임휘재'],
+  4:['13_장문혁','14_장준혁','15_한승우'],
+};
+const GCOLORS = { 1:'#E74C3C', 2:'#2D7A6B', 3:'#7C3AED', 4:'#B5933A' };
+const MEDALS = ['🥇','🥈','🥉','4️⃣','5️⃣','6️⃣'];
+
+const PIECES = [
+  {e:'🐟',n:'물고기'},{e:'🦀',n:'게'},{e:'🐠',n:'열대어'},{e:'🐙',n:'문어'},
+  {e:'🦞',n:'바닷가재'},{e:'🐡',n:'복어'},{e:'🐚',n:'조개'},{e:'🌊',n:'파도'},
+  {e:'⛵',n:'배'},{e:'🦈',n:'상어'},{e:'🐋',n:'고래'},{e:'🪸',n:'산호'},
+];
+
+// 질문 데이터
+const QS = [
+  { q:'숨비 소리를 통해 알 수 있는 제주 해녀들의 문화는?', key:'공동체', ans:'서로 안전을 살피며 함께 일하는 공동체 문화' },
+  { q:'전라 지역에 \'뻘\'과 같이 갯벌과 관련된 방언이 발달한 까닭은?', key:'갯벌', ans:'전라 지역은 갯벌이 넓게 발달하여서' },
+  { q:'해녀들이 바다에 들어가 해산물이나 해초를 잡거나 따는 일을 뜻하는 제주 방언은?', key:'무레질', ans:'무레질' },
+  { q:'교과서 글에서 \'나\'가 가장 먼저 향한 곳은 어디인가요?', key:'곶자왈', ans:'제주곶자왈도립공원' },
+  { q:'울퉁불퉁한 땅 위에 나무들이 빽빽하게 자란 곳을 제주에서는 무엇이라고 부르나요?', key:'곶자왈', ans:'곶자왈' },
+  { q:'경상 지역의 방언인 \'돔배기\'는 무엇을 뜻하나요?', key:'상어', ans:'상어고기' },
+  { q:'경상 지역 방언 \'돔배기\'를 통해 알 수 있는 경상도의 문화는?', key:'상어고기', ans:'경상 지역에서는 상어고기를 소금에 절여 먹는 문화가 발달했어요' },
+  { q:'전라 지역의 방언인 \'뻘\'은 무엇을 뜻하나요?', key:'갯벌', ans:'갯벌' },
+  { q:'마을 어른을 "삼춘"이라고 부르는 것을 통해 알 수 있는 제주의 문화는?', key:'공동체', ans:'다른 사람도 가족처럼 부르는 제주도 특유의 공동체 문화' },
+  { q:'삶은 돼지고기를 나무 도마에 썰어낸 것에서 유래한 제주도의 음식 이름은?', key:'도마', ans:'제주도에서만 사용하는 고유한 음식 이름이 있다 / 돔베고기' },
+  { q:'방언의 가치는 무엇인가요?', key:'문화', ans:'지역의 자연환경과 문화, 생활 모습 등을 잘 드러내기 때문' },
+];
+
+// ═══════════════════════════════════════════
+// 말판 칸 (22칸, 0=시작, 시계방향)
+// ═══════════════════════════════════════════
+const CELLS = [
+  // 0 시작
+  {t:'start', label:'⭐\n시작'},
+  // 1-5 하단 (좌→우)
+  {t:'special', label:'⏩ 2칸\n앞으로!', eff:'adv', v:2},
+  {t:'q', qi:0},
+  {t:'q', qi:1},
+  {t:'q', qi:2},
+  {t:'special', label:'😴 다음에\n한 번 쉬기!', eff:'skip'},
+  // 6-10 우측 (하→상)
+  {t:'q', qi:3},
+  {t:'q', qi:4},
+  {t:'mission', label:'⚫ 바둑알\n1개 받기!', eff:'bonus', v:1},
+  {t:'q', qi:5},
+  {t:'mission', label:'⚫ 바둑알\n1개 받기!', eff:'bonus', v:1},
+  // 11-15 상단 (우→좌)
+  {t:'special', label:'✌️ 지목 가위바위보!\n이기면 상대\n바둑알 2개 빼기', eff:'rps', v:2},
+  {t:'q', qi:6},
+  {t:'mission', label:'⚫ 바둑알\n1개 받기!', eff:'bonus', v:1},
+  {t:'q', qi:7},
+  {t:'special', label:'💕 "선생님, 사랑해요!"\n외치고 3칸 앞으로!', eff:'shout', v:3},
+  // 16-20 좌측 (상→하)
+  {t:'q', qi:8},
+  {t:'special', label:'⏪ 2칸\n뒤로!', eff:'adv', v:-2},
+  {t:'q', qi:9},
+  {t:'special', label:'😈 다른 사람\n바둑알 1개 빼기!', eff:'rps', v:1},
+  {t:'q', qi:10},
+  // 21 좌하 (시작 바로 위)
+  {t:'special', label:'⏪ 2칸\n뒤로!', eff:'adv', v:-2},
+];
+const N = CELLS.length; // 22
+
+// 7×7 그리드 좌표 (col, row) 0-indexed
+// 외곽 22칸 시계방향 배치
+const COORDS = [
+  [0,6],[1,6],[2,6],[3,6],[4,6],[5,6],[6,6], // 하단 (0-6)
+  [6,5],[6,4],[6,3],[6,2],[6,1],[6,0],         // 우측 (7-13)
+  [5,0],[4,0],[3,0],[2,0],[1,0],[0,0],          // 상단 (14-19)
+  [0,1],[0,2],[0,3],[0,4],[0,5],                // 좌측 (20-24)
+];
+// 22칸 → COORDS에서 22개 선택 (시작=좌하[0,6])
+const CELL_COORDS = [
+  [0,6], // 0 시작
+  [1,6],[2,6],[3,6],[4,6],[5,6], // 1-5 하단
+  [6,6],[6,5],[6,4],[6,3],[6,2], // 6-10 우하→우측
+  [6,1],[5,1],[4,1],[3,1],[2,1], // 11-15 우상→상단(일부)
+  [1,1],[0,1],[0,2],[0,3],[0,4], // 16-20 좌상→좌측
+  [0,5], // 21 좌측 하부
+];
+const gridIdx = {}; // "c,r" -> cellIndex
+CELL_COORDS.forEach((cr,i) => { gridIdx[cr[0]+','+cr[1]] = i; });
+
+// ═══════════════════════════════════════════
+// 상태
+// ═══════════════════════════════════════════
+let myG=null, myN=null, myP=null; // group, name, piece
+let gState=null;
+let qTimer=null, qSec=0, qAnswered=false, curQ=null;
+let spCb=null, rpsCb=null;
+let unsubPlayers=null, unsubState=null;
+
+// ═══════════════════════════════════════════
+// 화면
+// ═══════════════════════════════════════════
+function show(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+// ═══════════════════════════════════════════
+// 접속
+// ═══════════════════════════════════════════
+function joinGroup(g){
+  myG=g;
+  show('nameScreen');
+  document.getElementById('nameTitle').textContent=`${g}모둠 — 이름을 선택하세요`;
+  subPlayers(); // 전체 구독 시작
+  renderNames();
+}
+
+function subPlayers(){
+  if(unsubPlayers) unsubPlayers();
+  const unsub = ref('players').on('value', snap=>{
+    const data = snap.val()||{};
+    renderNames(data);
+    renderPieces(data);
+    renderWait(data);
+    if(gState) renderGame(data, gState);
+  });
+  unsubPlayers = ()=>ref('players').off('value', unsub);
+}
+
+function renderNames(data={}){
+  const g = document.getElementById('nameGrid');
+  if(!g) return;
+  const taken={};
+  Object.values(data).forEach(p=>{ if(p.name) taken[p.name]=true; });
+  g.innerHTML='';
+  (MEMBERS[myG]||[]).forEach(name=>{
+    const btn=document.createElement('button');
+    btn.className='name-chip'+(myN===name?' selected':'')+(taken[name]&&myN!==name?' taken':'');
+    btn.textContent=name.replace(/^\d+_/,'');
+    btn.onclick=()=>{
+      if(taken[name]&&myN!==name) return;
+      myN=name;
+      ref(`players/${myG}_${myN}`).update({name:myN, group:myG, pos:0, letters:0, skipping:false, ready:false});
+      renderNames(data);
+      renderPieces(data);
+      show('pieceScreen');
+    };
+    g.appendChild(btn);
+  });
+}
+
+function renderPieces(data={}){
+  const g=document.getElementById('pieceGrid');
+  if(!g) return;
+  const taken={};
+  Object.values(data).forEach(p=>{ if(p.piece&&p.name!==myN) taken[p.piece]=true; });
+  g.innerHTML='';
+  PIECES.forEach(({e,n})=>{
+    const btn=document.createElement('button');
+    btn.className='piece-card'+(myP===e?' selected':'')+(taken[e]?' taken':'');
+    btn.innerHTML=`<span>${e}</span><span class="pname">${n}</span>`;
+    btn.onclick=()=>{
+      if(taken[e]) return;
+      myP=e;
+      ref(`players/${myG}_${myN}`).update({piece:myP, ready:true});
+      renderPieces(data);
+      show('waitScreen');
+    };
+    g.appendChild(btn);
+  });
+}
+
+function renderWait(data={}){
+  const wl=document.getElementById('waitList');
+  if(!wl) return;
+  const all=Object.values(data);
+  wl.innerHTML=all.map(p=>`<div class="wait-chip ${p.ready?'ready':''}">${p.piece||'?'} ${(p.name||'').replace(/^\d+_/,'')} ${p.ready?'✓':''}</div>`).join('');
+  const sb=document.getElementById('startBtn');
+  if(sb) sb.disabled=all.filter(p=>p.ready).length<2;
+}
+
+// ═══════════════════════════════════════════
+// 게임 시작
+// ═══════════════════════════════════════════
+function doStart(){
+  ref('players').get().then(snap=>{
+    const data=snap.val()||{};
+    const keys=Object.keys(data).filter(k=>data[k].ready);
+    if(keys.length<2){ return; }
+    ref('state').set({
+      started:true, phase:'rolling', turnIdx:0,
+      currentPlayer:keys[0], turn:0, lastDice:0,
+    });
+    subState();
+  });
+}
+
+function subState(){
+  if(unsubState) unsubState();
+  const unsub = ref('state').on('value', snap=>{
+    const s=snap.val();
+    if(!s) return;
+    gState=s;
+    if(s.started){
+      show('gameScreen');
+      ref('players').get().then(snap2=>{
+        const data=snap2.val()||{};
+        renderGame(data,s);
+        // 종료 체크
+        const winner=Object.values(data).find(p=>(p.letters||0)>=LETTERS.length);
+        if(winner) setTimeout(()=>{
+          ref('players').get().then(ss=>showEnd(ss.val()||{}));
+        },1000);
+      });
+    }
+  });
+  unsubState=()=>ref('state').off('value',unsub);
+}
+
+// ═══════════════════════════════════════════
+// 게임 렌더
+// ═══════════════════════════════════════════
+function renderGame(players, s){
+  renderBoard(players, s);
+  renderScores(players);
+  renderLetters(players);
+  renderTurnUI(players, s);
+}
+
+function renderBoard(players, s){
+  const el=document.getElementById('boardEl');
+  if(!el) return;
+  el.innerHTML='';
+  // 중앙 셀 먼저 생성
+  for(let row=0;row<7;row++){
+    for(let col=0;col<7;col++){
+      const key=col+','+row;
+      const ci=gridIdx[key];
+      const div=document.createElement('div');
+
+      // 중앙 5×5 (col 1-5, row 1-5) → 중앙 합병 셀
+      if(col===1&&row===1){
+        div.className='cell type-center';
+        div.innerHTML=`<div style="text-align:center;padding:8px;">
+          <div style="font-size:1.4rem;margin-bottom:4px;">🗺️</div>
+          <div style="font-family:'Gowun Batang',serif;font-size:.7rem;font-weight:700;margin-bottom:6px;">방언 말판놀이</div>
+          <div style="font-size:.52rem;line-height:1.7;opacity:.85;">
+            📜 놀이 방법<br>
+            1) 주사위를 던져 이동<br>
+            2) 질문 칸: 10초 안에 답변<br>
+            3) 정답 → 바둑알(글자) 1개<br>
+            4) 틀리면 원래 자리로!<br>
+            5) 11글자 먼저 모으면 승리!
+          </div>
+        </div>`;
+        el.appendChild(div);
+        // 중앙 영역 스킵을 위해 다음 col들을 채움
+        continue;
+      }
+      if(col>=1&&col<=5&&row>=1&&row<=5&&!(col===1&&row===1)){
+        // 중앙 병합 영역 — 빈 div (CSS grid로 center 셀이 차지)
+        const ph=document.createElement('div');
+        ph.style.display='none';
+        el.appendChild(ph);
+        continue;
+      }
+
+      // 외곽 칸
+      if(ci!==undefined){
+        const cell=CELLS[ci];
+        div.className=`cell type-${cell.t}`;
+        const isCur = s&&s.currentPlayer && (() => {
+          return false; // 비동기이므로 별도 처리
+        })();
+
+        // 텍스트
+        const inner=document.createElement('div');
+        inner.className='cell-inner';
+        if(cell.t==='start') inner.textContent='⭐\n시작';
+        else if(cell.t==='q') inner.textContent=QS[cell.qi]?.q.substring(0,18)+'…';
+        else inner.textContent=cell.label||'';
+        div.appendChild(inner);
+
+        // 말 토큰
+        const tDiv=document.createElement('div');
+        tDiv.className='tokens';
+        Object.values(players).forEach(p=>{
+          if(p.pos===ci&&p.piece){
+            const t=document.createElement('span');
+            t.className='token';
+            t.textContent=p.piece;
+            t.title=(p.name||'').replace(/^\d+_/,'');
+            tDiv.appendChild(t);
+          }
+        });
+        div.appendChild(tDiv);
+
+        // 현재 턴 강조
+        if(s&&s.currentPlayer){
+          const cp=players[s.currentPlayer];
+          if(cp&&cp.pos===ci) div.classList.add('cur-turn');
+        }
+      } else {
+        // 코너: 비어있는 외곽 자리 (없음 — 22칸이 모두 외곽을 채움)
+        div.className='cell';
+        div.style.background='transparent';
+        div.style.border='none';
+      }
+      el.appendChild(div);
+    }
+  }
+  // 중앙 셀 grid-column/row 설정
+  const centerCell=el.querySelector('.type-center');
+  if(centerCell){ centerCell.style.gridColumn='2/7'; centerCell.style.gridRow='2/7'; }
+}
+
+function renderScores(players){
+  const el=document.getElementById('scoreEl');
+  if(!el) return;
+  const arr=Object.values(players).sort((a,b)=>(b.letters||0)-(a.letters||0));
+  const mx=Math.max(...arr.map(p=>p.letters||0),1);
+  el.innerHTML=arr.map(p=>{
+    const c=GCOLORS[p.group]||'#888';
+    const pct=Math.round(((p.letters||0)/mx)*100);
+    const isMe=p.name===myN&&p.group===myG;
+    return `<div class="sc-row" style="${isMe?'font-weight:700;':''}">
+      <span>${p.piece||'?'}</span>
+      <span class="sc-name" style="color:${c}">${(p.name||'').replace(/^\d+_/,'')}</span>
+      <span class="sc-val" style="color:${c}">${p.letters||0}</span>
+    </div>
+    <div class="sc-bar-bg"><div class="sc-bar" style="width:${pct}%;background:${c}"></div></div>`;
+  }).join('');
+}
+
+function renderLetters(players){
+  const el=document.getElementById('lettersBar');
+  if(!el) return;
+  const me=Object.values(players).find(p=>p.name===myN&&p.group===myG);
+  const cnt=me?me.letters||0:0;
+  el.innerHTML=LETTERS.map((l,i)=>`<div class="l-tile ${i<cnt?'filled':''}">${i<cnt?l:''}</div>`).join('');
+}
+
+function renderTurnUI(players, s){
+  const badge=document.getElementById('turnBadge');
+  const dBtn=document.getElementById('diceBtn');
+  const myInfo=document.getElementById('myInfoEl');
+  if(!s||!s.started) return;
+
+  const curKey=s.currentPlayer;
+  const isMyTurn=curKey===`${myG}_${myN}`;
+
+  if(curKey&&players[curKey]){
+    const cp=players[curKey];
+    badge.textContent=`${cp.piece} ${(cp.name||'').replace(/^\d+_/','')}의 차례`;
+  }
+  const me=players[`${myG}_${myN}`];
+  if(me) myInfo.textContent=`${me.piece||''} ${(me.name||'').replace(/^\d+_/,'')} · ${me.letters||0}글자`;
+
+  if(dBtn) dBtn.disabled=!isMyTurn||s.phase!=='rolling';
+
+  // 쉬기 처리
+  if(isMyTurn&&s.phase==='rolling'&&me&&me.skipping){
+    dBtn.disabled=true;
+    setTimeout(()=>{
+      ref(`players/${myG}_${myN}`).update({skipping:false});
+      doEndTurn();
+    }, 1500);
+    showSp('😴','한 번 쉬어요!','이번 턴은 쉽니다. 다음 차례에 주사위를 굴릴 수 있어요.',null);
+  }
+}
+
+// ═══════════════════════════════════════════
+// 주사위
+// ═══════════════════════════════════════════
+function doRoll(){
+  const DICE=['⚀','⚁','⚂','⚃','⚄','⚅'];
+  const val=Math.ceil(Math.random()*6);
+  document.getElementById('diceVal').textContent=DICE[val-1];
+  document.getElementById('diceBtn').disabled=true;
+
+  ref(`players/${myG}_${myN}`).get().then(snap=>{
+    const me=snap.val();
+    if(!me) return;
+    const prevPos=me.pos||0;
+    const newPos=(prevPos+val)%N;
+    ref(`players/${myG}_${myN}`).update({prevPos, pos:newPos}).then(()=>{
+      ref('state').update({phase:'action', lastDice:val});
+      handleLand(newPos, me, prevPos);
+    });
+  });
+}
+
+// ═══════════════════════════════════════════
+// 칸 착지 처리
+// ═══════════════════════════════════════════
+function handleLand(pos, me, prevPos){
+  // 시작 칸 통과 보너스
+  if(pos===0){
+    gainLetters(1);
+    showSp('⭐','시작 칸!','바둑알 1개를 받습니다!',()=>doEndTurn());
+    return;
+  }
+  const cell=CELLS[pos];
+  if(!cell){ doEndTurn(); return; }
+
+  if(cell.t==='q'){
+    const q=QS[cell.qi];
+    if(!q){ doEndTurn(); return; }
+    curQ=q;
+    openQModal(q);
+    return;
+  }
+
+  if(cell.t==='start'){ doEndTurn(); return; }
+
+  // 특수/미션
+  const eff=cell.eff;
+  if(eff==='adv'){
+    const steps=cell.v||0;
+    const newPos=((pos+steps)%N+N)%N;
+    ref(`players/${myG}_${myN}`).update({pos:newPos});
+    const lbl=steps>0?`${steps}칸 앞으로!`:`${Math.abs(steps)}칸 뒤로!`;
+    showSp(steps>0?'⏩':'⏪',lbl,`말이 이동합니다.`,()=>doEndTurn());
+    return;
+  }
+  if(eff==='skip'){
+    ref(`players/${myG}_${myN}`).update({skipping:true});
+    showSp('😴','다음 턴 쉬기!','다음 차례에 한 번 쉽니다.',()=>doEndTurn());
+    return;
+  }
+  if(eff==='bonus'){
+    gainLetters(cell.v||1);
+    showSp('⚫',`바둑알 ${cell.v||1}개 획득!`,`바둑알 ${cell.v||1}개를 받습니다!`,()=>doEndTurn());
+    return;
+  }
+  if(eff==='shout'){
+    showSp('💕','"선생님, 사랑해요!" 외치기!','큰 소리로 외친 뒤 3칸 앞으로 이동!',()=>{
+      const np=(pos+3)%N;
+      ref(`players/${myG}_${myN}`).update({pos:np});
+      doEndTurn();
+    });
+    return;
+  }
+  if(eff==='rps'){
+    openRPS(cell.v||1);
+    return;
+  }
+  doEndTurn();
+}
+
+// ═══════════════════════════════════════════
+// 글자 획득/차감
+// ═══════════════════════════════════════════
+function gainLetters(n){
+  ref(`players/${myG}_${myN}`).get().then(snap=>{
+    const me=snap.val();
+    if(!me) return;
+    const nv=Math.min((me.letters||0)+n, LETTERS.length);
+    ref(`players/${myG}_${myN}`).update({letters:nv});
+  });
+}
+function loseLetters(targetKey, n){
+  ref(`players/${targetKey}`).get().then(snap=>{
+    const p=snap.val();
+    if(!p) return;
+    ref(`players/${targetKey}`).update({letters:Math.max(0,(p.letters||0)-n)});
+  });
+}
+
+// ═══════════════════════════════════════════
+// 질문 모달
+// ═══════════════════════════════════════════
+function openQModal(q){
+  document.getElementById('qText').textContent=q.q;
+  document.getElementById('qInp').value='';
+  document.getElementById('qResult').textContent='';
+  document.getElementById('qResult').className='q-result';
+  document.getElementById('qReveal').textContent='';
+  const submitBtn=document.getElementById('qSubmit');
+  submitBtn.textContent='제출하기';
+  submitBtn.onclick=onQSubmit;
+  submitBtn.disabled=false;
+  document.getElementById('qModal').hidden=false;
+  qAnswered=false;
+  startQTimer();
+}
+
+function startQTimer(){
+  clearInterval(qTimer);
+  qSec=10;
+  updQTimer();
+  qTimer=setInterval(()=>{
+    qSec--;
+    updQTimer();
+    if(qSec<=0){
+      clearInterval(qTimer);
+      if(!qAnswered) timeUp();
+    }
+  },1000);
+}
+
+function updQTimer(){
+  const bar=document.getElementById('qTBar');
+  const lbl=document.getElementById('qTSec');
+  if(bar){ bar.style.width=(qSec/10*100)+'%'; bar.style.background=qSec<=3?'#E74C3C':'var(--teal)'; }
+  if(lbl) lbl.textContent=qSec;
+}
+
+function onQSubmit(){
+  if(qAnswered) return;
+  clearInterval(qTimer);
+  const ans=document.getElementById('qInp').value.trim();
+  judgeAnswer(ans);
+}
+
+function judgeAnswer(ans){
+  qAnswered=true;
+  document.getElementById('qSubmit').disabled=true;
+  const correct=ans.length>0 && curQ&&curQ.key && ans.includes(curQ.key);
+  const rEl=document.getElementById('qResult');
+  const rvEl=document.getElementById('qReveal');
+  if(correct){
+    rEl.textContent='🎉 정답입니다!';
+    rEl.className='q-result ok';
+    gainLetters(1);
+  } else {
+    rEl.textContent='❌ 틀렸어요. 원래 자리로 돌아갑니다.';
+    rEl.className='q-result fail';
+    ref(`players/${myG}_${myN}`).get().then(snap=>{
+      const me=snap.val();
+      if(me&&me.prevPos!==undefined) ref(`players/${myG}_${myN}`).update({pos:me.prevPos});
+    });
+  }
+  rvEl.textContent=`정답 힌트: ${curQ?.ans||''}`;
+  const btn=document.getElementById('qSubmit');
+  btn.textContent='다음으로';
+  btn.disabled=false;
+  btn.onclick=()=>{ document.getElementById('qModal').hidden=true; doEndTurn(); };
+}
+
+function timeUp(){
+  qAnswered=true;
+  const rEl=document.getElementById('qResult');
+  rEl.textContent='⏰ 시간 초과! 원래 자리로 돌아갑니다.';
+  rEl.className='q-result fail';
+  document.getElementById('qReveal').textContent=`정답 힌트: ${curQ?.ans||''}`;
+  ref(`players/${myG}_${myN}`).get().then(snap=>{
+    const me=snap.val();
+    if(me&&me.prevPos!==undefined) ref(`players/${myG}_${myN}`).update({pos:me.prevPos});
+  });
+  const btn=document.getElementById('qSubmit');
+  btn.textContent='다음으로';
+  btn.disabled=false;
+  btn.onclick=()=>{ document.getElementById('qModal').hidden=true; doEndTurn(); };
+}
+
+// ═══════════════════════════════════════════
+// 특수 모달
+// ═══════════════════════════════════════════
+function showSp(icon,title,desc,cb){
+  document.getElementById('spIcon').textContent=icon;
+  document.getElementById('spTitle').textContent=title;
+  document.getElementById('spDesc').textContent=desc;
+  document.getElementById('spModal').hidden=false;
+  spCb=cb;
+}
+function closeSp(){
+  document.getElementById('spModal').hidden=true;
+  if(spCb){ spCb(); spCb=null; }
+}
+
+// ═══════════════════════════════════════════
+// 가위바위보
+// ═══════════════════════════════════════════
+const RPS_WIN={가위:'보',바위:'가위',보:'바위'};
+const RPS_EMO={가위:'✌️',바위:'✊',보:'🖐️'};
+
+function openRPS(deduct){
+  document.getElementById('rpsTitle').textContent=`✌️ 가위바위보! (이기면 상대 바둑알 ${deduct}개 빼기)`;
+  document.getElementById('rpsRes').textContent='';
+  document.getElementById('rpsOk').hidden=true;
+  document.getElementById('rpsModal').hidden=false;
+  rpsCb=(won)=>{
+    if(won){
+      ref('players').get().then(snap=>{
+        const all=snap.val()||{};
+        const others=Object.entries(all).filter(([k])=>k!==`${myG}_${myN}`);
+        if(others.length){
+          others.sort((a,b)=>(b[1].letters||0)-(a[1].letters||0));
+          const [tk,tp]=others[0];
+          loseLetters(tk,deduct);
+          document.getElementById('rpsRes').textContent=`${(tp.name||'').replace(/^\d+_/,'')}에게서 바둑알 ${deduct}개를 빼앗았어요!`;
+        }
+        setTimeout(()=>{document.getElementById('rpsModal').hidden=true; doEndTurn();},1200);
+      });
+    } else {
+      setTimeout(()=>{document.getElementById('rpsModal').hidden=true; doEndTurn();},800);
+    }
+  };
+}
+
+function doRPS(choice){
+  const opts=['가위','바위','보'];
+  const opp=opts[Math.floor(Math.random()*3)];
+  const won=RPS_WIN[choice]===opp;
+  const drew=choice===opp;
+  let msg=`${RPS_EMO[choice]} vs ${RPS_EMO[opp]} — `;
+  msg+=drew?'비겼어요!':won?'이겼어요! 🎉':'졌어요...';
+  document.getElementById('rpsRes').textContent=msg;
+  document.getElementById('rpsOk').hidden=false;
+  document.getElementById('rpsOk').onclick=()=>{ if(rpsCb){rpsCb(won);rpsCb=null;} };
+}
+function closeRPS(){ document.getElementById('rpsModal').hidden=true; }
+
+// ═══════════════════════════════════════════
+// 턴 종료
+// ═══════════════════════════════════════════
+function doEndTurn(){
+  document.getElementById('diceVal').textContent='—';
+  ref('players').get().then(snap=>{
+    const data=snap.val()||{};
+    const keys=Object.keys(data).filter(k=>data[k].ready);
+    if(!keys.length) return;
+    const s=gState||{};
+    const ci=s.turnIdx||0;
+    const ni=(ci+1)%keys.length;
+    ref('state').update({ phase:'rolling', currentPlayer:keys[ni], turnIdx:ni, turn:(s.turn||0)+1 });
+  });
+}
+
+// ═══════════════════════════════════════════
+// 최종 화면
+// ═══════════════════════════════════════════
+function showEnd(players){
+  const arr=Object.values(players).sort((a,b)=>(b.letters||0)-(a.letters||0));
+  document.getElementById('rankList').innerHTML=arr.map((p,i)=>`
+    <div class="rank-row">
+      <div class="rank-medal">${MEDALS[i]||''}</div>
+      <div class="rank-info">
+        <div class="rank-name">${p.piece||''} ${(p.name||'').replace(/^\d+_/,'')}</div>
+        <div class="rank-word">${LETTERS.slice(0,p.letters||0).join('')}${p.letters?'':' (0글자)'}</div>
+      </div>
+      <div class="rank-score">${p.letters||0}글자</div>
+    </div>`).join('');
+  show('endScreen');
+}
+
+function doReset(){
+  ref('').remove();
+  myG=myN=myP=gState=null;
+  curQ=null;
+  show('joinScreen');
+}
+
+// ═══════════════════════════════════════════
+// 초기
+// ═══════════════════════════════════════════
+(()=>{
+  // 글자 바 초기화
+  const bar=document.getElementById('lettersBar');
+  if(bar) bar.innerHTML=LETTERS.map(()=>'<div class="l-tile"></div>').join('');
+
+  // 이미 게임 진행 중이면 복귀
+  ref('state').get().then(snap=>{
+    const s=snap.val();
+    if(s&&s.started){
+      // 재접속 처리: 로컬에 myG,myN이 없으면 접속화면으로
+    }
+  });
+})();
+</script>
