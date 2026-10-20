@@ -324,13 +324,11 @@ header h1{font-family:'Gowun Batang',serif; font-size:1.15rem; flex:1;}
 
 <script>
 // ══════════ Firebase ══════════
-firebase.initializeApp({
-  apiKey:"AIzaSyExample-replaceWithRealKey",
-  authDomain:"banwel-51.firebaseapp.com",
-  databaseURL:"https://banwel-51-default-rtdb.asia-southeast1.firebasedatabase.app",
-  projectId:"banwel-51"
-});
-const db = firebase.database();
+let _app;
+try { _app = firebase.app(); } catch(e) {
+  _app = firebase.initializeApp({ databaseURL:'https://banwel-51-default-rtdb.asia-southeast1.firebasedatabase.app' });
+}
+const db = firebase.database(_app);
 const REF = 'classroom/dialect_quiz';
 
 // ══════════ 퀴즈 데이터 ══════════
