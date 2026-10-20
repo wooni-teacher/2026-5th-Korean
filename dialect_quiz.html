@@ -402,6 +402,7 @@ const GROUP_NAMES = {1:'1모둠',2:'2모둠',3:'3모둠',4:'4모둠'};
 let myGroup = null;   // 1~4
 let isAdmin = false;
 let gameState = {};   // Firebase에서 받아온 게임 상태
+let connectedGroups = {};  // {1: timestamp, 2: timestamp, ...}
 let timerInterval = null;
 
 // ══════════ 진입 ══════════
@@ -414,6 +415,10 @@ function enterGroup(g){
   badge.textContent = GROUP_NAMES[g];
   badge.style.background = GROUP_COLORS[g];
   document.getElementById('roundScreen').style.display='block';
+  // Firebase에 접속 기록
+  db.ref(REF+'/connected/'+g).set({t: Date.now(), name: GROUP_NAMES[g]});
+  // 페이지 나갈 때 접속 해제 (선택적)
+  db.ref(REF+'/connected/'+g).onDisconnect().remove();
   subscribeGame();
 }
 
@@ -431,8 +436,8 @@ function checkPw(){
     isAdmin = true;
     document.getElementById('adminLoginWrap').style.display='none';
     document.getElementById('adminScreen').style.display='block';
-    subscribeGame();
-    renderAdminBase();
+    renderAdminBase();   // DOM 먼저 준비
+    subscribeGame();     // 그 다음 Firebase 구독
   } else {
     document.getElementById('pwErr').textContent='비밀번호가 틀렸습니다.';
   }
@@ -447,6 +452,13 @@ function subscribeGame(){
     if(isAdmin){ renderAdmin(); }
     else { renderGroup(); }
   });
+  // 관리자: 접속 모둠 현황도 구독
+  if(isAdmin){
+    db.ref(REF+'/connected').on('value', snap=>{
+      connectedGroups = snap.val() || {};
+      renderAdmin();
+    });
+  }
 }
 
 // ══════════ 모둠 화면 렌더 ══════════
@@ -633,6 +645,11 @@ function renderAdminBase(){
         ① 퀴즈 시작 → ② 화면 어둡게 → ③ 1번 호출 → 2번 → 3번 → 4번 → ④ 토의 시작(1분) → ⑤ 투표 열기 → ⑥ 정답 공개
       </div>
 
+      <div id="connectedSection" style="margin-bottom:16px;">
+        <div class="admin-panel-title" style="font-size:.95rem;">🟢 접속 현황</div>
+        <div id="connectedRows" style="display:flex;gap:8px;flex-wrap:wrap;"></div>
+      </div>
+
       <div class="round-cards" id="roundDots"></div>
 
       <div class="ctrl-row" id="ctrlRow"></div>
@@ -721,6 +738,19 @@ function renderAdmin(){
     }
   }
   document.getElementById('voteStatus').innerHTML=voteHtml;
+
+  // 접속 현황
+  if(document.getElementById('connectedRows')){
+    let connHtml='';
+    [1,2,3,4].forEach(g=>{
+      const isConn = !!(connectedGroups && connectedGroups[g]);
+      connHtml+=`<div style="display:flex;align-items:center;gap:6px;padding:6px 12px;border-radius:20px;
+        background:${isConn?GROUP_COLORS[g]:'#ddd'};color:${isConn?'#fff':'#888'};font-size:.85rem;font-weight:700;">
+        <span style="font-size:1rem">${isConn?'🟢':'⚫'}</span>${GROUP_NAMES[g]}
+      </div>`;
+    });
+    document.getElementById('connectedRows').innerHTML=connHtml;
+  }
 
   // 점수판
   const sc = scores||{};
