@@ -1,0 +1,1702 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>방언 낭독극 발표</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/9.23.0/firebase-app-compat.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/9.23.0/firebase-database-compat.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #faf8f3;
+  --bg2: #fff;
+  --fg: #1a1410;
+  --fg2: #5a4f3e;
+  --accent: #c0392b;
+  --accent2: #e74c3c;
+  --gold: #e6a817;
+  --gold2: #f5c842;
+  --green: #27ae60;
+  --blue: #2980b9;
+  --border: #e0d8cc;
+  --card: #fff;
+  --shadow: 0 2px 12px rgba(0,0,0,.1);
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #1a1410; --bg2: #241e18; --fg: #f0e8d8; --fg2: #b0a090;
+    --border: #3a3028; --card: #2a2218; --shadow: 0 2px 12px rgba(0,0,0,.4);
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #1a1410; --bg2: #241e18; --fg: #f0e8d8; --fg2: #b0a090;
+  --border: #3a3028; --card: #2a2218; --shadow: 0 2px 12px rgba(0,0,0,.4);
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: 'Noto Sans KR', sans-serif;
+  background: var(--bg);
+  color: var(--fg);
+  min-height: 100vh;
+  padding: 0;
+}
+
+.screen { display: none; min-height: 100vh; }
+.screen.active { display: flex; flex-direction: column; }
+
+/* ── Header ── */
+.hdr {
+  background: var(--accent);
+  color: #fff;
+  padding: 14px 20px;
+  display: flex; align-items: center; gap: 12px;
+  position: sticky; top: 0; z-index: 10;
+}
+.hdr-icon { font-size: 1.6rem; }
+.hdr h1 { font-size: 1.1rem; font-weight: 700; line-height: 1.2; }
+.hdr small { font-size: .75rem; opacity: .8; display: block; }
+.hdr-badge {
+  margin-left: auto; background: rgba(255,255,255,.25);
+  border-radius: 20px; padding: 4px 12px; font-size: .8rem; font-weight: 700;
+  white-space: nowrap;
+}
+
+.body { flex: 1; padding: 20px; max-width: 640px; width: 100%; margin: 0 auto; }
+
+/* ── Cards ── */
+.card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 20px;
+  box-shadow: var(--shadow);
+  margin-bottom: 16px;
+}
+.card-title {
+  font-size: 1rem; font-weight: 700; color: var(--accent);
+  margin-bottom: 12px; display: flex; align-items: center; gap: 6px;
+}
+
+/* ── Buttons ── */
+.btn {
+  display: block; width: 100%; padding: 14px;
+  border: none; border-radius: 12px; cursor: pointer;
+  font-size: 1rem; font-weight: 700; font-family: inherit;
+  transition: transform .1s, opacity .1s;
+}
+.btn:active { transform: scale(.97); }
+.btn-primary { background: var(--accent); color: #fff; }
+.btn-primary:hover { background: var(--accent2); }
+.btn-secondary {
+  background: var(--bg2); color: var(--fg);
+  border: 2px solid var(--border);
+}
+.btn-gold { background: var(--gold); color: #fff; }
+.btn-green { background: var(--green); color: #fff; }
+.btn-sm {
+  padding: 8px 16px; font-size: .85rem; border-radius: 8px;
+  display: inline-block; width: auto;
+}
+.btn:disabled { opacity: .45; cursor: not-allowed; }
+
+/* ── Input ── */
+.inp {
+  width: 100%; padding: 12px 16px;
+  border: 2px solid var(--border); border-radius: 10px;
+  font-size: 1rem; font-family: inherit;
+  background: var(--bg2); color: var(--fg);
+  outline: none; transition: border-color .2s;
+}
+.inp:focus { border-color: var(--accent); }
+
+/* ── Group grid ── */
+.group-grid {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px;
+}
+.group-btn {
+  aspect-ratio: 1; border-radius: 14px; border: 3px solid transparent;
+  display: flex; flex-direction: column; align-items: center;
+  justify-content: center; gap: 4px; cursor: pointer;
+  font-weight: 700; font-size: .9rem; font-family: inherit;
+  transition: all .15s;
+}
+.group-btn .g-icon { font-size: 2rem; }
+.group-btn.available { background: var(--bg2); border-color: var(--border); color: var(--fg); }
+.group-btn.available:hover { border-color: var(--accent); transform: scale(1.03); }
+.group-btn.mine { background: var(--accent); border-color: var(--accent); color: #fff; }
+.group-btn.taken { background: var(--border); border-color: transparent; color: var(--fg2); opacity: .6; cursor: not-allowed; }
+
+/* ── Scene cards ── */
+.scene-card {
+  border: 3px solid var(--border);
+  border-radius: 14px; padding: 16px; cursor: pointer;
+  transition: all .15s; margin-bottom: 12px; background: var(--card);
+}
+.scene-card:hover { border-color: var(--accent); }
+.scene-card.selected { border-color: var(--gold); background: #fff8ee; }
+.scene-card.taken-by-others { opacity: .5; cursor: not-allowed; border-color: var(--border); }
+.scene-card .scene-num { font-size: .75rem; color: var(--accent); font-weight: 700; margin-bottom: 4px; }
+.scene-card .scene-name { font-size: 1rem; font-weight: 700; margin-bottom: 6px; }
+.scene-card .scene-roles { font-size: .8rem; color: var(--fg2); }
+.scene-card .scene-tip { font-size: .78rem; color: var(--fg2); margin-top: 6px; font-style: italic; }
+
+/* ── Role selection ── */
+.role-list { display: flex; flex-direction: column; gap: 8px; }
+.role-item {
+  display: flex; align-items: center; gap: 12px;
+  padding: 12px 16px; border-radius: 12px;
+  border: 2px solid var(--border); cursor: pointer;
+  transition: all .15s; background: var(--card);
+}
+.role-item:hover { border-color: var(--accent); }
+.role-item.mine { border-color: var(--accent); background: #fff0ee; }
+.role-item.taken { opacity: .5; cursor: not-allowed; }
+.role-item .role-icon { font-size: 1.5rem; }
+.role-item .role-name { font-weight: 700; flex: 1; }
+.role-item .role-member { font-size: .8rem; color: var(--fg2); }
+
+/* ── Script area ── */
+.script-box {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 12px; padding: 16px;
+  font-size: .9rem; line-height: 1.7;
+  max-height: 50vh; overflow-y: auto;
+}
+.script-line { margin-bottom: 10px; }
+.script-speaker {
+  font-weight: 700; color: var(--accent);
+  display: inline;
+}
+.script-speaker.mine-role { color: var(--gold); }
+.script-direction {
+  color: var(--fg2); font-style: italic; font-size: .85rem;
+}
+.script-text { display: inline; }
+.my-line-highlight {
+  background: rgba(230, 168, 23, .15);
+  border-left: 3px solid var(--gold);
+  padding: 8px 10px; border-radius: 0 8px 8px 0;
+  margin: 4px 0;
+}
+
+/* ── Practice checklist ── */
+.criteria-list { display: flex; flex-direction: column; gap: 10px; }
+.criterion {
+  display: flex; align-items: flex-start; gap: 10px;
+  padding: 12px; border-radius: 10px;
+  background: var(--bg2); border: 1px solid var(--border);
+}
+.criterion-num {
+  background: var(--accent); color: #fff;
+  border-radius: 50%; width: 24px; height: 24px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: .8rem; font-weight: 700; flex-shrink: 0; margin-top: 1px;
+}
+.criterion-text { font-size: .9rem; line-height: 1.4; }
+
+/* ── Timer ── */
+.timer-display {
+  text-align: center;
+  font-size: 3.5rem; font-weight: 900;
+  color: var(--accent); font-variant-numeric: tabular-nums;
+  margin: 16px 0;
+}
+.timer-display.warning { color: var(--gold); }
+.timer-display.urgent { color: var(--accent2); animation: pulse .5s ease-in-out infinite alternate; }
+@keyframes pulse { from { opacity: 1; } to { opacity: .5; } }
+
+/* ── Dice ── */
+.dice-area { text-align: center; padding: 20px 0; }
+.dice { font-size: 6rem; cursor: pointer; display: inline-block; user-select: none; transition: transform .1s; }
+.dice:active { transform: scale(.9); }
+.dice.rolling { animation: diceRoll .6s ease-out; }
+@keyframes diceRoll {
+  0%   { transform: rotate(0deg) scale(1); }
+  25%  { transform: rotate(180deg) scale(1.2); }
+  50%  { transform: rotate(270deg) scale(0.9); }
+  75%  { transform: rotate(330deg) scale(1.1); }
+  100% { transform: rotate(360deg) scale(1); }
+}
+.dice-result {
+  margin-top: 16px; padding: 16px;
+  background: var(--gold); color: #fff;
+  border-radius: 14px; font-size: 1.2rem; font-weight: 700;
+  text-align: center; display: none;
+}
+
+/* ── Score input ── */
+.score-group { margin-bottom: 16px; }
+.score-label { font-size: .9rem; font-weight: 700; margin-bottom: 8px; }
+.score-stars { display: flex; gap: 8px; }
+.star-btn {
+  width: 44px; height: 44px; border-radius: 50%;
+  border: 2px solid var(--border); background: var(--bg2);
+  font-size: 1.2rem; cursor: pointer; transition: all .15s;
+  display: flex; align-items: center; justify-content: center;
+  font-family: inherit; color: var(--fg2);
+}
+.star-btn.active { background: var(--gold); border-color: var(--gold); color: #fff; }
+
+/* ── Results ── */
+.result-row {
+  display: flex; align-items: center; gap: 12px;
+  padding: 14px 16px; border-radius: 12px;
+  background: var(--card); border: 2px solid var(--border);
+  margin-bottom: 10px; position: relative;
+}
+.result-row.first { border-color: var(--gold); background: #fff8ee; }
+.result-rank { font-size: 1.5rem; font-weight: 900; color: var(--fg2); width: 36px; }
+.result-rank.r1 { color: var(--gold); }
+.result-group-name { flex: 1; font-weight: 700; }
+.result-score { font-size: 1.2rem; font-weight: 900; color: var(--accent); }
+.result-detail { font-size: .75rem; color: var(--fg2); }
+.confetti { font-size: 2rem; }
+
+/* ── Present bar ── */
+.presenting-bar {
+  background: var(--gold); color: #fff;
+  padding: 12px 20px; text-align: center;
+  font-weight: 700; font-size: 1rem;
+}
+
+/* ── Waiting ── */
+.waiting {
+  display: flex; flex-direction: column; align-items: center;
+  gap: 16px; padding: 40px 20px; text-align: center; color: var(--fg2);
+}
+.waiting .spinner {
+  width: 48px; height: 48px; border: 4px solid var(--border);
+  border-top-color: var(--accent); border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ── Admin ── */
+.admin-section { margin-bottom: 20px; }
+.admin-title { font-size: .85rem; color: var(--fg2); font-weight: 700; margin-bottom: 10px; text-transform: uppercase; letter-spacing: .05em; }
+.group-status-row {
+  display: flex; align-items: center; gap: 8px;
+  padding: 10px 12px; border-radius: 10px;
+  background: var(--card); border: 1px solid var(--border);
+  margin-bottom: 8px; font-size: .85rem;
+}
+.status-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--border); flex-shrink: 0; }
+.status-dot.on { background: var(--green); }
+.status-dot.presenting { background: var(--gold); animation: pulse .8s ease-in-out infinite alternate; }
+
+.score-display-row {
+  display: flex; align-items: center; gap: 8px;
+  padding: 8px 12px; border-radius: 8px; background: var(--bg2);
+  margin-bottom: 6px; font-size: .85rem;
+}
+.progress-bar-wrap { background: var(--border); border-radius: 4px; height: 6px; flex: 1; }
+.progress-bar-fill { height: 6px; border-radius: 4px; background: var(--accent); transition: width .3s; }
+
+/* ── Step indicator ── */
+.steps {
+  display: flex; gap: 4px; padding: 12px 20px;
+  background: var(--bg2); border-bottom: 1px solid var(--border);
+}
+.step {
+  flex: 1; height: 4px; border-radius: 2px;
+  background: var(--border); transition: background .3s;
+}
+.step.done { background: var(--accent); }
+.step.active { background: var(--gold); }
+
+/* ── Misc ── */
+.label { font-size: .8rem; color: var(--fg2); font-weight: 700; margin-bottom: 6px; }
+.mt8 { margin-top: 8px; }
+.mt16 { margin-top: 16px; }
+.mt20 { margin-top: 20px; }
+.text-center { text-align: center; }
+.text-muted { color: var(--fg2); font-size: .85rem; }
+.pill {
+  display: inline-block; padding: 3px 10px;
+  border-radius: 20px; font-size: .75rem; font-weight: 700;
+}
+.pill-red { background: #fee; color: var(--accent); }
+.pill-gold { background: #fff3cc; color: #a07000; }
+.pill-green { background: #eeffee; color: var(--green); }
+.pill-blue { background: #eef4ff; color: var(--blue); }
+
+/* ── Admin login ── */
+#admin-pw-wrap {
+  position: fixed; inset: 0; background: rgba(0,0,0,.5);
+  display: flex; align-items: center; justify-content: center; z-index: 100;
+}
+#admin-pw-box {
+  background: var(--card); border-radius: 20px; padding: 32px 28px;
+  width: 90%; max-width: 360px; box-shadow: 0 8px 40px rgba(0,0,0,.3);
+}
+</style>
+</head>
+<body>
+
+<!-- ════════════════════ SCREEN: LOGIN ════════════════════ -->
+<div id="sc-login" class="screen active">
+  <div class="hdr">
+    <div class="hdr-icon">📚</div>
+    <div>
+      <h1>방언 낭독극</h1>
+      <small>5-1 국어(가) 3단원</small>
+    </div>
+  </div>
+  <div class="body">
+    <div class="card" style="margin-top:24px">
+      <div class="card-title">👤 이름을 입력하세요</div>
+      <input id="name-inp" class="inp" placeholder="예: 김민준" maxlength="10" autocomplete="off">
+      <div class="mt16">
+        <button class="btn btn-primary" onclick="doLogin()">입장하기 🚀</button>
+      </div>
+      <div class="text-center mt16">
+        <button class="btn btn-sm btn-secondary" onclick="showAdminLogin()">관리자 입장</button>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">🗺️ 오늘 활동 순서</div>
+      <div class="text-muted" style="font-size:.85rem;line-height:2">
+        ① 모둠 선택<br>
+        ② 대본 살펴보기<br>
+        ③ 모둠 대본 고르기<br>
+        ④ 역할 선택 & 연습<br>
+        ⑤ 주사위로 발표 순서 정하기<br>
+        ⑥ 발표 보고 채점하기<br>
+        ⑦ 결과 발표 🏆
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════ SCREEN: GROUP ════════════════════ -->
+<div id="sc-group" class="screen">
+  <div class="hdr">
+    <div class="hdr-icon">👥</div>
+    <div><h1>모둠 선택</h1><small id="grp-name-hdr"></small></div>
+  </div>
+  <div class="steps">
+    <div class="step done"></div><div class="step active"></div>
+    <div class="step"></div><div class="step"></div><div class="step"></div>
+    <div class="step"></div><div class="step"></div>
+  </div>
+  <div class="body">
+    <div class="card">
+      <div class="card-title">내 모둠을 선택하세요</div>
+      <div class="group-grid" id="group-grid"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════ SCREEN: BROWSE SCRIPTS ════════════════════ -->
+<div id="sc-browse" class="screen">
+  <div class="hdr">
+    <div class="hdr-icon">📖</div>
+    <div><h1>대본 살펴보기</h1><small id="browse-group-badge"></small></div>
+    <div class="hdr-badge" id="browse-badge"></div>
+  </div>
+  <div class="steps">
+    <div class="step done"></div><div class="step done"></div>
+    <div class="step active"></div><div class="step"></div><div class="step"></div>
+    <div class="step"></div><div class="step"></div>
+  </div>
+  <div class="body">
+    <div class="card">
+      <div class="card-title">📜 6가지 장면이 있어요. 모두 읽어보세요!</div>
+      <div id="all-scenes-list"></div>
+    </div>
+    <div id="browse-wait" class="card" style="display:none">
+      <div class="waiting">
+        <div class="spinner"></div>
+        <div>관리자가 대본 선택 단계를 시작할 때까지 기다려요</div>
+      </div>
+    </div>
+    <div id="browse-btn-wrap">
+      <button class="btn btn-primary" onclick="doneBrowsing()">다 읽었어요! ✅</button>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════ SCREEN: CHOOSE SCENE ════════════════════ -->
+<div id="sc-choose" class="screen">
+  <div class="hdr">
+    <div class="hdr-icon">🎭</div>
+    <div><h1>대본 선택</h1><small id="choose-group-badge"></small></div>
+    <div class="hdr-badge" id="choose-timer-badge">⏱️</div>
+  </div>
+  <div class="steps">
+    <div class="step done"></div><div class="step done"></div>
+    <div class="step done"></div><div class="step active"></div><div class="step"></div>
+    <div class="step"></div><div class="step"></div>
+  </div>
+  <div class="body">
+    <div class="card">
+      <div class="card-title">🗳️ 모둠이 함께 의논하고 대본을 고르세요</div>
+      <div id="choose-scenes-list"></div>
+    </div>
+    <div id="choose-btn-wrap">
+      <button class="btn btn-gold" id="confirm-scene-btn" onclick="confirmScene()" disabled>이 대본으로 할게요! ✅</button>
+    </div>
+    <div id="choose-wait" class="waiting" style="display:none">
+      <div class="spinner"></div>
+      <div>다른 모둠이 선택 중이에요...</div>
+    </div>
+    <div id="scene-locked-info" class="card" style="display:none;background:#fff8ee;border-color:var(--gold)">
+      <div class="card-title" style="color:var(--gold)">✅ 대본이 정해졌어요!</div>
+      <div id="locked-scene-name" style="font-size:1.1rem;font-weight:700"></div>
+      <div class="mt8 text-muted">이제 역할을 선택하러 가세요</div>
+      <button class="btn btn-primary mt16" onclick="goToRoles()">역할 선택하기 →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════ SCREEN: ROLES ════════════════════ -->
+<div id="sc-roles" class="screen">
+  <div class="hdr">
+    <div class="hdr-icon">🎬</div>
+    <div><h1>역할 선택</h1><small id="roles-group-badge"></small></div>
+  </div>
+  <div class="steps">
+    <div class="step done"></div><div class="step done"></div>
+    <div class="step done"></div><div class="step done"></div><div class="step active"></div>
+    <div class="step"></div><div class="step"></div>
+  </div>
+  <div class="body">
+    <div id="scene-info-card" class="card"></div>
+    <div class="card">
+      <div class="card-title">역할을 고르세요</div>
+      <div id="role-list" class="role-list"></div>
+    </div>
+    <div id="roles-btn-wrap" style="display:none">
+      <button class="btn btn-primary" onclick="confirmRole()">이 역할로 할게요! ✅</button>
+    </div>
+    <div id="role-confirmed-card" class="card" style="display:none;background:#fff0ee;border-color:var(--accent)">
+      <div class="card-title">✅ 역할이 정해졌어요!</div>
+      <div id="my-role-display" style="font-size:1.2rem;font-weight:900;color:var(--accent)"></div>
+      <div class="mt8 text-muted">대본을 보며 연습해요!</div>
+      <button class="btn btn-primary mt16" onclick="goToPractice()">대본 보러 가기 📜</button>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════ SCREEN: PRACTICE ════════════════════ -->
+<div id="sc-practice" class="screen">
+  <div class="hdr">
+    <div class="hdr-icon">🎤</div>
+    <div><h1>연습하기</h1><small id="practice-role-badge"></small></div>
+  </div>
+  <div class="steps">
+    <div class="step done"></div><div class="step done"></div>
+    <div class="step done"></div><div class="step done"></div><div class="step done"></div>
+    <div class="step active"></div><div class="step"></div>
+  </div>
+  <div class="body">
+    <div class="card">
+      <div class="card-title">🏆 채점 기준 — 이걸 잘 연습해요!</div>
+      <div class="criteria-list">
+        <div class="criterion">
+          <div class="criterion-num">1</div>
+          <div class="criterion-text"><strong>방언의 말맛을 잘 살렸는가?</strong><br><span class="text-muted">사투리 억양·표현을 실감 나게</span></div>
+        </div>
+        <div class="criterion">
+          <div class="criterion-num">2</div>
+          <div class="criterion-text"><strong>듣는 사람을 고려하여 목소리 크기를 조절하였는가?</strong><br><span class="text-muted">너무 작거나 크지 않게</span></div>
+        </div>
+        <div class="criterion">
+          <div class="criterion-num">3</div>
+          <div class="criterion-text"><strong>발음이 정확하였는가?</strong><br><span class="text-muted">또렷하고 정확하게</span></div>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">📜 내 대본 — <span id="practice-role-name" style="color:var(--gold)"></span>의 대사</div>
+      <div id="practice-script" class="script-box"></div>
+    </div>
+    <div id="practice-timer-card" class="card" style="display:none">
+      <div class="card-title">⏱️ 남은 연습 시간</div>
+      <div id="practice-timer" class="timer-display">--:--</div>
+    </div>
+    <div id="practice-wait" class="waiting">
+      <div class="spinner"></div>
+      <div>관리자가 발표 시간을 설정할 때까지 연습해요!</div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════ SCREEN: ORDER (DICE) ════════════════════ -->
+<div id="sc-order" class="screen">
+  <div class="hdr">
+    <div class="hdr-icon">🎲</div>
+    <div><h1>발표 순서 뽑기</h1></div>
+    <div class="hdr-badge" id="order-mygroup-badge"></div>
+  </div>
+  <div class="steps">
+    <div class="step done"></div><div class="step done"></div>
+    <div class="step done"></div><div class="step done"></div><div class="step done"></div>
+    <div class="step done"></div><div class="step active"></div>
+  </div>
+  <div class="body">
+    <div class="card">
+      <div class="card-title">모둠 발표 순서</div>
+      <div id="order-list"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════ SCREEN: PRESENT (Scoring) ════════════════════ -->
+<div id="sc-present" class="screen">
+  <div id="presenting-banner" class="presenting-bar" style="display:none"></div>
+  <div class="hdr">
+    <div class="hdr-icon">🌟</div>
+    <div><h1>발표 & 채점</h1><small id="present-mygroup"></small></div>
+    <div class="hdr-badge" id="round-badge"></div>
+  </div>
+  <div class="steps">
+    <div class="step done"></div><div class="step done"></div>
+    <div class="step done"></div><div class="step done"></div><div class="step done"></div>
+    <div class="step done"></div><div class="step active"></div>
+  </div>
+  <div class="body">
+    <div id="my-turn-card" class="card" style="display:none;background:#fff8ee;border-color:var(--gold)">
+      <div class="card-title" style="color:var(--gold)">🎤 우리 모둠 발표 차례예요!</div>
+      <div id="my-script-view" class="script-box" style="max-height:55vh"></div>
+    </div>
+    <div id="scoring-card" class="card" style="display:none">
+      <div class="card-title">✍️ 지금 발표하는 <span id="scoring-group-name" style="color:var(--accent)"></span> 채점</div>
+      <div id="score-criteria"></div>
+      <button class="btn btn-primary mt16" id="submit-score-btn" onclick="submitScore()">점수 제출 ✅</button>
+      <div id="score-submitted-msg" class="text-center mt16 text-muted" style="display:none">✅ 점수를 제출했어요!</div>
+    </div>
+    <div id="waiting-next-card" class="card" style="display:none">
+      <div class="waiting">
+        <div style="font-size:3rem">⏳</div>
+        <div>다음 모둠 발표를 기다려요</div>
+      </div>
+    </div>
+    <div id="all-done-card" class="card" style="display:none;text-align:center">
+      <div style="font-size:3rem;margin-bottom:8px">🎉</div>
+      <div style="font-weight:700;font-size:1.1rem">모든 모둠 발표가 끝났어요!</div>
+      <div class="text-muted mt8">결과 발표를 기다려요</div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════ SCREEN: RESULT ════════════════════ -->
+<div id="sc-result" class="screen">
+  <div class="hdr" style="background: linear-gradient(135deg,#e6a817,#f5c842)">
+    <div class="hdr-icon">🏆</div>
+    <div><h1>최종 결과</h1><small>방언 낭독극 발표 결과</small></div>
+  </div>
+  <div class="body" style="padding-top:24px">
+    <div id="winner-card" class="card" style="text-align:center;border-color:var(--gold);background:#fff8ee;display:none">
+      <div style="font-size:3rem">🥇</div>
+      <div style="font-size:1.5rem;font-weight:900;color:var(--gold);margin:8px 0" id="winner-name"></div>
+      <div class="text-muted">최우수 낭독극 모둠!</div>
+      <div style="font-size:2rem;margin-top:12px">🎁 보상을 받으세요!</div>
+    </div>
+    <div class="card">
+      <div class="card-title">📊 모둠별 점수</div>
+      <div id="result-list"></div>
+    </div>
+    <div class="card">
+      <div class="card-title">📋 채점 기준별 평균</div>
+      <div id="criteria-avg-list"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════ SCREEN: ADMIN ════════════════════ -->
+<div id="sc-admin" class="screen">
+  <div class="hdr" style="background:#1a1a2e">
+    <div class="hdr-icon">🛠️</div>
+    <div><h1>관리자 패널</h1></div>
+    <button class="btn btn-sm" style="margin-left:auto;background:rgba(255,255,255,.2);color:#fff;border:none" onclick="resetAll()">🔄 초기화</button>
+  </div>
+  <div class="body" style="padding-top:16px">
+    <!-- Phase control -->
+    <div class="card">
+      <div class="card-title">🎮 단계 제어</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px" id="phase-btns">
+        <button class="btn btn-secondary btn-sm" onclick="setPhase('group')">1. 모둠 선택</button>
+        <button class="btn btn-secondary btn-sm" onclick="setPhase('browse')">2. 대본 보기</button>
+        <button class="btn btn-secondary btn-sm" onclick="setPhase('choose')">3. 대본 선택</button>
+        <button class="btn btn-secondary btn-sm" onclick="setPhase('roles')">4. 역할 선택</button>
+        <button class="btn btn-secondary btn-sm" onclick="setPhase('practice')">5. 연습</button>
+        <button class="btn btn-secondary btn-sm" onclick="setPhase('order')">6. 순서 뽑기</button>
+        <button class="btn btn-secondary btn-sm" onclick="setPhase('present')">7. 발표</button>
+        <button class="btn btn-gold btn-sm" onclick="setPhase('result')">🏆 결과 발표</button>
+      </div>
+    </div>
+
+    <!-- Practice timer -->
+    <div class="card" id="admin-timer-card" style="display:none">
+      <div class="card-title">⏱️ 연습 시간 설정</div>
+      <div style="display:flex;gap:8px;margin-bottom:12px">
+        <button class="btn btn-secondary btn-sm" onclick="setTimer(5)">5분</button>
+        <button class="btn btn-secondary btn-sm" onclick="setTimer(7)">7분</button>
+        <button class="btn btn-secondary btn-sm" onclick="setTimer(10)">10분</button>
+      </div>
+      <div id="admin-timer-display" class="timer-display" style="font-size:2.5rem">--:--</div>
+    </div>
+
+    <!-- Dice / order -->
+    <div class="card" id="admin-dice-card" style="display:none">
+      <div class="card-title">🎲 발표 순서 뽑기</div>
+      <div class="dice-area">
+        <div class="dice" id="admin-dice" onclick="rollDice()">🎲</div>
+      </div>
+      <div id="admin-dice-result" class="dice-result"></div>
+      <div id="order-result-list" class="mt16"></div>
+      <button class="btn btn-primary mt16" id="finalize-order-btn" onclick="finalizeOrder()" style="display:none">순서 확정 ✅</button>
+    </div>
+
+    <!-- Present control -->
+    <div class="card" id="admin-present-card" style="display:none">
+      <div class="card-title">🎤 발표 진행</div>
+      <div id="present-queue"></div>
+      <button class="btn btn-gold mt16" id="next-presenter-btn" onclick="nextPresenter()">다음 모둠 발표 →</button>
+      <button class="btn btn-green mt16" id="end-presenting-btn" onclick="endPresenting()" style="display:none">⏹ 발표 종료</button>
+    </div>
+
+    <!-- Group status -->
+    <div class="card">
+      <div class="admin-title">모둠 현황</div>
+      <div id="admin-group-status"></div>
+    </div>
+
+    <!-- Score monitor -->
+    <div class="card" id="admin-score-card" style="display:none">
+      <div class="admin-title">실시간 채점 현황</div>
+      <div id="admin-score-monitor"></div>
+    </div>
+  </div>
+</div>
+
+<!-- Admin PW modal -->
+<div id="admin-pw-wrap" style="display:none">
+  <div id="admin-pw-box">
+    <div style="font-size:1.2rem;font-weight:700;margin-bottom:16px">🔐 관리자 비밀번호</div>
+    <input id="admin-pw-inp" class="inp" type="password" placeholder="비밀번호 입력" onkeydown="if(event.key==='Enter')checkAdminPw()">
+    <div style="display:flex;gap:8px;margin-top:12px">
+      <button class="btn btn-primary" onclick="checkAdminPw()">확인</button>
+      <button class="btn btn-secondary" onclick="document.getElementById('admin-pw-wrap').style.display='none'">취소</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ════════════════════ DATA ════════════════════
+const SCENES = [
+  {
+    id: 1,
+    name: "외바퀴 자전거의 비밀",
+    roles: ["해설", "할아버지", "삼촌", "기림"],
+    tip: "삼촌의 엉뚱함과 기림이의 당황스러운 목소리 톤을 대비해서 읽어보세요!",
+    lines: [
+      {role:"해설", text:"목요일이 되자, 할아버지가 기림이와 삼촌을 쳐다보며 느긋하게 물으셨습니다."},
+      {role:"할아버지", dir:"부드럽고 구수한 억양으로", text:"기림이 자전거 안 샀냐?"},
+      {role:"삼촌", dir:"입꼬리를 쓱 올리며 자신 있게", text:"오늘 올 거예요."},
+      {role:"해설", text:"기림이와 삼촌이 점심을 먹고 있을 때, 드디어 기다리던 택배 아저씨가 왔습니다. 삼촌이 신나게 상자를 뜯어서 자전거를 꺼냈는데... 어라? 자전거 바퀴가 딱 하나뿐이었습니다!"},
+      {role:"기림", dir:"황당해서 눈이 동그랗게 변하며", text:"삼촌... 이거 불량품인가 봐. 바퀴가 하나밖에 없어!"},
+      {role:"삼촌", dir:"흐흐흐 장난기 가득하게 웃으며", text:"일부러 이걸 산 거야!"},
+      {role:"해설", text:"삼촌은 그 외바퀴 자전거를 자기 자전거 뒤에 척! 붙였습니다. 순식간에 자동차만큼 길쭉한 '세 바퀴 자전거'가 완성되었지요. 자전거 뒤에는 노란 깃발까지 달았습니다."},
+      {role:"삼촌", dir:"목소리를 높여 씩씩하게", text:"자, 출발!"},
+    ]
+  },
+  {
+    id: 2,
+    name: "멋져 부러! 세발자전거!",
+    roles: ["해설", "기림", "할머니 1", "할머니 2"],
+    tip: "전라도 방언의 억양(~이여?, ~제, ~부러!)을 아주 과장되고 실감 나게 소리 내어 읽어보세요!",
+    lines: [
+      {role:"해설", text:"자전거가 돌담 사이로 구불구불 이어진 시골길을 달렸습니다. 마을 앞 느티나무 정자 밑에는 동네 할머니들이 옹기종기 모여 부채질을 하고 계셨습니다. 신기한 자전거를 본 할머니들이 손뼉을 치기 시작했습니다."},
+      {role:"할머니 1", dir:"눈이 휘둥그레지며 사투리로", text:"야아! 저것이 뭔이여? 희한하게 생겼네!"},
+      {role:"할머니 2", dir:"부채질을 멈추고 아는 척을 하며", text:"자장구 바쿠가 셋이면 세발자장구제!"},
+      {role:"할머니 1", dir:"손뼉을 짝짝 치며 신나게", text:"멋져 부러! 이뻐 부러! 아주 기가 막히네!"},
+      {role:"기림", dir:"얼굴이 빨개져서 부끄러운 목소리로 소곤대며", text:"아...정말 창피해 죽겠네. 삼촌은 내 마음도 모르고 자꾸 손을 흔들고 있어..."},
+      {role:"해설", text:"창피해하는 기림이의 속마음과 달리, 자전거는 정겨운 응원을 받으며 쌩쌩 달려 나갔습니다."},
+    ]
+  },
+  {
+    id: 3,
+    name: "서울에서 온 손님?",
+    roles: ["해설", "삼촌", "접수 아저씨", "동네 아저씨"],
+    tip: "서울에서 온 손님을 대환영하며 들떠서 수군거리는 시골 아저씨들의 참견을 코믹하게 살려보세요.",
+    lines: [
+      {role:"해설", text:"자전거 대회가 열리는 금요일이 되었습니다. 접수처에 도착하자, 접수하는 아저씨가 기림이와 삼촌에게 경품권을 건네며 힐끗 보았습니다."},
+      {role:"접수 아저씨", dir:"사투리로 억양을 높여 툭 던지듯", text:"못 보던 양반인디 어디서 오셨으까?"},
+      {role:"삼촌", dir:"수줍게 목소리를 줄이며", text:"서울요."},
+      {role:"해설", text:"그러자 접수 아저씨 뒤에 있던 동네 아저씨들이 눈을 크게 뜨고 서로를 쳐다보며 수군거리기 시작했습니다."},
+      {role:"동네 아저씨", dir:"옆 사람 어깨를 툭 치며 놀랍다는 듯", text:"서울이래, 서울! 서울서 자전거 타러 여기까지 왔대!"},
+      {role:"접수 아저씨", dir:"동네 아저씨를 보며 큰소리로", text:"내가 귀가 먹었는 줄 알어?"},
+      {role:"접수 아저씨", dir:"다시 삼촌에게 다정하게 물으며", text:"여기는 어떻게 알고 오셨으까?"},
+      {role:"동네 아저씨", dir:"신나서 삼촌 말을 가로채며", text:"우리 자전거 대회가 워낙 유명해서 서울까지 소문이 났겠제! 그럼 내년에는 서울 손님이 더 많이 오겠네?"},
+      {role:"삼촌", dir:"당황해서 우물쭈물하며", text:"아... 그게 아니고요, 여행 가다가 잠깐 들른 거예요..."},
+      {role:"동네 아저씨", dir:"삼촌 말은 듣지도 않고 허풍을 치며", text:"그러니께! 우리 지리산 자전거 대회가 드디어 서울까지 알려졌단 말이여! 세상 참 좁네. 뉴스도 안 나왔는데 어떻게 알았다냐? 내년에 손님맞이를 어떻게 해야 쓰까잉?"},
+    ]
+  },
+  {
+    id: 4,
+    name: "요란법석 대회 시작!",
+    roles: ["해설", "삼촌", "마이크 아저씨", "꽹과리 할아버지"],
+    tip: "고집 센 꽹과리 할아버지와 답답해하는 삼촌의 목소리 톤을 생생하게 연기해 보세요.",
+    lines: [
+      {role:"해설", text:"출발 시간이 가까워지자 마이크를 잡은 아저씨가 소리쳤습니다."},
+      {role:"마이크 아저씨", dir:"마이크를 든 것처럼 울리는 목소리로", text:"하나 둘! 하나 둘! 곧 지리산 자전거 대회를 시작하겠습니다. 길놀이 패들은 조용히 해 주시기 바랍니다!"},
+      {role:"해설", text:"하지만 길을 열어주던 꽹과리 할아버지는 꽹과리를 더 세게 치며 고개를 흔들었습니다."},
+      {role:"꽹과리 할아버지", dir:"당당하고 퉁명스럽게", text:"길놀이는 대통령이 와도 못 끊는 것이여! 쪼금만 기다려!"},
+      {role:"마이크 아저씨", dir:"어이없다는 듯 지기 싫어서 지르며", text:"그럼 저기 빈터에 가서 마무리하쇼! 대회 시작합니다! 지금부터 지리산 자전거 대회를 시작합니다! 우리 대회는 일 등도 없고 꼴등도 없습니다. 천천히 안전하게 달리세요. 경찰이랑 군청 직원들이 차를 막아줄 겁니다. 딴 데 가지 말고 반환점만 찍고 돌아오세요!"},
+      {role:"삼촌", dir:"입을 삐죽이며 투덜투덜", text:"뭐 이런 대회가 다 있어? 일 등을 안 뽑으면 대회를 왜 해?"},
+      {role:"해설", text:"불만이 있는 사람은 삼촌뿐이었습니다. 삼백 명에 가까운 다른 사람들은 싱글벙글 웃으며 출발 신호를 기다렸습니다."},
+    ]
+  },
+  {
+    id: 5,
+    name: "오이도 못 먹고 쌩쌩!",
+    roles: ["해설", "기림", "삼촌", "밀짚모자 아저씨"],
+    tip: "목마른 기림이의 간절함과 경쟁심에 불탄 삼촌의 거친 호흡을 목소리로 표현해 보세요!",
+    lines: [
+      {role:"해설", text:"자전거들이 길을 메우며 달리기 시작했습니다. 길가 커다란 나무 그늘 아래에는 밀짚모자를 쓴 동네 아저씨들이 서서 자전거 타는 사람들에게 오이를 내밀었습니다."},
+      {role:"밀짚모자 아저씨", dir:"오이를 권하며 정겹게", text:"자, 쉬었다 가세요! 시원한 오이 드시고 가쇼!"},
+      {role:"해설", text:"사람들은 자전거를 세우고 기분 좋게 오이를 아작아작 먹었습니다. 목이 타들어가던 기림이도 너무 먹고 싶었지만, 삼촌은 자전거를 멈추지 않았습니다."},
+      {role:"기림", dir:"삼촌 등 뒤에서 애타게 외치며", text:"삼촌! 오이 안 먹어? 오이 먹고 가자!"},
+      {role:"삼촌", dir:"대답도 없이 이 악물고 거칠게 숨을 몰아쉬며", text:"씁... 후... 안 돼... 저 앞에 양복 입은 아저씨를 이겨야 해!"},
+      {role:"해설", text:"삼촌 앞에는 양복바지를 걷어 올리고 넥타이를 휘날리며 달리는 아저씨가 있었습니다. 삼촌은 지기 싫어서 씩씩거리며 페달을 더 빨리 밟았습니다."},
+      {role:"기림", dir:"삼촌의 엄청난 숨소리를 들으며 속으로", text:"삼촌 숨소리가 점점 커지네. 저러다가 진짜 코가 빵 터져 버릴 것 같아... 걱정된다, 걱정돼!"},
+    ]
+  },
+  {
+    id: 6,
+    name: "느리게 달려야 보이는 것들",
+    roles: ["해설", "기림", "할아버지", "삼촌"],
+    tip: "이전 장면의 거친 호흡과 달리, 마지막 장면답게 아주 따뜻하고 여유로운 분위기로 천천히 낭독해 보세요.",
+    lines: [
+      {role:"해설", text:"한참을 쌩쌩 달리던 그때, 뒤에서 익숙한 기침 소리와 함께 할아버지가 나타났습니다. 할아버지는 삼촌과 기림이 곁으로 와 나란히 달렸습니다."},
+      {role:"할아버지", dir:"여유로운 미소를 띠고 따뜻하게", text:"허허, 고로코롬 급허게 달릴 필요 없당께. 찬찬히 가야 그제사 보이는 것들이 있는 법이여."},
+      {role:"해설", text:"정말이었습니다. 속도를 늦추니 빠르게 달릴 때는 보이지 않던 아름다운 풍경들이 눈앞에 펼쳐졌습니다. 지리산 산자락에 걸린 구름이 꿈틀꿈틀 살아 움직이고, 강물 위로 튀어 오르는 은빛 물고기가 멋진 동그라미를 그렸습니다. 길가에 핀 코스모스도 예쁘게 흔들렸습니다."},
+      {role:"기림", dir:"하늘을 올려다보며 감탄하듯", text:"와... 삼촌, 하늘에 떠 있는 구름 좀 봐. 진짜 예쁘다."},
+      {role:"삼촌", dir:"그제야 힘을 빼고 천천히 페달을 밟으며 깊은 한숨을 쉬며", text:"그러게... 앞만 보고 달릴 때는 이 좋은 걸 하나도 못 봤네."},
+      {role:"해설", text:"삼촌과 할아버지는 말없이 페달을 밟았습니다. 기림이가 가만히 뒤를 돌아보니, 저 멀리 뒤쪽에서도 더 느긋하게 웃으며 자전거를 타고 오는 사람들이 보였습니다."},
+    ]
+  }
+];
+
+const GROUP_INFO = [
+  {id:1, name:"1모둠", icon:"🌸", color:"#e74c3c"},
+  {id:2, name:"2모둠", icon:"🌊", color:"#2980b9"},
+  {id:3, name:"3모둠", icon:"🌿", color:"#27ae60"},
+  {id:4, name:"4모둠", icon:"⚡", color:"#f39c12"},
+  {id:5, name:"5모둠", icon:"🌙", color:"#8e44ad"},
+  {id:6, name:"6모둠", icon:"🔥", color:"#e67e22"},
+];
+
+const ADMIN_PW = "126758";
+const NUM_GROUPS = 6;
+
+// ════════════════════ FIREBASE ════════════════════
+let _app;
+try { _app = firebase.app(); } catch(e) {
+  _app = firebase.initializeApp({
+    databaseURL: 'https://banwel-51-default-rtdb.asia-southeast1.firebasedatabase.app'
+  });
+}
+const db = firebase.database(_app);
+const ROOT = 'classroom/dialect_reading';
+
+// ════════════════════ STATE ════════════════════
+let myName = '';
+let myGroup = null;
+let isAdmin = false;
+let myRole = null;
+let myScene = null;
+let currentPhase = 'login';
+let presentOrder = [];
+let currentPresenterIdx = -1;
+let practiceTimerInterval = null;
+let practiceEndTime = null;
+let selectedSceneId = null;
+let scoreSubmitted = {};  // keyed by presenting group id
+let diceGroups = [];      // groups yet to roll
+let diceOrder = [];       // final roll order
+
+// ════════════════════ SCREENS ════════════════════
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+// ════════════════════ LOGIN ════════════════════
+document.getElementById('name-inp').addEventListener('keydown', e => {
+  if (e.key === 'Enter') doLogin();
+});
+
+function doLogin() {
+  const n = document.getElementById('name-inp').value.trim();
+  if (!n) { alert('이름을 입력하세요'); return; }
+  myName = n;
+  goToGroupSelect();
+}
+
+function showAdminLogin() {
+  document.getElementById('admin-pw-wrap').style.display = 'flex';
+  document.getElementById('admin-pw-inp').focus();
+}
+
+function checkAdminPw() {
+  const pw = document.getElementById('admin-pw-inp').value;
+  if (pw === ADMIN_PW) {
+    isAdmin = true;
+    myName = '선생님';
+    document.getElementById('admin-pw-wrap').style.display = 'none';
+    showScreen('sc-admin');
+    initAdmin();
+  } else {
+    alert('비밀번호가 틀렸어요');
+  }
+}
+
+// ════════════════════ GROUP SELECT ════════════════════
+function goToGroupSelect() {
+  showScreen('sc-group');
+  document.getElementById('grp-name-hdr').textContent = myName;
+  renderGroupGrid();
+  listenGroupMembers();
+}
+
+function renderGroupGrid() {
+  const grid = document.getElementById('group-grid');
+  grid.innerHTML = GROUP_INFO.map(g => `
+    <button class="group-btn available" id="gbtn-${g.id}" onclick="selectGroup(${g.id})">
+      <span class="g-icon">${g.icon}</span>
+      <span>${g.name}</span>
+      <span style="font-size:.7rem;color:var(--fg2)" id="gmem-${g.id}"></span>
+    </button>
+  `).join('');
+}
+
+function listenGroupMembers() {
+  db.ref(`${ROOT}/groups`).on('value', snap => {
+    const data = snap.val() || {};
+    GROUP_INFO.forEach(g => {
+      const members = Object.values(data[g.id] || {});
+      const memEl = document.getElementById(`gmem-${g.id}`);
+      const btnEl = document.getElementById(`gbtn-${g.id}`);
+      if (!memEl || !btnEl) return;
+      memEl.textContent = members.length ? members.map(m=>m.name).join(', ') : '(비어있음)';
+      btnEl.className = 'group-btn ' + (myGroup === g.id ? 'mine' : 'available');
+    });
+  });
+}
+
+function selectGroup(gid) {
+  myGroup = gid;
+  // Write to Firebase
+  const key = db.ref(`${ROOT}/groups/${gid}`).push().key;
+  db.ref(`${ROOT}/groups/${gid}/${myName}`).set({name: myName, key: myName});
+
+  GROUP_INFO.forEach(g => {
+    const btn = document.getElementById(`gbtn-${g.id}`);
+    if (btn) btn.className = 'group-btn ' + (g.id === gid ? 'mine' : 'available');
+  });
+
+  setTimeout(() => {
+    listenPhase();
+  }, 500);
+}
+
+// ════════════════════ PHASE LISTENER ════════════════════
+function listenPhase() {
+  db.ref(`${ROOT}/phase`).on('value', snap => {
+    const phase = snap.val() || 'group';
+    currentPhase = phase;
+    routeToPhase(phase);
+  });
+}
+
+function routeToPhase(phase) {
+  if (isAdmin) return;
+  switch(phase) {
+    case 'group':   goToGroupSelect(); break;
+    case 'browse':  goBrowse(); break;
+    case 'choose':  goChoose(); break;
+    case 'roles':   goRoles(); break;
+    case 'practice': goPractice(); break;
+    case 'order':   goOrder(); break;
+    case 'present': goPresent(); break;
+    case 'result':  goResult(); break;
+  }
+}
+
+// ════════════════════ BROWSE ════════════════════
+function goBrowse() {
+  showScreen('sc-browse');
+  document.getElementById('browse-group-badge').textContent = GROUP_INFO[myGroup-1]?.name || '';
+  renderAllScenesBrowse();
+  listenBrowseReady();
+}
+
+function renderAllScenesBrowse() {
+  const container = document.getElementById('all-scenes-list');
+  container.innerHTML = SCENES.map(s => `
+    <div class="scene-card" style="cursor:default">
+      <div class="scene-num">장면 ${s.id}</div>
+      <div class="scene-name">📖 ${s.name}</div>
+      <div class="scene-roles">배역: ${s.roles.join(', ')}</div>
+      <div class="scene-tip">💡 ${s.tip}</div>
+      <div style="margin-top:10px">
+        ${s.lines.map(l => `
+          <div class="script-line">
+            <span class="script-speaker">${l.role}: </span>
+            ${l.dir ? `<span class="script-direction">(${l.dir})</span> ` : ''}
+            <span class="script-text">${l.text}</span>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+  `).join('');
+}
+
+function listenBrowseReady() {
+  db.ref(`${ROOT}/browseReady/${myGroup}`).on('value', snap => {
+    const ready = snap.val();
+    if (ready) {
+      document.getElementById('browse-btn-wrap').style.display = 'none';
+      document.getElementById('browse-wait').style.display = 'block';
+    }
+  });
+}
+
+function doneBrowsing() {
+  db.ref(`${ROOT}/browseReady/${myGroup}`).set(true);
+  document.getElementById('browse-btn-wrap').style.display = 'none';
+  document.getElementById('browse-wait').style.display = 'block';
+}
+
+// ════════════════════ CHOOSE SCENE ════════════════════
+function goChoose() {
+  showScreen('sc-choose');
+  document.getElementById('choose-group-badge').textContent = GROUP_INFO[myGroup-1]?.name || '';
+  selectedSceneId = null;
+  renderChooseScenes();
+  listenSceneChoices();
+  listenMySceneLocked();
+}
+
+function renderChooseScenes() {
+  const container = document.getElementById('choose-scenes-list');
+  container.innerHTML = SCENES.map(s => `
+    <div class="scene-card" id="cs-${s.id}" onclick="selectScene(${s.id})">
+      <div class="scene-num">장면 ${s.id}</div>
+      <div class="scene-name">${s.name}</div>
+      <div class="scene-roles">배역: ${s.roles.join(', ')}</div>
+      <div class="scene-tip">💡 ${s.tip}</div>
+      <div id="cs-badge-${s.id}" class="mt8"></div>
+    </div>
+  `).join('');
+}
+
+function selectScene(sid) {
+  // Check if taken
+  const card = document.getElementById(`cs-${sid}`);
+  if (card && card.classList.contains('taken-by-others')) return;
+  selectedSceneId = sid;
+  document.querySelectorAll('.scene-card').forEach(c => c.classList.remove('selected'));
+  card.classList.add('selected');
+  document.getElementById('confirm-scene-btn').disabled = false;
+}
+
+function listenSceneChoices() {
+  db.ref(`${ROOT}/sceneChoices`).on('value', snap => {
+    const data = snap.val() || {};
+    SCENES.forEach(s => {
+      const card = document.getElementById(`cs-${s.id}`);
+      const badge = document.getElementById(`cs-badge-${s.id}`);
+      if (!card || !badge) return;
+      const groups = Object.entries(data)
+        .filter(([gid, sc]) => sc.sceneId === s.id)
+        .map(([gid]) => GROUP_INFO[parseInt(gid)-1]?.name);
+      if (groups.length) {
+        const isMine = groups.some((_, i) => {
+          return Object.keys(data).find(k => data[k].sceneId === s.id && parseInt(k) === myGroup);
+        });
+        if (!isMine) {
+          card.classList.add('taken-by-others');
+          badge.innerHTML = `<span class="pill pill-red">이미 선택됨 (${groups.join(', ')})</span>`;
+        } else {
+          badge.innerHTML = `<span class="pill pill-gold">우리 모둠 선택 ✅</span>`;
+        }
+      } else {
+        card.classList.remove('taken-by-others');
+        badge.innerHTML = '';
+      }
+    });
+  });
+}
+
+function listenMySceneLocked() {
+  db.ref(`${ROOT}/sceneChoices/${myGroup}`).on('value', snap => {
+    const data = snap.val();
+    if (data && data.locked) {
+      const scene = SCENES.find(s => s.id === data.sceneId);
+      document.getElementById('choose-btn-wrap').style.display = 'none';
+      document.getElementById('choose-wait').style.display = 'none';
+      const locked = document.getElementById('scene-locked-info');
+      locked.style.display = 'block';
+      document.getElementById('locked-scene-name').textContent = `장면 ${scene.id}: ${scene.name}`;
+      myScene = scene;
+    }
+  });
+}
+
+function confirmScene() {
+  if (!selectedSceneId) return;
+  const scene = SCENES.find(s => s.id === selectedSceneId);
+  db.ref(`${ROOT}/sceneChoices/${myGroup}`).set({
+    sceneId: selectedSceneId,
+    sceneName: scene.name,
+    groupId: myGroup,
+    locked: true
+  });
+  myScene = scene;
+}
+
+function goToRoles() {
+  showScreen('sc-roles');
+  initRoles();
+}
+
+// ════════════════════ ROLES ════════════════════
+function goRoles() {
+  if (!myScene) {
+    // Try to get from Firebase
+    db.ref(`${ROOT}/sceneChoices/${myGroup}`).once('value').then(snap => {
+      const data = snap.val();
+      if (data) {
+        myScene = SCENES.find(s => s.id === data.sceneId);
+      }
+      showScreen('sc-roles');
+      initRoles();
+    });
+  } else {
+    showScreen('sc-roles');
+    initRoles();
+  }
+}
+
+function initRoles() {
+  if (!myScene) return;
+  document.getElementById('roles-group-badge').textContent = GROUP_INFO[myGroup-1]?.name || '';
+  const infoCard = document.getElementById('scene-info-card');
+  infoCard.innerHTML = `
+    <div class="card-title">🎭 우리 모둠 대본</div>
+    <div style="font-size:1.1rem;font-weight:700">장면 ${myScene.id}: ${myScene.name}</div>
+    <div class="text-muted mt8">💡 ${myScene.tip}</div>
+  `;
+  renderRoleList();
+  listenRoles();
+}
+
+function renderRoleList() {
+  if (!myScene) return;
+  const container = document.getElementById('role-list');
+  const roleIcons = ['🎙️','🧓','👨','👦','👧','👴','👵','🎤'];
+  container.innerHTML = myScene.roles.map((r, i) => `
+    <div class="role-item" id="role-${i}" onclick="pickRole(${i}, '${r}')">
+      <div class="role-icon">${roleIcons[i % roleIcons.length]}</div>
+      <div class="role-name">${r}</div>
+      <div class="role-member" id="role-member-${i}">선택 안 함</div>
+    </div>
+  `).join('');
+}
+
+function listenRoles() {
+  db.ref(`${ROOT}/roles/${myGroup}`).on('value', snap => {
+    const data = snap.val() || {};
+    if (!myScene) return;
+    myScene.roles.forEach((r, i) => {
+      const member = Object.values(data).find(v => v.roleIdx === i);
+      const el = document.getElementById(`role-${i}`);
+      const memEl = document.getElementById(`role-member-${i}`);
+      if (!el || !memEl) return;
+      if (member) {
+        el.classList.toggle('mine', member.name === myName);
+        el.classList.toggle('taken', member.name !== myName);
+        memEl.textContent = member.name;
+      } else {
+        el.classList.remove('mine', 'taken');
+        memEl.textContent = '선택 안 함';
+      }
+    });
+  });
+}
+
+let selectedRoleIdx = null;
+let selectedRoleName = null;
+
+function pickRole(idx, name) {
+  // Check if taken by another
+  const el = document.getElementById(`role-${idx}`);
+  if (el && el.classList.contains('taken')) return;
+  selectedRoleIdx = idx;
+  selectedRoleName = name;
+  document.querySelectorAll('.role-item').forEach(r => r.classList.remove('mine'));
+  el.classList.add('mine');
+  document.getElementById('roles-btn-wrap').style.display = 'block';
+}
+
+function confirmRole() {
+  if (selectedRoleIdx === null) return;
+  myRole = selectedRoleName;
+  db.ref(`${ROOT}/roles/${myGroup}/${myName}`).set({
+    name: myName,
+    roleIdx: selectedRoleIdx,
+    roleName: selectedRoleName
+  });
+  document.getElementById('roles-btn-wrap').style.display = 'none';
+  const card = document.getElementById('role-confirmed-card');
+  card.style.display = 'block';
+  document.getElementById('my-role-display').textContent = `${myRole} 역할`;
+}
+
+function goToPractice() {
+  showScreen('sc-practice');
+  initPractice();
+}
+
+// ════════════════════ PRACTICE ════════════════════
+function goPractice() {
+  if (!myRole) {
+    db.ref(`${ROOT}/roles/${myGroup}/${myName}`).once('value').then(snap => {
+      const data = snap.val();
+      if (data) myRole = data.roleName;
+      db.ref(`${ROOT}/sceneChoices/${myGroup}`).once('value').then(snap2 => {
+        const d = snap2.val();
+        if (d) myScene = SCENES.find(s => s.id === d.sceneId);
+        showScreen('sc-practice');
+        initPractice();
+      });
+    });
+  } else {
+    showScreen('sc-practice');
+    initPractice();
+  }
+}
+
+function initPractice() {
+  document.getElementById('practice-role-badge').textContent = `${myRole || '?'} 역할`;
+  document.getElementById('practice-role-name').textContent = myRole || '?';
+  renderPracticeScript();
+  listenPracticeTimer();
+}
+
+function renderPracticeScript() {
+  if (!myScene) return;
+  const container = document.getElementById('practice-script');
+  container.innerHTML = myScene.lines.map(l => {
+    const isMe = l.role === myRole;
+    const dirHtml = l.dir ? `<span class="script-direction">(${l.dir})</span> ` : '';
+    const lineHtml = `
+      <span class="script-speaker ${isMe ? 'mine-role' : ''}">${l.role}: </span>
+      ${dirHtml}
+      <span class="script-text">${l.text}</span>
+    `;
+    if (isMe) {
+      return `<div class="script-line my-line-highlight">${lineHtml}</div>`;
+    }
+    return `<div class="script-line">${lineHtml}</div>`;
+  }).join('');
+}
+
+function listenPracticeTimer() {
+  db.ref(`${ROOT}/practiceEndTime`).on('value', snap => {
+    const endTime = snap.val();
+    if (!endTime) return;
+    document.getElementById('practice-wait').style.display = 'none';
+    document.getElementById('practice-timer-card').style.display = 'block';
+    practiceEndTime = endTime;
+    if (practiceTimerInterval) clearInterval(practiceTimerInterval);
+    practiceTimerInterval = setInterval(updatePracticeTimer, 1000);
+    updatePracticeTimer();
+  });
+}
+
+function updatePracticeTimer() {
+  const now = Date.now();
+  const remaining = Math.max(0, practiceEndTime - now);
+  const mins = Math.floor(remaining / 60000);
+  const secs = Math.floor((remaining % 60000) / 1000);
+  const disp = document.getElementById('practice-timer');
+  disp.textContent = `${String(mins).padStart(2,'0')}:${String(secs).padStart(2,'0')}`;
+  disp.className = 'timer-display' + (remaining < 30000 ? ' urgent' : remaining < 60000 ? ' warning' : '');
+  if (remaining <= 0) {
+    clearInterval(practiceTimerInterval);
+    disp.textContent = '⏰ 시간 끝!';
+  }
+}
+
+// ════════════════════ ORDER ════════════════════
+function goOrder() {
+  showScreen('sc-order');
+  const g = GROUP_INFO[myGroup-1];
+  document.getElementById('order-mygroup-badge').textContent = g ? `${g.icon} ${g.name}` : '';
+  listenOrder();
+}
+
+function listenOrder() {
+  db.ref(`${ROOT}/presentOrder`).on('value', snap => {
+    const order = snap.val();
+    if (!order || !order.length) {
+      document.getElementById('order-list').innerHTML = '<div class="waiting"><div class="spinner"></div><div>선생님이 주사위를 굴려요...</div></div>';
+      return;
+    }
+    presentOrder = order;
+    document.getElementById('order-list').innerHTML = order.map((gid, i) => {
+      const g = GROUP_INFO[gid-1];
+      const isMe = gid === myGroup;
+      return `
+        <div class="group-status-row" style="${isMe ? 'background:var(--accent);color:#fff' : ''}">
+          <span style="font-size:1.2rem;font-weight:900">${i+1}번째</span>
+          <span style="font-size:1.3rem">${g.icon}</span>
+          <span style="font-weight:700">${g.name}</span>
+          ${isMe ? '<span class="pill" style="background:rgba(255,255,255,.25);color:#fff">우리 모둠</span>' : ''}
+        </div>
+      `;
+    }).join('');
+  });
+}
+
+// ════════════════════ PRESENT & SCORE ════════════════════
+function goPresent() {
+  showScreen('sc-present');
+  const g = GROUP_INFO[myGroup-1];
+  document.getElementById('present-mygroup').textContent = g ? `${g.icon} ${g.name}` : '';
+  listenPresentState();
+}
+
+function listenPresentState() {
+  db.ref(`${ROOT}/presentState`).on('value', snap => {
+    const state = snap.val() || {};
+    currentPresenterIdx = state.currentIdx !== undefined ? state.currentIdx : -1;
+    const presenterGid = state.presenterGid;
+    const done = state.done;
+
+    const banner = document.getElementById('presenting-banner');
+    const myTurnCard = document.getElementById('my-turn-card');
+    const scoringCard = document.getElementById('scoring-card');
+    const waitingCard = document.getElementById('waiting-next-card');
+    const allDoneCard = document.getElementById('all-done-card');
+
+    [myTurnCard, scoringCard, waitingCard, allDoneCard].forEach(c => c && (c.style.display='none'));
+    banner.style.display = 'none';
+
+    if (done) {
+      allDoneCard.style.display = 'block';
+      return;
+    }
+
+    if (presenterGid === undefined || presenterGid === null) {
+      waitingCard.style.display = 'block';
+      document.getElementById('round-badge').textContent = '';
+      return;
+    }
+
+    const presenterGroup = GROUP_INFO[presenterGid-1];
+    document.getElementById('round-badge').textContent = `${currentPresenterIdx+1}/${presentOrder.length}모둠`;
+
+    if (presenterGid === myGroup) {
+      // My turn to present
+      banner.textContent = `🎤 ${presenterGroup.icon} ${presenterGroup.name} 발표 중!`;
+      banner.style.display = 'block';
+      myTurnCard.style.display = 'block';
+      renderMyScript();
+    } else {
+      // Score other group
+      banner.textContent = `👂 ${presenterGroup.icon} ${presenterGroup.name} 발표 듣기`;
+      banner.style.display = 'block';
+      scoringCard.style.display = 'block';
+      document.getElementById('scoring-group-name').textContent = `${presenterGroup.icon} ${presenterGroup.name}`;
+      renderScoringUI(presenterGid);
+    }
+  });
+
+  db.ref(`${ROOT}/presentOrder`).once('value').then(snap => {
+    presentOrder = snap.val() || [];
+  });
+}
+
+function renderMyScript() {
+  if (!myScene) return;
+  const container = document.getElementById('my-script-view');
+  container.innerHTML = myScene.lines.map(l => {
+    const isMe = l.role === myRole;
+    const dirHtml = l.dir ? `<span class="script-direction">(${l.dir})</span> ` : '';
+    const lineHtml = `
+      <span class="script-speaker ${isMe ? 'mine-role' : ''}">${l.role}: </span>
+      ${dirHtml}
+      <span class="script-text">${l.text}</span>
+    `;
+    return isMe
+      ? `<div class="script-line my-line-highlight">${lineHtml}</div>`
+      : `<div class="script-line">${lineHtml}</div>`;
+  }).join('');
+}
+
+function renderScoringUI(presenterGid) {
+  const already = scoreSubmitted[presenterGid];
+  const criteriaNames = [
+    '방언의 말맛을 잘 살렸는가?',
+    '목소리 크기를 적절히 조절하였는가?',
+    '발음이 정확하였는가?'
+  ];
+  const container = document.getElementById('score-criteria');
+  container.innerHTML = criteriaNames.map((name, ci) => `
+    <div class="score-group">
+      <div class="score-label">${ci+1}. ${name}</div>
+      <div class="score-stars" id="stars-${ci}">
+        ${[1,2,3,4,5].map(v => `
+          <button class="star-btn ${already ? (already[ci]>=v?'active':'') : ''}"
+            id="star-${ci}-${v}" onclick="setStar(${ci},${v},${presenterGid})" ${already?'disabled':''}>
+            ${v}
+          </button>
+        `).join('')}
+      </div>
+    </div>
+  `).join('');
+
+  const submitBtn = document.getElementById('submit-score-btn');
+  const submittedMsg = document.getElementById('score-submitted-msg');
+  if (already) {
+    submitBtn.style.display = 'none';
+    submittedMsg.style.display = 'block';
+  } else {
+    submitBtn.style.display = 'block';
+    submitBtn.disabled = false;
+    submittedMsg.style.display = 'none';
+  }
+}
+
+const currentScores = [0, 0, 0];
+let currentPresenterGid = null;
+
+function setStar(ci, val, presenterGid) {
+  currentPresenterGid = presenterGid;
+  currentScores[ci] = val;
+  [1,2,3,4,5].forEach(v => {
+    const btn = document.getElementById(`star-${ci}-${v}`);
+    if (btn) btn.className = 'star-btn' + (v <= val ? ' active' : '');
+  });
+}
+
+function submitScore() {
+  if (!currentPresenterGid) return;
+  if (currentScores.some(s => s === 0)) {
+    alert('3가지 항목 모두 점수를 선택하세요!');
+    return;
+  }
+  const key = `${myGroup}_${myName}`;
+  db.ref(`${ROOT}/scores/${currentPresenterGid}/${key}`).set({
+    voter: myName,
+    voterGroup: myGroup,
+    scores: currentScores,
+    total: currentScores.reduce((a,b) => a+b, 0)
+  });
+  scoreSubmitted[currentPresenterGid] = currentScores.slice();
+  document.getElementById('submit-score-btn').style.display = 'none';
+  document.getElementById('score-submitted-msg').style.display = 'block';
+  // Disable stars
+  document.querySelectorAll('.star-btn').forEach(b => b.disabled = true);
+}
+
+// ════════════════════ RESULT ════════════════════
+function goResult() {
+  showScreen('sc-result');
+  listenResults();
+}
+
+function listenResults() {
+  db.ref(`${ROOT}/scores`).on('value', snap => {
+    const allScores = snap.val() || {};
+    const results = GROUP_INFO.map(g => {
+      const groupScores = allScores[g.id] || {};
+      const entries = Object.values(groupScores);
+      const total = entries.reduce((a, e) => a + e.total, 0);
+      const avg = entries.length ? total / entries.length : 0;
+      const byC = [0, 1, 2].map(ci =>
+        entries.length ? entries.reduce((a, e) => a + e.scores[ci], 0) / entries.length : 0
+      );
+      return { ...g, avg, byC, count: entries.length };
+    }).filter(g => g.count > 0).sort((a, b) => b.avg - a.avg);
+
+    if (!results.length) {
+      document.getElementById('result-list').innerHTML = '<div class="text-muted">아직 채점 결과가 없어요</div>';
+      return;
+    }
+
+    const winner = results[0];
+    const winnerCard = document.getElementById('winner-card');
+    winnerCard.style.display = 'block';
+    document.getElementById('winner-name').textContent = `${winner.icon} ${winner.name}`;
+
+    const criteriaNames = ['방언의 말맛', '목소리 크기', '발음 정확성'];
+    document.getElementById('result-list').innerHTML = results.map((g, i) => `
+      <div class="result-row ${i===0?'first':''}">
+        <div class="result-rank ${i===0?'r1':''}">${i===0?'🥇':i===1?'🥈':i===2?'🥉':`${i+1}위`}</div>
+        <div>
+          <div class="result-group-name">${g.icon} ${g.name}</div>
+          <div class="result-detail">채점 인원: ${g.count}명</div>
+        </div>
+        <div class="result-score">${g.avg.toFixed(1)}<span style="font-size:.8rem;color:var(--fg2)">/15</span></div>
+      </div>
+    `).join('');
+
+    // Criteria averages across all groups
+    const criteriaAvgs = [0,1,2].map(ci => {
+      const vals = results.flatMap(g => g.byC[ci] ? [g.byC[ci]] : []);
+      return vals.length ? vals.reduce((a,b)=>a+b,0)/vals.length : 0;
+    });
+    document.getElementById('criteria-avg-list').innerHTML = criteriaNames.map((name, ci) => `
+      <div class="score-display-row">
+        <span style="font-size:.85rem;flex-shrink:0">${ci+1}. ${name}</span>
+        <div class="progress-bar-wrap">
+          <div class="progress-bar-fill" style="width:${criteriaAvgs[ci]/5*100}%"></div>
+        </div>
+        <span style="font-weight:700;color:var(--accent);flex-shrink:0">${criteriaAvgs[ci].toFixed(1)}</span>
+      </div>
+    `).join('');
+  });
+}
+
+// ════════════════════ ADMIN ════════════════════
+function initAdmin() {
+  listenAdminGroupStatus();
+  listenAdminPhase();
+  listenAdminScores();
+  listenAdminPracticeTimer();
+}
+
+function listenAdminPhase() {
+  db.ref(`${ROOT}/phase`).on('value', snap => {
+    const phase = snap.val() || 'group';
+    currentPhase = phase;
+    // Show/hide admin panels based on phase
+    document.getElementById('admin-timer-card').style.display = phase === 'practice' ? 'block' : 'none';
+    document.getElementById('admin-dice-card').style.display = phase === 'order' ? 'block' : 'none';
+    document.getElementById('admin-present-card').style.display = phase === 'present' ? 'block' : 'none';
+    document.getElementById('admin-score-card').style.display = ['present','result'].includes(phase) ? 'block' : 'none';
+
+    // Highlight active phase btn
+    const phaseMap = {group:0,browse:1,choose:2,roles:3,practice:4,order:5,present:6,result:7};
+    const btns = document.querySelectorAll('#phase-btns button');
+    btns.forEach((b,i) => {
+      b.style.background = i === phaseMap[phase] ? 'var(--accent)' : '';
+      b.style.color = i === phaseMap[phase] ? '#fff' : '';
+    });
+  });
+}
+
+function setPhase(phase) {
+  db.ref(`${ROOT}/phase`).set(phase);
+  if (phase === 'order') {
+    initAdminDice();
+  }
+  if (phase === 'present') {
+    listenAdminPresentQueue();
+  }
+}
+
+function listenAdminGroupStatus() {
+  db.ref(`${ROOT}/groups`).on('value', snap => {
+    const groups = snap.val() || {};
+    const container = document.getElementById('admin-group-status');
+    container.innerHTML = GROUP_INFO.map(g => {
+      const members = Object.values(groups[g.id] || {});
+      return `
+        <div class="group-status-row">
+          <div class="status-dot ${members.length?'on':''}"></div>
+          <span style="font-size:1.1rem">${g.icon}</span>
+          <span style="font-weight:700">${g.name}</span>
+          <span style="color:var(--fg2);font-size:.8rem">${members.map(m=>m.name).join(', ') || '없음'}</span>
+        </div>
+      `;
+    }).join('');
+  });
+}
+
+function setTimer(minutes) {
+  const endTime = Date.now() + minutes * 60 * 1000;
+  db.ref(`${ROOT}/practiceEndTime`).set(endTime);
+}
+
+function listenAdminPracticeTimer() {
+  db.ref(`${ROOT}/practiceEndTime`).on('value', snap => {
+    const endTime = snap.val();
+    if (!endTime) return;
+    if (practiceTimerInterval) clearInterval(practiceTimerInterval);
+    practiceTimerInterval = setInterval(() => {
+      const remaining = Math.max(0, endTime - Date.now());
+      const mins = Math.floor(remaining / 60000);
+      const secs = Math.floor((remaining % 60000) / 1000);
+      const disp = document.getElementById('admin-timer-display');
+      if (disp) disp.textContent = `${String(mins).padStart(2,'0')}:${String(secs).padStart(2,'0')}`;
+      if (remaining <= 0) clearInterval(practiceTimerInterval);
+    }, 1000);
+  });
+}
+
+// ── DICE ──
+let adminDiceOrder = [];
+let diceGroupsLeft = [];
+
+function initAdminDice() {
+  // Gather all groups that have scene choices
+  db.ref(`${ROOT}/sceneChoices`).once('value').then(snap => {
+    const data = snap.val() || {};
+    diceGroupsLeft = Object.keys(data).map(Number).sort();
+    adminDiceOrder = [];
+    renderAdminDiceState();
+  });
+}
+
+function renderAdminDiceState() {
+  const resultEl = document.getElementById('order-result-list');
+  if (adminDiceOrder.length) {
+    resultEl.innerHTML = '<div class="admin-title">현재 순서</div>' + adminDiceOrder.map((gid, i) => {
+      const g = GROUP_INFO[gid-1];
+      return `<div class="group-status-row"><span style="font-weight:900">${i+1}번째</span><span>${g.icon}</span><span>${g.name}</span></div>`;
+    }).join('');
+  } else {
+    resultEl.innerHTML = '';
+  }
+  const btn = document.getElementById('finalize-order-btn');
+  if (btn) btn.style.display = diceGroupsLeft.length === 0 && adminDiceOrder.length > 0 ? 'block' : 'none';
+}
+
+function rollDice() {
+  if (diceGroupsLeft.length === 0) {
+    alert('모든 모둠이 다 뽑았어요! 순서 확정을 눌러주세요.');
+    return;
+  }
+  const dice = document.getElementById('admin-dice');
+  dice.classList.add('rolling');
+  setTimeout(() => {
+    dice.classList.remove('rolling');
+    // Pick random group from remaining
+    const idx = Math.floor(Math.random() * diceGroupsLeft.length);
+    const pickedGid = diceGroupsLeft[idx];
+    diceGroupsLeft.splice(idx, 1);
+    adminDiceOrder.push(pickedGid);
+    const g = GROUP_INFO[pickedGid-1];
+    const resultEl = document.getElementById('admin-dice-result');
+    resultEl.style.display = 'block';
+    resultEl.textContent = `${g.icon} ${g.name} — ${adminDiceOrder.length}번째! (남은 모둠: ${diceGroupsLeft.length}개)`;
+    renderAdminDiceState();
+  }, 700);
+}
+
+function finalizeOrder() {
+  db.ref(`${ROOT}/presentOrder`).set(adminDiceOrder);
+  db.ref(`${ROOT}/presentState`).set({ currentIdx: -1, presenterGid: null, done: false });
+  alert('순서가 확정되었습니다! 발표 단계로 이동해주세요.');
+}
+
+// ── PRESENT ADMIN ──
+function listenAdminPresentQueue() {
+  db.ref(`${ROOT}/presentOrder`).once('value').then(snap => {
+    presentOrder = snap.val() || [];
+    renderPresentQueue();
+  });
+  db.ref(`${ROOT}/presentState`).on('value', snap => {
+    const state = snap.val() || {};
+    currentPresenterIdx = state.currentIdx !== undefined ? state.currentIdx : -1;
+    renderPresentQueue();
+  });
+}
+
+function renderPresentQueue() {
+  const container = document.getElementById('present-queue');
+  container.innerHTML = presentOrder.map((gid, i) => {
+    const g = GROUP_INFO[gid-1];
+    const isCurrent = i === currentPresenterIdx;
+    const isDone = i < currentPresenterIdx;
+    return `
+      <div class="group-status-row">
+        <div class="status-dot ${isCurrent?'presenting':isDone?'on':''}"></div>
+        <span>${g.icon}</span>
+        <span style="font-weight:${isCurrent?'700':'400'}">${g.name}</span>
+        <span class="pill ${isCurrent?'pill-gold':isDone?'pill-green':''}">
+          ${isCurrent?'발표 중':isDone?'완료':'대기'}
+        </span>
+      </div>
+    `;
+  }).join('');
+}
+
+function nextPresenter() {
+  const nextIdx = currentPresenterIdx + 1;
+  if (nextIdx >= presentOrder.length) {
+    alert('모든 모둠이 발표를 완료했어요!');
+    return;
+  }
+  const gid = presentOrder[nextIdx];
+  db.ref(`${ROOT}/presentState`).set({
+    currentIdx: nextIdx,
+    presenterGid: gid,
+    done: false
+  });
+  currentPresenterIdx = nextIdx;
+  document.getElementById('end-presenting-btn').style.display = 'block';
+}
+
+function endPresenting() {
+  // Mark current as done, move to waiting
+  const nextIdx = currentPresenterIdx + 1;
+  if (nextIdx >= presentOrder.length) {
+    // All done
+    db.ref(`${ROOT}/presentState`).set({ currentIdx: currentPresenterIdx, presenterGid: null, done: true });
+    document.getElementById('end-presenting-btn').style.display = 'none';
+    document.getElementById('next-presenter-btn').style.display = 'none';
+  } else {
+    db.ref(`${ROOT}/presentState`).set({ currentIdx: currentPresenterIdx, presenterGid: null, done: false });
+    document.getElementById('end-presenting-btn').style.display = 'none';
+  }
+}
+
+function listenAdminScores() {
+  db.ref(`${ROOT}/scores`).on('value', snap => {
+    const data = snap.val() || {};
+    const container = document.getElementById('admin-score-monitor');
+    if (!container) return;
+    container.innerHTML = GROUP_INFO.map(g => {
+      const groupScores = data[g.id] || {};
+      const count = Object.keys(groupScores).length;
+      const total = Object.values(groupScores).reduce((a, e) => a + e.total, 0);
+      const avg = count ? (total / count).toFixed(1) : '-';
+      return `
+        <div class="score-display-row">
+          <span>${g.icon} ${g.name}</span>
+          <div class="progress-bar-wrap">
+            <div class="progress-bar-fill" style="width:${count?Math.min(count/(NUM_GROUPS-1)*100,100):0}%"></div>
+          </div>
+          <span style="font-size:.8rem;color:var(--fg2)">${count}표</span>
+          <span style="font-weight:700;color:var(--accent)">${avg}</span>
+        </div>
+      `;
+    }).join('');
+  });
+}
+
+function resetAll() {
+  if (!confirm('모든 데이터를 초기화할까요? 학생 접속 정보, 대본 선택, 점수가 모두 지워집니다.')) return;
+  db.ref(ROOT).remove().then(() => {
+    db.ref(`${ROOT}/phase`).set('group');
+    alert('초기화 완료!');
+  });
+}
+</script>
+</body>
+</html>
