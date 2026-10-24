@@ -6,334 +6,324 @@
 <title>방언 낭독극 발표</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/9.23.0/firebase-app-compat.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/9.23.0/firebase-database-compat.min.js"></script>
-<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=Gowun+Dodum&display=swap" rel="stylesheet">
 <style>
 :root {
-  --bg: #faf8f3;
-  --bg2: #fff;
-  --fg: #1a1410;
-  --fg2: #5a4f3e;
-  --accent: #c0392b;
-  --accent2: #e74c3c;
-  --gold: #e6a817;
-  --gold2: #f5c842;
-  --green: #27ae60;
-  --blue: #2980b9;
-  --border: #e0d8cc;
-  --card: #fff;
-  --shadow: 0 2px 12px rgba(0,0,0,.1);
+  --navy:#1F3350; --gold:#B5933A; --teal:#2D7A6B; --bg:#F8F5EF;
+  --card:#FFFFFF; --border:#DDD8CE; --fg:#222; --muted:#888;
+  --red:#E74C3C; --green:#10B981;
+  --g1:#E74C3C; --g2:#2D7A6B; --g3:#7C3AED; --g4:#B5933A;
   color-scheme: light;
 }
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
-    --bg: #1a1410; --bg2: #241e18; --fg: #f0e8d8; --fg2: #b0a090;
-    --border: #3a3028; --card: #2a2218; --shadow: 0 2px 12px rgba(0,0,0,.4);
+    --bg:#1A1F2E; --card:#252B3B; --border:#3A4255; --fg:#E8E4DC; --muted:#8890A8;
     color-scheme: dark;
   }
 }
 :root[data-theme="dark"] {
-  --bg: #1a1410; --bg2: #241e18; --fg: #f0e8d8; --fg2: #b0a090;
-  --border: #3a3028; --card: #2a2218; --shadow: 0 2px 12px rgba(0,0,0,.4);
+  --bg:#1A1F2E; --card:#252B3B; --border:#3A4255; --fg:#E8E4DC; --muted:#8890A8;
   color-scheme: dark;
 }
 
-* { box-sizing: border-box; margin: 0; padding: 0; }
-body {
-  font-family: 'Noto Sans KR', sans-serif;
-  background: var(--bg);
-  color: var(--fg);
-  min-height: 100vh;
-  padding: 0;
+*{box-sizing:border-box;margin:0;padding:0;}
+html,body{height:100%;font-family:'Gowun Dodum',sans-serif;background:var(--bg);color:var(--fg);}
+body{
+  padding-left:max(16px,env(safe-area-inset-left,0px));
+  padding-right:max(16px,env(safe-area-inset-right,0px));
+  padding-block:0;
 }
 
-.screen { display: none; min-height: 100vh; }
-.screen.active { display: flex; flex-direction: column; }
+.screen{display:none;min-height:100vh;}
+.screen.active{display:flex;flex-direction:column;}
 
 /* ── Header ── */
 .hdr {
-  background: var(--accent);
-  color: #fff;
-  padding: 14px 20px;
-  display: flex; align-items: center; gap: 12px;
-  position: sticky; top: 0; z-index: 10;
+  background:linear-gradient(135deg,var(--navy) 0%,#2E4A6E 100%);
+  color:#fff; padding:16px 20px;
+  display:flex; align-items:center; gap:12px;
+  position:sticky; top:0; z-index:10;
 }
-.hdr-icon { font-size: 1.6rem; }
-.hdr h1 { font-size: 1.1rem; font-weight: 700; line-height: 1.2; }
-.hdr small { font-size: .75rem; opacity: .8; display: block; }
-.hdr-badge {
-  margin-left: auto; background: rgba(255,255,255,.25);
-  border-radius: 20px; padding: 4px 12px; font-size: .8rem; font-weight: 700;
-  white-space: nowrap;
+.hdr h1{font-family:'Gowun Batang',serif;font-size:1.15rem;flex:1;}
+.hdr small{font-size:.78rem;opacity:.7;display:block;}
+.hdr-badge{
+  padding:5px 14px;border-radius:20px;font-weight:700;font-size:.88rem;
+  background:rgba(255,255,255,.15);color:#fff;flex-shrink:0;white-space:nowrap;
 }
 
-.body { flex: 1; padding: 20px; max-width: 640px; width: 100%; margin: 0 auto; }
+.body{flex:1;padding:20px;max-width:640px;width:100%;margin:0 auto;}
 
 /* ── Cards ── */
-.card {
-  background: var(--card);
-  border: 1px solid var(--border);
-  border-radius: 16px;
-  padding: 20px;
-  box-shadow: var(--shadow);
-  margin-bottom: 16px;
+.card{
+  background:var(--card);border:1px solid var(--border);
+  border-radius:16px;padding:20px;
+  box-shadow:0 2px 8px rgba(0,0,0,.07);margin-bottom:16px;
 }
-.card-title {
-  font-size: 1rem; font-weight: 700; color: var(--accent);
-  margin-bottom: 12px; display: flex; align-items: center; gap: 6px;
+.card-title{
+  font-family:'Gowun Batang',serif;font-size:1rem;font-weight:700;color:var(--navy);
+  margin-bottom:12px;display:flex;align-items:center;gap:6px;
+  border-left:4px solid var(--teal);padding-left:10px;
 }
 
 /* ── Buttons ── */
-.btn {
-  display: block; width: 100%; padding: 14px;
-  border: none; border-radius: 12px; cursor: pointer;
-  font-size: 1rem; font-weight: 700; font-family: inherit;
-  transition: transform .1s, opacity .1s;
+.btn{
+  display:block;width:100%;padding:14px;
+  border:none;border-radius:12px;cursor:pointer;
+  font-size:1rem;font-weight:700;font-family:'Gowun Batang',serif;
+  transition:transform .1s,opacity .1s;
 }
-.btn:active { transform: scale(.97); }
-.btn-primary { background: var(--accent); color: #fff; }
-.btn-primary:hover { background: var(--accent2); }
-.btn-secondary {
-  background: var(--bg2); color: var(--fg);
-  border: 2px solid var(--border);
-}
-.btn-gold { background: var(--gold); color: #fff; }
-.btn-green { background: var(--green); color: #fff; }
-.btn-sm {
-  padding: 8px 16px; font-size: .85rem; border-radius: 8px;
-  display: inline-block; width: auto;
-}
-.btn:disabled { opacity: .45; cursor: not-allowed; }
+.btn:active{transform:scale(.97);}
+.btn-primary{background:var(--navy);color:#fff;}
+.btn-primary:hover{background:#162540;}
+.btn-secondary{background:var(--card);color:var(--fg);border:2px solid var(--border);}
+.btn-gold{background:var(--gold);color:#fff;}
+.btn-green{background:var(--teal);color:#fff;}
+.btn-sm{padding:8px 16px;font-size:.85rem;border-radius:8px;display:inline-block;width:auto;}
+.btn:disabled{opacity:.4;cursor:not-allowed;}
 
 /* ── Input ── */
-.inp {
-  width: 100%; padding: 12px 16px;
-  border: 2px solid var(--border); border-radius: 10px;
-  font-size: 1rem; font-family: inherit;
-  background: var(--bg2); color: var(--fg);
-  outline: none; transition: border-color .2s;
+.inp{
+  width:100%;padding:12px 16px;
+  border:2px solid var(--border);border-radius:10px;
+  font-size:1rem;font-family:'Gowun Dodum',sans-serif;
+  background:var(--card);color:var(--fg);
+  outline:none;transition:border-color .2s;
 }
-.inp:focus { border-color: var(--accent); }
+.inp:focus{border-color:var(--navy);}
+
+/* ── Name select ── */
+.name-select-btn{
+  padding:12px 6px;border-radius:12px;
+  border:2.5px solid var(--border);background:var(--card);
+  font-family:'Gowun Batang',serif;font-size:.95rem;font-weight:700;
+  cursor:pointer;color:var(--navy);transition:all .15s;text-align:center;
+}
+.name-select-btn:hover{border-color:var(--gold);background:#FFFBF0;transform:scale(1.03);}
+.name-select-btn:active{transform:scale(.97);}
 
 /* ── Group grid ── */
-.group-grid {
-  display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px;
+.group-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;}
+.group-btn{
+  padding:28px 10px;border:3px solid var(--border);border-radius:18px;
+  background:var(--card);font-family:'Gowun Batang',serif;font-size:1.2rem;font-weight:700;
+  cursor:pointer;transition:.2s;color:var(--navy);
+  display:flex;flex-direction:column;align-items:center;gap:6px;
 }
-.group-btn {
-  aspect-ratio: 1; border-radius: 14px; border: 3px solid transparent;
-  display: flex; flex-direction: column; align-items: center;
-  justify-content: center; gap: 4px; cursor: pointer;
-  font-weight: 700; font-size: .9rem; font-family: inherit;
-  transition: all .15s;
-}
-.group-btn .g-icon { font-size: 2rem; }
-.group-btn.available { background: var(--bg2); border-color: var(--border); color: var(--fg); }
-.group-btn.available:hover { border-color: var(--accent); transform: scale(1.03); }
-.group-btn.mine { background: var(--accent); border-color: var(--accent); color: #fff; }
-.group-btn.taken { background: var(--border); border-color: transparent; color: var(--fg2); opacity: .6; cursor: not-allowed; }
+.group-btn .g-icon{font-size:2.2rem;}
+.group-btn:hover{transform:translateY(-3px);box-shadow:0 6px 18px rgba(0,0,0,.12);}
+.group-btn[data-gid="1"]{border-color:var(--g1);color:var(--g1);}
+.group-btn[data-gid="2"]{border-color:var(--g2);color:var(--g2);}
+.group-btn[data-gid="3"]{border-color:var(--g3);color:var(--g3);}
+.group-btn[data-gid="4"]{border-color:var(--g4);color:var(--g4);}
+.group-btn.mine{background:var(--navy);border-color:var(--navy);color:#fff;}
+.group-btn.taken{opacity:.5;cursor:not-allowed;}
+.group-member-list{font-size:.72rem;font-family:'Gowun Dodum',sans-serif;opacity:.8;margin-top:2px;}
 
 /* ── Scene cards ── */
-.scene-card {
-  border: 3px solid var(--border);
-  border-radius: 14px; padding: 16px; cursor: pointer;
-  transition: all .15s; margin-bottom: 12px; background: var(--card);
+.scene-card{
+  border:3px solid var(--border);
+  border-radius:14px;padding:16px;cursor:pointer;
+  transition:all .15s;margin-bottom:12px;background:var(--card);
 }
-.scene-card:hover { border-color: var(--accent); }
-.scene-card.selected { border-color: var(--gold); background: #fff8ee; }
-.scene-card.taken-by-others { opacity: .5; cursor: not-allowed; border-color: var(--border); }
-.scene-card .scene-num { font-size: .75rem; color: var(--accent); font-weight: 700; margin-bottom: 4px; }
-.scene-card .scene-name { font-size: 1rem; font-weight: 700; margin-bottom: 6px; }
-.scene-card .scene-roles { font-size: .8rem; color: var(--fg2); }
-.scene-card .scene-tip { font-size: .78rem; color: var(--fg2); margin-top: 6px; font-style: italic; }
+.scene-card:hover{border-color:var(--teal);box-shadow:0 4px 12px rgba(45,122,107,.15);}
+.scene-card.selected{border-color:var(--gold);background:#FFFBF0;}
+.scene-card.taken-by-others{opacity:.45;cursor:not-allowed;border-color:var(--border);}
+.scene-card .scene-num{font-size:.75rem;color:var(--teal);font-weight:700;margin-bottom:4px;}
+.scene-card .scene-name{font-family:'Gowun Batang',serif;font-size:1rem;font-weight:700;color:var(--navy);margin-bottom:6px;}
+.scene-card .scene-roles{font-size:.8rem;color:var(--muted);}
+.scene-card .scene-tip{font-size:.78rem;color:var(--muted);margin-top:6px;font-style:italic;}
 
 /* ── Role selection ── */
-.role-list { display: flex; flex-direction: column; gap: 8px; }
-.role-item {
-  display: flex; align-items: center; gap: 12px;
-  padding: 12px 16px; border-radius: 12px;
-  border: 2px solid var(--border); cursor: pointer;
-  transition: all .15s; background: var(--card);
+.role-list{display:flex;flex-direction:column;gap:8px;}
+.role-item{
+  display:flex;align-items:center;gap:12px;
+  padding:12px 16px;border-radius:12px;
+  border:2.5px solid var(--border);cursor:pointer;
+  transition:all .15s;background:var(--card);
 }
-.role-item:hover { border-color: var(--accent); }
-.role-item.mine { border-color: var(--accent); background: #fff0ee; }
-.role-item.taken { opacity: .5; cursor: not-allowed; }
-.role-item .role-icon { font-size: 1.5rem; }
-.role-item .role-name { font-weight: 700; flex: 1; }
-.role-item .role-member { font-size: .8rem; color: var(--fg2); }
+.role-item:hover{border-color:var(--teal);}
+.role-item.mine{border-color:var(--gold);background:#FFFBF0;}
+.role-item.taken{opacity:.45;cursor:not-allowed;}
+.role-item .role-icon{font-size:1.5rem;}
+.role-item .role-name{font-family:'Gowun Batang',serif;font-weight:700;flex:1;color:var(--navy);}
+.role-item .role-member{font-size:.8rem;color:var(--muted);}
 
 /* ── Script area ── */
-.script-box {
-  background: var(--bg);
-  border: 1px solid var(--border);
-  border-radius: 12px; padding: 16px;
-  font-size: .9rem; line-height: 1.7;
-  max-height: 50vh; overflow-y: auto;
+.script-box{
+  background:var(--bg);border:1px solid var(--border);
+  border-radius:12px;padding:16px;
+  font-size:.9rem;line-height:1.8;
+  max-height:50vh;overflow-y:auto;
 }
-.script-line { margin-bottom: 10px; }
-.script-speaker {
-  font-weight: 700; color: var(--accent);
-  display: inline;
-}
-.script-speaker.mine-role { color: var(--gold); }
-.script-direction {
-  color: var(--fg2); font-style: italic; font-size: .85rem;
-}
-.script-text { display: inline; }
-.my-line-highlight {
-  background: rgba(230, 168, 23, .15);
-  border-left: 3px solid var(--gold);
-  padding: 8px 10px; border-radius: 0 8px 8px 0;
-  margin: 4px 0;
+.script-line{margin-bottom:10px;}
+.script-speaker{font-family:'Gowun Batang',serif;font-weight:700;color:var(--navy);display:inline;}
+.script-speaker.mine-role{color:var(--teal);}
+.script-direction{color:var(--muted);font-style:italic;font-size:.85rem;}
+.script-text{display:inline;}
+.my-line-highlight{
+  background:rgba(181,147,58,.12);
+  border-left:3px solid var(--gold);
+  padding:8px 10px;border-radius:0 8px 8px 0;margin:4px 0;
 }
 
-/* ── Practice checklist ── */
-.criteria-list { display: flex; flex-direction: column; gap: 10px; }
-.criterion {
-  display: flex; align-items: flex-start; gap: 10px;
-  padding: 12px; border-radius: 10px;
-  background: var(--bg2); border: 1px solid var(--border);
+/* ── Criteria ── */
+.criteria-list{display:flex;flex-direction:column;gap:10px;}
+.criterion{
+  display:flex;align-items:flex-start;gap:10px;
+  padding:12px;border-radius:10px;
+  background:var(--bg);border:1px solid var(--border);
 }
-.criterion-num {
-  background: var(--accent); color: #fff;
-  border-radius: 50%; width: 24px; height: 24px;
-  display: flex; align-items: center; justify-content: center;
-  font-size: .8rem; font-weight: 700; flex-shrink: 0; margin-top: 1px;
+.criterion-num{
+  background:var(--teal);color:#fff;
+  border-radius:50%;width:24px;height:24px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:.8rem;font-weight:700;flex-shrink:0;margin-top:1px;
 }
-.criterion-text { font-size: .9rem; line-height: 1.4; }
+.criterion-text{font-size:.9rem;line-height:1.4;}
 
 /* ── Timer ── */
-.timer-display {
-  text-align: center;
-  font-size: 3.5rem; font-weight: 900;
-  color: var(--accent); font-variant-numeric: tabular-nums;
-  margin: 16px 0;
+.timer-display{
+  text-align:center;font-family:'Gowun Batang',serif;
+  font-size:3.5rem;font-weight:700;color:var(--navy);
+  font-variant-numeric:tabular-nums;margin:16px 0;
 }
-.timer-display.warning { color: var(--gold); }
-.timer-display.urgent { color: var(--accent2); animation: pulse .5s ease-in-out infinite alternate; }
-@keyframes pulse { from { opacity: 1; } to { opacity: .5; } }
+.timer-display.warning{color:var(--gold);}
+.timer-display.urgent{color:var(--red);animation:pulse .5s ease-in-out infinite alternate;}
+@keyframes pulse{from{opacity:1;}to{opacity:.5;}}
 
 /* ── Dice ── */
-.dice-area { text-align: center; padding: 20px 0; }
-.dice { font-size: 6rem; cursor: pointer; display: inline-block; user-select: none; transition: transform .1s; }
-.dice:active { transform: scale(.9); }
-.dice.rolling { animation: diceRoll .6s ease-out; }
-@keyframes diceRoll {
-  0%   { transform: rotate(0deg) scale(1); }
-  25%  { transform: rotate(180deg) scale(1.2); }
-  50%  { transform: rotate(270deg) scale(0.9); }
-  75%  { transform: rotate(330deg) scale(1.1); }
-  100% { transform: rotate(360deg) scale(1); }
+.dice-area{text-align:center;padding:20px 0;}
+.dice{font-size:6rem;cursor:pointer;display:inline-block;user-select:none;transition:transform .1s;}
+.dice:active{transform:scale(.9);}
+.dice.rolling{animation:diceRoll .6s ease-out;}
+@keyframes diceRoll{
+  0%{transform:rotate(0deg) scale(1);}
+  25%{transform:rotate(180deg) scale(1.2);}
+  50%{transform:rotate(270deg) scale(0.9);}
+  75%{transform:rotate(330deg) scale(1.1);}
+  100%{transform:rotate(360deg) scale(1);}
 }
-.dice-result {
-  margin-top: 16px; padding: 16px;
-  background: var(--gold); color: #fff;
-  border-radius: 14px; font-size: 1.2rem; font-weight: 700;
-  text-align: center; display: none;
+.dice-result{
+  margin-top:16px;padding:16px;
+  background:var(--gold);color:#fff;
+  border-radius:14px;font-family:'Gowun Batang',serif;font-size:1.2rem;font-weight:700;
+  text-align:center;display:none;
 }
 
-/* ── Score input ── */
-.score-group { margin-bottom: 16px; }
-.score-label { font-size: .9rem; font-weight: 700; margin-bottom: 8px; }
-.score-stars { display: flex; gap: 8px; }
-.star-btn {
-  width: 44px; height: 44px; border-radius: 50%;
-  border: 2px solid var(--border); background: var(--bg2);
-  font-size: 1.2rem; cursor: pointer; transition: all .15s;
-  display: flex; align-items: center; justify-content: center;
-  font-family: inherit; color: var(--fg2);
+/* ── Score num ── */
+.score-num-row{
+  display:flex;align-items:center;gap:10px;
+  padding:14px 16px;border-radius:12px;
+  background:var(--bg);border:1.5px solid var(--border);margin-bottom:12px;
 }
-.star-btn.active { background: var(--gold); border-color: var(--gold); color: #fff; }
+.score-num-label{flex:1;font-size:.9rem;font-weight:600;line-height:1.3;color:var(--navy);}
+.score-num-controls{display:flex;align-items:center;gap:8px;}
+.score-num-btn{
+  width:36px;height:36px;border-radius:50%;
+  border:2px solid var(--border);background:var(--card);
+  font-size:1.1rem;cursor:pointer;transition:all .12s;
+  display:flex;align-items:center;justify-content:center;
+  font-family:'Gowun Batang',serif;font-weight:700;color:var(--navy);
+}
+.score-num-btn:hover{border-color:var(--teal);}
+.score-num-val{min-width:36px;text-align:center;font-family:'Gowun Batang',serif;font-size:1.4rem;font-weight:700;color:var(--teal);}
+.score-total-row{
+  display:flex;justify-content:space-between;align-items:center;
+  padding:12px 16px;background:var(--navy);color:#fff;
+  border-radius:12px;font-family:'Gowun Batang',serif;font-weight:700;font-size:1rem;margin-top:4px;
+}
+.score-total-val{font-size:1.5rem;font-weight:700;}
 
 /* ── Results ── */
-.result-row {
-  display: flex; align-items: center; gap: 12px;
-  padding: 14px 16px; border-radius: 12px;
-  background: var(--card); border: 2px solid var(--border);
-  margin-bottom: 10px; position: relative;
+.result-row{
+  display:flex;align-items:center;gap:12px;
+  padding:14px 16px;border-radius:12px;
+  background:var(--card);border:2.5px solid var(--border);
+  margin-bottom:10px;
 }
-.result-row.first { border-color: var(--gold); background: #fff8ee; }
-.result-rank { font-size: 1.5rem; font-weight: 900; color: var(--fg2); width: 36px; }
-.result-rank.r1 { color: var(--gold); }
-.result-group-name { flex: 1; font-weight: 700; }
-.result-score { font-size: 1.2rem; font-weight: 900; color: var(--accent); }
-.result-detail { font-size: .75rem; color: var(--fg2); }
-.confetti { font-size: 2rem; }
+.result-row.first{border-color:var(--gold);background:#FFFBF0;}
+.result-rank{font-family:'Gowun Batang',serif;font-size:1.5rem;font-weight:700;color:var(--muted);width:36px;}
+.result-rank.r1{color:var(--gold);}
+.result-group-name{flex:1;font-family:'Gowun Batang',serif;font-weight:700;color:var(--navy);}
+.result-score{font-family:'Gowun Batang',serif;font-size:1.2rem;font-weight:700;color:var(--teal);}
+.result-detail{font-size:.75rem;color:var(--muted);}
 
-/* ── Present bar ── */
-.presenting-bar {
-  background: var(--gold); color: #fff;
-  padding: 12px 20px; text-align: center;
-  font-weight: 700; font-size: 1rem;
+/* ── Presenting bar ── */
+.presenting-bar{
+  background:var(--gold);color:#fff;
+  padding:12px 20px;text-align:center;
+  font-family:'Gowun Batang',serif;font-weight:700;font-size:1rem;
 }
 
 /* ── Waiting ── */
-.waiting {
-  display: flex; flex-direction: column; align-items: center;
-  gap: 16px; padding: 40px 20px; text-align: center; color: var(--fg2);
+.waiting{
+  display:flex;flex-direction:column;align-items:center;
+  gap:16px;padding:40px 20px;text-align:center;color:var(--muted);
 }
-.waiting .spinner {
-  width: 48px; height: 48px; border: 4px solid var(--border);
-  border-top-color: var(--accent); border-radius: 50%;
-  animation: spin 1s linear infinite;
+.waiting .spinner{
+  width:48px;height:48px;border:4px solid var(--border);
+  border-top-color:var(--teal);border-radius:50%;
+  animation:spin 1s linear infinite;
 }
-@keyframes spin { to { transform: rotate(360deg); } }
+@keyframes spin{to{transform:rotate(360deg);}}
 
 /* ── Admin ── */
-.admin-section { margin-bottom: 20px; }
-.admin-title { font-size: .85rem; color: var(--fg2); font-weight: 700; margin-bottom: 10px; text-transform: uppercase; letter-spacing: .05em; }
-.group-status-row {
-  display: flex; align-items: center; gap: 8px;
-  padding: 10px 12px; border-radius: 10px;
-  background: var(--card); border: 1px solid var(--border);
-  margin-bottom: 8px; font-size: .85rem;
+.admin-section{margin-bottom:20px;}
+.admin-title{font-size:.85rem;color:var(--muted);font-weight:700;margin-bottom:10px;text-transform:uppercase;letter-spacing:.05em;}
+.group-status-row{
+  display:flex;align-items:center;gap:8px;
+  padding:10px 12px;border-radius:10px;
+  background:var(--card);border:1px solid var(--border);
+  margin-bottom:8px;font-size:.85rem;
 }
-.status-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--border); flex-shrink: 0; }
-.status-dot.on { background: var(--green); }
-.status-dot.presenting { background: var(--gold); animation: pulse .8s ease-in-out infinite alternate; }
-
-.score-display-row {
-  display: flex; align-items: center; gap: 8px;
-  padding: 8px 12px; border-radius: 8px; background: var(--bg2);
-  margin-bottom: 6px; font-size: .85rem;
+.status-dot{width:8px;height:8px;border-radius:50%;background:var(--border);flex-shrink:0;}
+.status-dot.on{background:var(--green);}
+.status-dot.presenting{background:var(--gold);animation:pulse .8s ease-in-out infinite alternate;}
+.score-display-row{
+  display:flex;align-items:center;gap:8px;
+  padding:8px 12px;border-radius:8px;background:var(--bg);
+  margin-bottom:6px;font-size:.85rem;
 }
-.progress-bar-wrap { background: var(--border); border-radius: 4px; height: 6px; flex: 1; }
-.progress-bar-fill { height: 6px; border-radius: 4px; background: var(--accent); transition: width .3s; }
+.progress-bar-wrap{background:var(--border);border-radius:4px;height:6px;flex:1;}
+.progress-bar-fill{height:6px;border-radius:4px;background:var(--teal);transition:width .3s;}
 
 /* ── Step indicator ── */
-.steps {
-  display: flex; gap: 4px; padding: 12px 20px;
-  background: var(--bg2); border-bottom: 1px solid var(--border);
+.steps{
+  display:flex;gap:4px;padding:12px 20px;
+  background:var(--card);border-bottom:1px solid var(--border);
 }
-.step {
-  flex: 1; height: 4px; border-radius: 2px;
-  background: var(--border); transition: background .3s;
+.step{flex:1;height:4px;border-radius:2px;background:var(--border);transition:background .3s;}
+.step.done{background:var(--teal);}
+.step.active{background:var(--gold);}
+
+/* ── Info box ── */
+.info-box{
+  background:var(--card);border-radius:14px;padding:16px 18px;
+  box-shadow:0 2px 8px rgba(0,0,0,.06);margin-bottom:16px;
+  font-size:.9rem;line-height:1.7;color:#444;
+  border-left:4px solid var(--teal);
 }
-.step.done { background: var(--accent); }
-.step.active { background: var(--gold); }
+.info-box .ib-title{font-family:'Gowun Batang',serif;font-weight:700;color:var(--navy);margin-bottom:6px;font-size:1rem;}
 
 /* ── Misc ── */
-.label { font-size: .8rem; color: var(--fg2); font-weight: 700; margin-bottom: 6px; }
-.mt8 { margin-top: 8px; }
-.mt16 { margin-top: 16px; }
-.mt20 { margin-top: 20px; }
-.text-center { text-align: center; }
-.text-muted { color: var(--fg2); font-size: .85rem; }
-.pill {
-  display: inline-block; padding: 3px 10px;
-  border-radius: 20px; font-size: .75rem; font-weight: 700;
-}
-.pill-red { background: #fee; color: var(--accent); }
-.pill-gold { background: #fff3cc; color: #a07000; }
-.pill-green { background: #eeffee; color: var(--green); }
-.pill-blue { background: #eef4ff; color: var(--blue); }
+.label{font-size:.8rem;color:var(--muted);font-weight:700;margin-bottom:6px;}
+.mt8{margin-top:8px;}.mt16{margin-top:16px;}.mt20{margin-top:20px;}
+.text-center{text-align:center;}
+.text-muted{color:var(--muted);font-size:.85rem;}
+.pill{display:inline-block;padding:3px 10px;border-radius:20px;font-size:.75rem;font-weight:700;}
+.pill-red{background:#FEE2E2;color:#991B1B;}
+.pill-gold{background:#FEF3C7;color:#92400E;}
+.pill-green{background:#D1FAE5;color:#065F46;}
+.pill-blue{background:#DBEAFE;color:#1E40AF;}
 
-/* ── Admin login ── */
+/* ── Admin login overlay ── */
 #admin-pw-wrap {
-  position: fixed; inset: 0; background: rgba(0,0,0,.5);
-  display: flex; align-items: center; justify-content: center; z-index: 100;
+  position:fixed;inset:0;background:rgba(0,0,0,.55);
+  display:flex;align-items:center;justify-content:center;z-index:100;
 }
 #admin-pw-box {
-  background: var(--card); border-radius: 20px; padding: 32px 28px;
-  width: 90%; max-width: 360px; box-shadow: 0 8px 40px rgba(0,0,0,.3);
+  background:var(--card);border-radius:20px;padding:32px 28px;
+  width:90%;max-width:360px;box-shadow:0 8px 40px rgba(0,0,0,.3);
 }
 </style>
 </head>
@@ -341,20 +331,16 @@ body {
 
 <!-- ════════════════════ SCREEN: LOGIN ════════════════════ -->
 <div id="sc-login" class="screen active">
-  <div class="hdr">
-    <div class="hdr-icon">📚</div>
-    <div>
-      <h1>방언 낭독극</h1>
-      <small>5-1 국어(가) 3단원</small>
+  <header class="hdr">
+    <div style="flex:1">
+      <h1>🎭 방언 낭독극 발표</h1>
+      <small>5-2 국어(가) 3단원 · 8~9차시</small>
     </div>
-  </div>
+  </header>
   <div class="body">
     <div class="card" style="margin-top:24px">
-      <div class="card-title">👤 이름을 입력하세요</div>
-      <input id="name-inp" class="inp" placeholder="예: 김민준" maxlength="10" autocomplete="off">
-      <div class="mt16">
-        <button class="btn btn-primary" onclick="doLogin()">입장하기 🚀</button>
-      </div>
+      <div class="card-title">👤 내 이름을 눌러요</div>
+      <div id="name-btn-grid" style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:12px"></div>
       <div class="text-center mt16">
         <button class="btn btn-sm btn-secondary" onclick="showAdminLogin()">관리자 입장</button>
       </div>
@@ -376,10 +362,9 @@ body {
 
 <!-- ════════════════════ SCREEN: GROUP ════════════════════ -->
 <div id="sc-group" class="screen">
-  <div class="hdr">
-    <div class="hdr-icon">👥</div>
-    <div><h1>모둠 선택</h1><small id="grp-name-hdr"></small></div>
-  </div>
+  <header class="hdr">
+    <div style="flex:1"><h1>👥 모둠 선택</h1><small id="grp-name-hdr"></small></div>
+  </header>
   <div class="steps">
     <div class="step done"></div><div class="step active"></div>
     <div class="step"></div><div class="step"></div><div class="step"></div>
@@ -395,11 +380,10 @@ body {
 
 <!-- ════════════════════ SCREEN: BROWSE SCRIPTS ════════════════════ -->
 <div id="sc-browse" class="screen">
-  <div class="hdr">
-    <div class="hdr-icon">📖</div>
-    <div><h1>대본 살펴보기</h1><small id="browse-group-badge"></small></div>
+  <header class="hdr">
+    <div style="flex:1"><h1>📖 대본 살펴보기</h1><small id="browse-group-badge"></small></div>
     <div class="hdr-badge" id="browse-badge"></div>
-  </div>
+  </header>
   <div class="steps">
     <div class="step done"></div><div class="step done"></div>
     <div class="step active"></div><div class="step"></div><div class="step"></div>
@@ -424,11 +408,10 @@ body {
 
 <!-- ════════════════════ SCREEN: CHOOSE SCENE ════════════════════ -->
 <div id="sc-choose" class="screen">
-  <div class="hdr">
-    <div class="hdr-icon">🎭</div>
-    <div><h1>대본 선택</h1><small id="choose-group-badge"></small></div>
+  <header class="hdr">
+    <div style="flex:1"><h1>🎭 대본 선택</h1><small id="choose-group-badge"></small></div>
     <div class="hdr-badge" id="choose-timer-badge">⏱️</div>
-  </div>
+  </header>
   <div class="steps">
     <div class="step done"></div><div class="step done"></div>
     <div class="step done"></div><div class="step active"></div><div class="step"></div>
@@ -457,10 +440,9 @@ body {
 
 <!-- ════════════════════ SCREEN: ROLES ════════════════════ -->
 <div id="sc-roles" class="screen">
-  <div class="hdr">
-    <div class="hdr-icon">🎬</div>
-    <div><h1>역할 선택</h1><small id="roles-group-badge"></small></div>
-  </div>
+  <header class="hdr">
+    <div style="flex:1"><h1>🎬 역할 선택</h1><small id="roles-group-badge"></small></div>
+  </header>
   <div class="steps">
     <div class="step done"></div><div class="step done"></div>
     <div class="step done"></div><div class="step done"></div><div class="step active"></div>
@@ -475,9 +457,9 @@ body {
     <div id="roles-btn-wrap" style="display:none">
       <button class="btn btn-primary" onclick="confirmRole()">이 역할로 할게요! ✅</button>
     </div>
-    <div id="role-confirmed-card" class="card" style="display:none;background:#fff0ee;border-color:var(--accent)">
+    <div id="role-confirmed-card" class="card" style="display:none;background:#F0FDF4;border-color:var(--teal)">
       <div class="card-title">✅ 역할이 정해졌어요!</div>
-      <div id="my-role-display" style="font-size:1.2rem;font-weight:900;color:var(--accent)"></div>
+      <div id="my-role-display" style="font-size:1.2rem;font-weight:900;color:var(--teal)"></div>
       <div class="mt8 text-muted">대본을 보며 연습해요!</div>
       <button class="btn btn-primary mt16" onclick="goToPractice()">대본 보러 가기 📜</button>
     </div>
@@ -486,10 +468,9 @@ body {
 
 <!-- ════════════════════ SCREEN: PRACTICE ════════════════════ -->
 <div id="sc-practice" class="screen">
-  <div class="hdr">
-    <div class="hdr-icon">🎤</div>
-    <div><h1>연습하기</h1><small id="practice-role-badge"></small></div>
-  </div>
+  <header class="hdr">
+    <div style="flex:1"><h1>🎤 연습하기</h1><small id="practice-role-badge"></small></div>
+  </header>
   <div class="steps">
     <div class="step done"></div><div class="step done"></div>
     <div class="step done"></div><div class="step done"></div><div class="step done"></div>
@@ -530,11 +511,10 @@ body {
 
 <!-- ════════════════════ SCREEN: ORDER (DICE) ════════════════════ -->
 <div id="sc-order" class="screen">
-  <div class="hdr">
-    <div class="hdr-icon">🎲</div>
-    <div><h1>발표 순서 뽑기</h1></div>
+  <header class="hdr">
+    <div style="flex:1"><h1>🎲 발표 순서 뽑기</h1></div>
     <div class="hdr-badge" id="order-mygroup-badge"></div>
-  </div>
+  </header>
   <div class="steps">
     <div class="step done"></div><div class="step done"></div>
     <div class="step done"></div><div class="step done"></div><div class="step done"></div>
@@ -551,11 +531,10 @@ body {
 <!-- ════════════════════ SCREEN: PRESENT (Scoring) ════════════════════ -->
 <div id="sc-present" class="screen">
   <div id="presenting-banner" class="presenting-bar" style="display:none"></div>
-  <div class="hdr">
-    <div class="hdr-icon">🌟</div>
-    <div><h1>발표 & 채점</h1><small id="present-mygroup"></small></div>
+  <header class="hdr">
+    <div style="flex:1"><h1>🌟 발표 &amp; 채점</h1><small id="present-mygroup"></small></div>
     <div class="hdr-badge" id="round-badge"></div>
-  </div>
+  </header>
   <div class="steps">
     <div class="step done"></div><div class="step done"></div>
     <div class="step done"></div><div class="step done"></div><div class="step done"></div>
@@ -567,7 +546,7 @@ body {
       <div id="my-script-view" class="script-box" style="max-height:55vh"></div>
     </div>
     <div id="scoring-card" class="card" style="display:none">
-      <div class="card-title">✍️ 지금 발표하는 <span id="scoring-group-name" style="color:var(--accent)"></span> 채점</div>
+      <div class="card-title">✍️ 지금 발표하는 <span id="scoring-group-name" style="color:var(--teal)"></span> 채점</div>
       <div id="score-criteria"></div>
       <button class="btn btn-primary mt16" id="submit-score-btn" onclick="submitScore()">점수 제출 ✅</button>
       <div id="score-submitted-msg" class="text-center mt16 text-muted" style="display:none">✅ 점수를 제출했어요!</div>
@@ -588,10 +567,9 @@ body {
 
 <!-- ════════════════════ SCREEN: RESULT ════════════════════ -->
 <div id="sc-result" class="screen">
-  <div class="hdr" style="background: linear-gradient(135deg,#e6a817,#f5c842)">
-    <div class="hdr-icon">🏆</div>
-    <div><h1>최종 결과</h1><small>방언 낭독극 발표 결과</small></div>
-  </div>
+  <header class="hdr" style="background:linear-gradient(135deg,var(--gold) 0%,#D4A945 100%)">
+    <div style="flex:1"><h1>🏆 최종 결과</h1><small>방언 낭독극 발표 결과</small></div>
+  </header>
   <div class="body" style="padding-top:24px">
     <div id="winner-card" class="card" style="text-align:center;border-color:var(--gold);background:#fff8ee;display:none">
       <div style="font-size:3rem">🥇</div>
@@ -612,11 +590,10 @@ body {
 
 <!-- ════════════════════ SCREEN: ADMIN ════════════════════ -->
 <div id="sc-admin" class="screen">
-  <div class="hdr" style="background:#1a1a2e">
-    <div class="hdr-icon">🛠️</div>
-    <div><h1>관리자 패널</h1></div>
-    <button class="btn btn-sm" style="margin-left:auto;background:rgba(255,255,255,.2);color:#fff;border:none" onclick="resetAll()">🔄 초기화</button>
-  </div>
+  <header class="hdr" style="background:linear-gradient(135deg,#111827 0%,#1F2937 100%)">
+    <div style="flex:1"><h1>🛠️ 관리자 패널</h1></div>
+    <button class="btn btn-sm" style="background:rgba(255,255,255,.15);color:#fff;border:none;flex-shrink:0" onclick="resetAll()">🔄 초기화</button>
+  </header>
   <div class="body" style="padding-top:16px">
     <!-- Phase control -->
     <div class="card">
@@ -791,12 +768,18 @@ const GROUP_INFO = [
   {id:2, name:"2모둠", icon:"🌊", color:"#2980b9"},
   {id:3, name:"3모둠", icon:"🌿", color:"#27ae60"},
   {id:4, name:"4모둠", icon:"⚡", color:"#f39c12"},
-  {id:5, name:"5모둠", icon:"🌙", color:"#8e44ad"},
-  {id:6, name:"6모둠", icon:"🔥", color:"#e67e22"},
 ];
 
-const ADMIN_PW = "126758";
-const NUM_GROUPS = 6;
+// 학생 명단 (가나다 순)
+const STUDENTS = [
+  '김다온','김도영','김채화','백수민',
+  '소진호','신은비','유준선','윤하늘',
+  '이보현','이지은','임규원','임휘재',
+  '장문혁','장준혁','한승우'
+];
+
+const ADMIN_PW = "1234";
+const NUM_GROUPS = 4;
 
 // ════════════════════ FIREBASE ════════════════════
 let _app;
@@ -831,14 +814,17 @@ function showScreen(id) {
 }
 
 // ════════════════════ LOGIN ════════════════════
-document.getElementById('name-inp').addEventListener('keydown', e => {
-  if (e.key === 'Enter') doLogin();
-});
+// 이름 버튼 렌더링
+(function renderNameBtns() {
+  const grid = document.getElementById('name-btn-grid');
+  grid.innerHTML = STUDENTS.map(name => `
+    <button class="name-select-btn" onclick="doLogin('${name}')">${name}</button>
+  `).join('');
+})();
 
-function doLogin() {
-  const n = document.getElementById('name-inp').value.trim();
-  if (!n) { alert('이름을 입력하세요'); return; }
-  myName = n;
+function doLogin(name) {
+  if (!name) return;
+  myName = name;
   goToGroupSelect();
 }
 
@@ -874,7 +860,7 @@ function renderGroupGrid() {
     <button class="group-btn available" id="gbtn-${g.id}" onclick="selectGroup(${g.id})">
       <span class="g-icon">${g.icon}</span>
       <span>${g.name}</span>
-      <span style="font-size:.7rem;color:var(--fg2)" id="gmem-${g.id}"></span>
+      <span style="font-size:.7rem;color:var(--muted)" id="gmem-${g.id}"></span>
     </button>
   `).join('');
 }
@@ -1259,7 +1245,7 @@ function listenOrder() {
       const g = GROUP_INFO[gid-1];
       const isMe = gid === myGroup;
       return `
-        <div class="group-status-row" style="${isMe ? 'background:var(--accent);color:#fff' : ''}">
+        <div class="group-status-row" style="${isMe ? 'background:var(--teal);color:#fff' : ''}">
           <span style="font-size:1.2rem;font-weight:900">${i+1}번째</span>
           <span style="font-size:1.3rem">${g.icon}</span>
           <span style="font-weight:700">${g.name}</span>
@@ -1353,20 +1339,29 @@ function renderScoringUI(presenterGid) {
     '목소리 크기를 적절히 조절하였는가?',
     '발음이 정확하였는가?'
   ];
+  currentPresenterGid = presenterGid;
+  // 초기화: already 있으면 그 값, 없으면 0
+  criteriaNames.forEach((_, ci) => {
+    currentScores[ci] = already ? already[ci] : 0;
+  });
+
   const container = document.getElementById('score-criteria');
+  const disabled = already ? 'disabled' : '';
   container.innerHTML = criteriaNames.map((name, ci) => `
-    <div class="score-group">
-      <div class="score-label">${ci+1}. ${name}</div>
-      <div class="score-stars" id="stars-${ci}">
-        ${[1,2,3,4,5].map(v => `
-          <button class="star-btn ${already ? (already[ci]>=v?'active':'') : ''}"
-            id="star-${ci}-${v}" onclick="setStar(${ci},${v},${presenterGid})" ${already?'disabled':''}>
-            ${v}
-          </button>
-        `).join('')}
+    <div class="score-num-row">
+      <div class="score-num-label">${ci+1}. ${name}</div>
+      <div class="score-num-controls">
+        <button class="score-num-btn" onclick="changeScore(${ci},-1)" ${disabled}>－</button>
+        <div class="score-num-val" id="sv-${ci}">${currentScores[ci]}</div>
+        <button class="score-num-btn" onclick="changeScore(${ci},1)" ${disabled}>＋</button>
       </div>
     </div>
-  `).join('');
+  `).join('') + `
+    <div class="score-total-row">
+      <span>총점</span>
+      <span class="score-total-val" id="score-total">${currentScores.reduce((a,b)=>a+b,0)}<span style="font-size:.9rem;font-weight:400"> / 15점</span></span>
+    </div>
+  `;
 
   const submitBtn = document.getElementById('submit-score-btn');
   const submittedMsg = document.getElementById('score-submitted-msg');
@@ -1383,19 +1378,18 @@ function renderScoringUI(presenterGid) {
 const currentScores = [0, 0, 0];
 let currentPresenterGid = null;
 
-function setStar(ci, val, presenterGid) {
-  currentPresenterGid = presenterGid;
-  currentScores[ci] = val;
-  [1,2,3,4,5].forEach(v => {
-    const btn = document.getElementById(`star-${ci}-${v}`);
-    if (btn) btn.className = 'star-btn' + (v <= val ? ' active' : '');
-  });
+function changeScore(ci, delta) {
+  currentScores[ci] = Math.max(0, Math.min(5, currentScores[ci] + delta));
+  const valEl = document.getElementById(`sv-${ci}`);
+  if (valEl) valEl.textContent = currentScores[ci];
+  const totalEl = document.getElementById('score-total');
+  if (totalEl) totalEl.innerHTML = `${currentScores.reduce((a,b)=>a+b,0)}<span style="font-size:.9rem;font-weight:400"> / 15점</span>`;
 }
 
 function submitScore() {
   if (!currentPresenterGid) return;
   if (currentScores.some(s => s === 0)) {
-    alert('3가지 항목 모두 점수를 선택하세요!');
+    alert('3가지 항목 모두 1점 이상 입력하세요!');
     return;
   }
   const key = `${myGroup}_${myName}`;
@@ -1407,9 +1401,11 @@ function submitScore() {
   });
   scoreSubmitted[currentPresenterGid] = currentScores.slice();
   document.getElementById('submit-score-btn').style.display = 'none';
-  document.getElementById('score-submitted-msg').style.display = 'block';
-  // Disable stars
-  document.querySelectorAll('.star-btn').forEach(b => b.disabled = true);
+  const submittedMsg = document.getElementById('score-submitted-msg');
+  submittedMsg.textContent = `✅ 점수 제출 완료! (총점 ${currentScores.reduce((a,b)=>a+b,0)}점)`;
+  submittedMsg.style.display = 'block';
+  // Disable +/- buttons
+  document.querySelectorAll('.score-num-btn').forEach(b => b.disabled = true);
 }
 
 // ════════════════════ RESULT ════════════════════
@@ -1450,7 +1446,7 @@ function listenResults() {
           <div class="result-group-name">${g.icon} ${g.name}</div>
           <div class="result-detail">채점 인원: ${g.count}명</div>
         </div>
-        <div class="result-score">${g.avg.toFixed(1)}<span style="font-size:.8rem;color:var(--fg2)">/15</span></div>
+        <div class="result-score">${g.avg.toFixed(1)}<span style="font-size:.8rem;color:var(--muted)">/15</span></div>
       </div>
     `).join('');
 
@@ -1465,7 +1461,7 @@ function listenResults() {
         <div class="progress-bar-wrap">
           <div class="progress-bar-fill" style="width:${criteriaAvgs[ci]/5*100}%"></div>
         </div>
-        <span style="font-weight:700;color:var(--accent);flex-shrink:0">${criteriaAvgs[ci].toFixed(1)}</span>
+        <span style="font-weight:700;color:var(--teal);flex-shrink:0">${criteriaAvgs[ci].toFixed(1)}</span>
       </div>
     `).join('');
   });
@@ -1493,7 +1489,7 @@ function listenAdminPhase() {
     const phaseMap = {group:0,browse:1,choose:2,roles:3,practice:4,order:5,present:6,result:7};
     const btns = document.querySelectorAll('#phase-btns button');
     btns.forEach((b,i) => {
-      b.style.background = i === phaseMap[phase] ? 'var(--accent)' : '';
+      b.style.background = i === phaseMap[phase] ? 'var(--teal)' : '';
       b.style.color = i === phaseMap[phase] ? '#fff' : '';
     });
   });
@@ -1520,7 +1516,7 @@ function listenAdminGroupStatus() {
           <div class="status-dot ${members.length?'on':''}"></div>
           <span style="font-size:1.1rem">${g.icon}</span>
           <span style="font-weight:700">${g.name}</span>
-          <span style="color:var(--fg2);font-size:.8rem">${members.map(m=>m.name).join(', ') || '없음'}</span>
+          <span style="color:var(--muted);font-size:.8rem">${members.map(m=>m.name).join(', ') || '없음'}</span>
         </div>
       `;
     }).join('');
@@ -1682,8 +1678,8 @@ function listenAdminScores() {
           <div class="progress-bar-wrap">
             <div class="progress-bar-fill" style="width:${count?Math.min(count/(NUM_GROUPS-1)*100,100):0}%"></div>
           </div>
-          <span style="font-size:.8rem;color:var(--fg2)">${count}표</span>
-          <span style="font-weight:700;color:var(--accent)">${avg}</span>
+          <span style="font-size:.8rem;color:var(--muted)">${count}표</span>
+          <span style="font-weight:700;color:var(--teal)">${avg}</span>
         </div>
       `;
     }).join('');
