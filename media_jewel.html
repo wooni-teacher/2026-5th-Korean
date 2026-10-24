@@ -29,6 +29,10 @@ html,body{
   background:var(--bg);color:var(--fg);
   min-height:100vh;
 }
+body{
+  padding-left:max(0px,env(safe-area-inset-left,0px));
+  padding-right:max(0px,env(safe-area-inset-right,0px));
+}
 
 /* ── HEADER ── */
 .hdr{
@@ -49,7 +53,8 @@ html,body{
 /* ── CARDS ── */
 .card{
   background:var(--card);border:1px solid var(--border);
-  border-radius:12px;padding:20px;margin-bottom:16px;
+  border-radius:16px;padding:20px;margin-bottom:16px;
+  box-shadow:0 2px 8px rgba(0,0,0,.07);
 }
 .card-title{
   font-family:'Gowun Batang',serif;font-size:1rem;font-weight:700;
@@ -60,8 +65,8 @@ html,body{
 /* ── BUTTONS ── */
 .btn{
   display:inline-flex;align-items:center;justify-content:center;
-  gap:6px;padding:10px 18px;border-radius:8px;border:none;
-  font-family:'Gowun Dodum',sans-serif;font-size:.9rem;
+  gap:6px;padding:10px 18px;border-radius:12px;border:none;
+  font-family:'Gowun Batang',serif;font-size:.9rem;
   cursor:pointer;transition:.15s;
 }
 .btn-primary{background:var(--navy);color:#fff;}
@@ -86,12 +91,12 @@ html,body{
   display:flex;flex-wrap:wrap;gap:8px;
 }
 .name-btn{
-  padding:8px 16px;border-radius:20px;border:1.5px solid var(--border);
-  background:var(--card);color:var(--fg);
+  padding:8px 16px;border-radius:20px;border:2.5px solid var(--border);
+  background:var(--card);color:var(--navy);
   font-family:'Gowun Dodum',sans-serif;font-size:.88rem;
   cursor:pointer;transition:.15s;
 }
-.name-btn:hover{border-color:var(--gold);color:var(--gold);}
+.name-btn:hover{border-color:var(--gold);background:#FFFBF0;color:var(--navy);}
 .name-btn.taken{opacity:.38;cursor:not-allowed;text-decoration:line-through;}
 .name-btn.mine{
   background:var(--navy);color:#fff;border-color:var(--navy);
@@ -100,9 +105,9 @@ html,body{
 /* ── GROUP GRID ── */
 .group-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
 .group-btn{
-  padding:14px;border-radius:10px;border:2.5px solid;
+  padding:14px;border-radius:18px;border:2.5px solid;
   background:var(--card);
-  font-family:'Gowun Batang',serif;font-size:.95rem;font-weight:700;
+  font-family:'Gowun Batang',serif;font-size:1.2rem;font-weight:700;
   cursor:pointer;transition:.15s;text-align:center;
 }
 .group-btn[data-gid="1"]{border-color:#E74C3C;color:#E74C3C;}
@@ -169,12 +174,9 @@ html,body{
 
 /* ── STEP INSTRUCTION BOX ── */
 .step-box{
-  background:linear-gradient(135deg,#F0F8FF 0%,#E8F4FD 100%);
-  border:1.5px solid #B0D4EC;border-radius:10px;
+  background:linear-gradient(135deg,#FBF8F2 0%,#F5F0E8 100%);
+  border:1.5px solid var(--border);border-radius:10px;
   padding:14px 16px;margin-bottom:14px;
-}
-:root[data-theme="dark"] .step-box,
-@media(prefers-color-scheme:dark){
 }
 .step-box p{font-size:.88rem;line-height:1.7;color:var(--fg);}
 .step-box .example{
@@ -309,17 +311,17 @@ html,body{
   height:6px;background:var(--teal);border-radius:3px;transition:.4s;
 }
 
-/* dark patch for step-box */
+/* dark patches */
 @media(prefers-color-scheme:dark){
   :root:not([data-theme="light"]) .step-box{
-    background:rgba(45,122,107,.12);border-color:#2D7A6B;
+    background:rgba(245,240,232,.06);border-color:var(--border);
   }
   :root:not([data-theme="light"]) .hint-box{
     background:rgba(181,147,58,.1);color:#D4B56A;
   }
 }
 :root[data-theme="dark"] .step-box{
-  background:rgba(45,122,107,.12);border-color:#2D7A6B;
+  background:rgba(245,240,232,.06);border-color:var(--border);
 }
 :root[data-theme="dark"] .hint-box{
   background:rgba(181,147,58,.1);color:#D4B56A;
@@ -393,17 +395,15 @@ html,body{
           <svg viewBox="0 0 700 500" xmlns="http://www.w3.org/2000/svg" id="jewel-svg1">
             <!-- outer bg -->
             <rect width="700" height="500" fill="none"/>
-            <!-- Diamond layer 1 (outermost - for step1 border only shown partially) -->
-            <!-- We draw nested diamonds and triangles -->
             <!-- Full diamond outline (largest) -->
-            <polygon points="350,20 680,250 350,480 20,250" fill="none" stroke="#4A72B8" stroke-width="2.5"/>
+            <polygon points="350,20 680,250 350,480 20,250" fill="none" stroke="#1F3350" stroke-width="2.5"/>
             <!-- Center diamond -->
-            <polygon points="350,170 480,250 350,330 220,250" fill="#EEF2FF" stroke="#4A72B8" stroke-width="2"/>
+            <polygon points="350,170 480,250 350,330 220,250" fill="#F5F0E8" stroke="#2D7A6B" stroke-width="2.5"/>
             <!-- cross lines from corners to center diamond -->
-            <line x1="350" y1="20" x2="350" y2="170" stroke="#4A72B8" stroke-width="2"/>
-            <line x1="680" y1="250" x2="480" y2="250" stroke="#4A72B8" stroke-width="2"/>
-            <line x1="350" y1="480" x2="350" y2="330" stroke="#4A72B8" stroke-width="2"/>
-            <line x1="20" y1="250" x2="220" y2="250" stroke="#4A72B8" stroke-width="2"/>
+            <line x1="350" y1="20" x2="350" y2="170" stroke="#1F3350" stroke-width="2"/>
+            <line x1="680" y1="250" x2="480" y2="250" stroke="#1F3350" stroke-width="2"/>
+            <line x1="350" y1="480" x2="350" y2="330" stroke="#1F3350" stroke-width="2"/>
+            <line x1="20" y1="250" x2="220" y2="250" stroke="#1F3350" stroke-width="2"/>
             <!-- center label -->
             <text x="350" y="246" text-anchor="middle" font-size="22" font-weight="bold" fill="#1F3350" font-family="'Gowun Batang',serif" dy="5">허위정보</text>
           </svg>
@@ -442,33 +442,32 @@ html,body{
           <svg viewBox="0 0 700 500" xmlns="http://www.w3.org/2000/svg">
             <!-- outer frame -->
             <rect width="700" height="500" fill="none"/>
-            <!-- Layer 3 (outermost) - shown faintly as future -->
-            <!-- Layer 2 diamond -->
-            <polygon points="350,80 610,250 350,420 90,250" fill="none" stroke="#4A72B8" stroke-width="2.5"/>
-            <!-- Layer 1 diamond (filled light) -->
-            <polygon points="350,170 480,250 350,330 220,250" fill="#EEF2FF" stroke="#4A72B8" stroke-width="2"/>
+            <!-- Layer 2 diamond (active) -->
+            <polygon points="350,80 610,250 350,420 90,250" fill="none" stroke="#1F3350" stroke-width="2.5"/>
+            <!-- Layer 1 diamond (completed, warm fill) -->
+            <polygon points="350,170 480,250 350,330 220,250" fill="#F5F0E8" stroke="#B5933A" stroke-width="2"/>
             <!-- lines from layer2 corners to layer1 -->
-            <line x1="350" y1="80"  x2="350" y2="170" stroke="#4A72B8" stroke-width="2"/>
-            <line x1="610" y1="250" x2="480" y2="250" stroke="#4A72B8" stroke-width="2"/>
-            <line x1="350" y1="420" x2="350" y2="330" stroke="#4A72B8" stroke-width="2"/>
-            <line x1="90"  y1="250" x2="220" y2="250" stroke="#4A72B8" stroke-width="2"/>
-            <!-- diagonal cross lines from outer corners through inner to center -->
-            <line x1="350" y1="20" x2="350" y2="80"   stroke="#4A72B8" stroke-width="1" stroke-dasharray="4"/>
-            <line x1="680" y1="250" x2="610" y2="250" stroke="#4A72B8" stroke-width="1" stroke-dasharray="4"/>
-            <line x1="350" y1="480" x2="350" y2="420" stroke="#4A72B8" stroke-width="1" stroke-dasharray="4"/>
-            <line x1="20"  y1="250" x2="90"  y2="250" stroke="#4A72B8" stroke-width="1" stroke-dasharray="4"/>
+            <line x1="350" y1="80"  x2="350" y2="170" stroke="#1F3350" stroke-width="2"/>
+            <line x1="610" y1="250" x2="480" y2="250" stroke="#1F3350" stroke-width="2"/>
+            <line x1="350" y1="420" x2="350" y2="330" stroke="#1F3350" stroke-width="2"/>
+            <line x1="90"  y1="250" x2="220" y2="250" stroke="#1F3350" stroke-width="2"/>
+            <!-- faint outer dashes (future layer) -->
+            <line x1="350" y1="20" x2="350" y2="80"   stroke="#DDD8CE" stroke-width="1.5" stroke-dasharray="5,4"/>
+            <line x1="680" y1="250" x2="610" y2="250" stroke="#DDD8CE" stroke-width="1.5" stroke-dasharray="5,4"/>
+            <line x1="350" y1="480" x2="350" y2="420" stroke="#DDD8CE" stroke-width="1.5" stroke-dasharray="5,4"/>
+            <line x1="20"  y1="250" x2="90"  y2="250" stroke="#DDD8CE" stroke-width="1.5" stroke-dasharray="5,4"/>
             <!-- center -->
             <text x="350" y="246" text-anchor="middle" font-size="22" font-weight="bold" fill="#1F3350" font-family="'Gowun Batang',serif" dy="5">허위정보</text>
-            <!-- number labels: 1=inner, 2=outer -->
-            <text x="350" y="123" text-anchor="middle" font-size="18" fill="#4A72B8" font-family="'Gowun Dodum',sans-serif">2</text>
-            <text x="555" y="255" text-anchor="middle" font-size="18" fill="#4A72B8" font-family="'Gowun Dodum',sans-serif">2</text>
-            <text x="350" y="378" text-anchor="middle" font-size="18" fill="#4A72B8" font-family="'Gowun Dodum',sans-serif">2</text>
-            <text x="145" y="255" text-anchor="middle" font-size="18" fill="#4A72B8" font-family="'Gowun Dodum',sans-serif">2</text>
-            <!-- 1 labels on inner -->
-            <text x="350" y="205" text-anchor="middle" font-size="15" fill="#888" font-family="'Gowun Dodum',sans-serif">1</text>
-            <text x="435" y="255" text-anchor="middle" font-size="15" fill="#888" font-family="'Gowun Dodum',sans-serif">1</text>
-            <text x="350" y="300" text-anchor="middle" font-size="15" fill="#888" font-family="'Gowun Dodum',sans-serif">1</text>
-            <text x="265" y="255" text-anchor="middle" font-size="15" fill="#888" font-family="'Gowun Dodum',sans-serif">1</text>
+            <!-- number labels: 2=active (teal), 1=done (gold/muted) -->
+            <text x="350" y="123" text-anchor="middle" font-size="18" fill="#2D7A6B" font-family="'Gowun Batang',serif" font-weight="700">②</text>
+            <text x="555" y="255" text-anchor="middle" font-size="18" fill="#2D7A6B" font-family="'Gowun Batang',serif" font-weight="700">②</text>
+            <text x="350" y="378" text-anchor="middle" font-size="18" fill="#2D7A6B" font-family="'Gowun Batang',serif" font-weight="700">②</text>
+            <text x="145" y="255" text-anchor="middle" font-size="18" fill="#2D7A6B" font-family="'Gowun Batang',serif" font-weight="700">②</text>
+            <!-- 1 labels on inner (completed) -->
+            <text x="350" y="205" text-anchor="middle" font-size="14" fill="#B5933A" font-family="'Gowun Batang',serif">①</text>
+            <text x="435" y="255" text-anchor="middle" font-size="14" fill="#B5933A" font-family="'Gowun Batang',serif">①</text>
+            <text x="350" y="300" text-anchor="middle" font-size="14" fill="#B5933A" font-family="'Gowun Batang',serif">①</text>
+            <text x="265" y="255" text-anchor="middle" font-size="14" fill="#B5933A" font-family="'Gowun Batang',serif">①</text>
           </svg>
           <div class="jewel-inputs" id="jewel2-inputs">
             <!-- layer 2 inputs -->
@@ -509,40 +508,39 @@ html,body{
         <div class="jewel-svg-wrap" id="jewel3-wrap">
           <svg viewBox="0 0 700 500" xmlns="http://www.w3.org/2000/svg">
             <rect width="700" height="500" fill="none"/>
-            <!-- outermost diamond -->
-            <polygon points="350,20 680,250 350,480 20,250" fill="none" stroke="#4A72B8" stroke-width="2.5"/>
-            <!-- layer 2 diamond -->
-            <polygon points="350,80 610,250 350,420 90,250" fill="none" stroke="#4A72B8" stroke-width="2"/>
-            <!-- layer 1 (center region) -->
-            <polygon points="350,170 480,250 350,330 220,250" fill="#EEF2FF" stroke="#4A72B8" stroke-width="2"/>
+            <!-- outermost diamond (active - navy) -->
+            <polygon points="350,20 680,250 350,480 20,250" fill="none" stroke="#1F3350" stroke-width="2.5"/>
+            <!-- layer 2 diamond (completed - teal) -->
+            <polygon points="350,80 610,250 350,420 90,250" fill="none" stroke="#2D7A6B" stroke-width="2"/>
+            <!-- layer 1 (center region, completed - gold) -->
+            <polygon points="350,170 480,250 350,330 220,250" fill="#F5F0E8" stroke="#B5933A" stroke-width="2"/>
             <!-- lines from outermost to layer2 -->
-            <line x1="350" y1="20"  x2="350" y2="80"   stroke="#4A72B8" stroke-width="2"/>
-            <line x1="680" y1="250" x2="610" y2="250"  stroke="#4A72B8" stroke-width="2"/>
-            <line x1="350" y1="480" x2="350" y2="420"  stroke="#4A72B8" stroke-width="2"/>
-            <line x1="20"  y1="250" x2="90"  y2="250"  stroke="#4A72B8" stroke-width="2"/>
+            <line x1="350" y1="20"  x2="350" y2="80"   stroke="#1F3350" stroke-width="2"/>
+            <line x1="680" y1="250" x2="610" y2="250"  stroke="#1F3350" stroke-width="2"/>
+            <line x1="350" y1="480" x2="350" y2="420"  stroke="#1F3350" stroke-width="2"/>
+            <line x1="20"  y1="250" x2="90"  y2="250"  stroke="#1F3350" stroke-width="2"/>
             <!-- lines from layer2 to layer1 -->
-            <line x1="350" y1="80"  x2="350" y2="170" stroke="#4A72B8" stroke-width="2"/>
-            <line x1="610" y1="250" x2="480" y2="250" stroke="#4A72B8" stroke-width="2"/>
-            <line x1="350" y1="420" x2="350" y2="330" stroke="#4A72B8" stroke-width="2"/>
-            <line x1="90"  y1="250" x2="220" y2="250" stroke="#4A72B8" stroke-width="2"/>
+            <line x1="350" y1="80"  x2="350" y2="170" stroke="#2D7A6B" stroke-width="2"/>
+            <line x1="610" y1="250" x2="480" y2="250" stroke="#2D7A6B" stroke-width="2"/>
+            <line x1="350" y1="420" x2="350" y2="330" stroke="#2D7A6B" stroke-width="2"/>
+            <line x1="90"  y1="250" x2="220" y2="250" stroke="#2D7A6B" stroke-width="2"/>
             <!-- center -->
             <text x="350" y="246" text-anchor="middle" font-size="22" font-weight="bold" fill="#1F3350" font-family="'Gowun Batang',serif" dy="5">허위정보</text>
-            <!-- number labels -->
-            <!-- 3 outer -->
-            <text x="350" y="48" text-anchor="middle" font-size="18" fill="#4A72B8">3</text>
-            <text x="648" y="255" text-anchor="middle" font-size="18" fill="#4A72B8">3</text>
-            <text x="350" y="458" text-anchor="middle" font-size="18" fill="#4A72B8">3</text>
-            <text x="52"  y="255" text-anchor="middle" font-size="18" fill="#4A72B8">3</text>
-            <!-- 2 mid -->
-            <text x="350" y="120" text-anchor="middle" font-size="16" fill="#888">2</text>
-            <text x="568" y="255" text-anchor="middle" font-size="16" fill="#888">2</text>
-            <text x="350" y="385" text-anchor="middle" font-size="16" fill="#888">2</text>
-            <text x="132" y="255" text-anchor="middle" font-size="16" fill="#888">2</text>
-            <!-- 1 inner -->
-            <text x="350" y="205" text-anchor="middle" font-size="14" fill="#aaa">1</text>
-            <text x="435" y="255" text-anchor="middle" font-size="14" fill="#aaa">1</text>
-            <text x="350" y="302" text-anchor="middle" font-size="14" fill="#aaa">1</text>
-            <text x="265" y="255" text-anchor="middle" font-size="14" fill="#aaa">1</text>
+            <!-- 3 outer (active - navy) -->
+            <text x="350" y="48" text-anchor="middle" font-size="18" fill="#1F3350" font-family="'Gowun Batang',serif" font-weight="700">③</text>
+            <text x="648" y="255" text-anchor="middle" font-size="18" fill="#1F3350" font-family="'Gowun Batang',serif" font-weight="700">③</text>
+            <text x="350" y="458" text-anchor="middle" font-size="18" fill="#1F3350" font-family="'Gowun Batang',serif" font-weight="700">③</text>
+            <text x="52"  y="255" text-anchor="middle" font-size="18" fill="#1F3350" font-family="'Gowun Batang',serif" font-weight="700">③</text>
+            <!-- 2 mid (completed - teal) -->
+            <text x="350" y="120" text-anchor="middle" font-size="16" fill="#2D7A6B" font-family="'Gowun Batang',serif">②</text>
+            <text x="568" y="255" text-anchor="middle" font-size="16" fill="#2D7A6B" font-family="'Gowun Batang',serif">②</text>
+            <text x="350" y="385" text-anchor="middle" font-size="16" fill="#2D7A6B" font-family="'Gowun Batang',serif">②</text>
+            <text x="132" y="255" text-anchor="middle" font-size="16" fill="#2D7A6B" font-family="'Gowun Batang',serif">②</text>
+            <!-- 1 inner (completed - gold) -->
+            <text x="350" y="205" text-anchor="middle" font-size="14" fill="#B5933A" font-family="'Gowun Batang',serif">①</text>
+            <text x="435" y="255" text-anchor="middle" font-size="14" fill="#B5933A" font-family="'Gowun Batang',serif">①</text>
+            <text x="350" y="302" text-anchor="middle" font-size="14" fill="#B5933A" font-family="'Gowun Batang',serif">①</text>
+            <text x="265" y="255" text-anchor="middle" font-size="14" fill="#B5933A" font-family="'Gowun Batang',serif">①</text>
           </svg>
           <div class="jewel-inputs" id="jewel3-inputs">
             <!-- outer layer 3 inputs -->
