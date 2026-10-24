@@ -1,0 +1,1193 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>매체 단원 - 보석맵 & 브레인라이팅</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=Gowun+Dodum&display=swap">
+<style>
+:root{
+  --navy:#1F3350;--gold:#B5933A;--teal:#2D7A6B;--bg:#F8F5EF;
+  --card:#FFFFFF;--border:#DDD8CE;--fg:#222;--muted:#888;
+  --red:#E74C3C;--green:#10B981;
+  color-scheme:light;
+}
+@media(prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --bg:#1A1F2E;--card:#252B3B;--border:#3A4255;--fg:#E8E4DC;--muted:#8890A8;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#1A1F2E;--card:#252B3B;--border:#3A4255;--fg:#E8E4DC;--muted:#8890A8;
+  color-scheme:dark;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{
+  font-family:'Gowun Dodum',sans-serif;
+  background:var(--bg);color:var(--fg);
+  min-height:100vh;
+}
+
+/* ── HEADER ── */
+.hdr{
+  background:linear-gradient(135deg,var(--navy) 0%,#2E4A6E 100%);
+  color:#fff;padding:20px 24px 16px;
+  display:flex;align-items:center;gap:12px;
+}
+.hdr h1{font-family:'Gowun Batang',serif;font-size:1.25rem;font-weight:700;}
+.hdr-sub{font-size:.8rem;opacity:.75;margin-top:2px;}
+.hdr-right{margin-left:auto;display:flex;gap:8px;align-items:center;}
+.badge{background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.3);
+  border-radius:20px;padding:4px 12px;font-size:.78rem;}
+
+/* ── SCREENS ── */
+.screen{display:none;padding:20px 16px 32px;}
+.screen.active{display:block;}
+
+/* ── CARDS ── */
+.card{
+  background:var(--card);border:1px solid var(--border);
+  border-radius:12px;padding:20px;margin-bottom:16px;
+}
+.card-title{
+  font-family:'Gowun Batang',serif;font-size:1rem;font-weight:700;
+  color:var(--navy);border-left:4px solid var(--teal);padding-left:10px;
+  margin-bottom:14px;
+}
+
+/* ── BUTTONS ── */
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;
+  gap:6px;padding:10px 18px;border-radius:8px;border:none;
+  font-family:'Gowun Dodum',sans-serif;font-size:.9rem;
+  cursor:pointer;transition:.15s;
+}
+.btn-primary{background:var(--navy);color:#fff;}
+.btn-primary:hover{background:#2E4A6E;}
+.btn-gold{background:var(--gold);color:#fff;}
+.btn-gold:hover{background:#C9A445;}
+.btn-teal{background:var(--teal);color:#fff;}
+.btn-teal:hover{background:#256858;}
+.btn-danger{background:var(--red);color:#fff;}
+.btn-danger:hover{opacity:.85;}
+.btn-outline{
+  background:transparent;color:var(--fg);
+  border:1.5px solid var(--border);
+}
+.btn-outline:hover{border-color:var(--gold);color:var(--gold);}
+.btn-sm{padding:6px 12px;font-size:.8rem;}
+.btn-lg{padding:14px 24px;font-size:1rem;}
+.btn:disabled{opacity:.4;cursor:not-allowed;}
+
+/* ── NAME SELECT ── */
+.name-grid{
+  display:flex;flex-wrap:wrap;gap:8px;
+}
+.name-btn{
+  padding:8px 16px;border-radius:20px;border:1.5px solid var(--border);
+  background:var(--card);color:var(--fg);
+  font-family:'Gowun Dodum',sans-serif;font-size:.88rem;
+  cursor:pointer;transition:.15s;
+}
+.name-btn:hover{border-color:var(--gold);color:var(--gold);}
+.name-btn.taken{opacity:.38;cursor:not-allowed;text-decoration:line-through;}
+.name-btn.mine{
+  background:var(--navy);color:#fff;border-color:var(--navy);
+}
+
+/* ── GROUP GRID ── */
+.group-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.group-btn{
+  padding:14px;border-radius:10px;border:2.5px solid;
+  background:var(--card);
+  font-family:'Gowun Batang',serif;font-size:.95rem;font-weight:700;
+  cursor:pointer;transition:.15s;text-align:center;
+}
+.group-btn[data-gid="1"]{border-color:#E74C3C;color:#E74C3C;}
+.group-btn[data-gid="2"]{border-color:#2D7A6B;color:#2D7A6B;}
+.group-btn[data-gid="3"]{border-color:#7C3AED;color:#7C3AED;}
+.group-btn[data-gid="4"]{border-color:#B5933A;color:#B5933A;}
+.group-btn.selected[data-gid="1"]{background:#E74C3C;color:#fff;}
+.group-btn.selected[data-gid="2"]{background:#2D7A6B;color:#fff;}
+.group-btn.selected[data-gid="3"]{background:#7C3AED;color:#fff;}
+.group-btn.selected[data-gid="4"]{background:#B5933A;color:#fff;}
+
+/* ── PHASE INDICATOR ── */
+.phase-row{
+  display:flex;gap:8px;margin-bottom:20px;flex-wrap:wrap;
+}
+.phase-chip{
+  padding:6px 14px;border-radius:20px;font-size:.78rem;
+  border:1.5px solid var(--border);background:var(--card);color:var(--muted);
+  font-family:'Gowun Batang',serif;
+}
+.phase-chip.active{background:var(--navy);color:#fff;border-color:var(--navy);}
+.phase-chip.done{background:var(--teal);color:#fff;border-color:var(--teal);}
+
+/* ── JEWEL MAP ── */
+.jewel-wrap{
+  display:flex;align-items:center;justify-content:center;
+  flex-direction:column;gap:16px;
+}
+.jewel-svg-wrap{
+  position:relative;width:100%;max-width:440px;
+  aspect-ratio:7/5;
+}
+.jewel-svg-wrap svg{width:100%;height:100%;}
+
+/* input overlays on the jewel */
+.jewel-inputs{
+  position:absolute;inset:0;pointer-events:none;
+}
+.jewel-inp{
+  position:absolute;transform:translate(-50%,-50%);
+  pointer-events:all;
+  background:rgba(255,255,255,.85);
+  border:none;border-bottom:1.5px solid var(--teal);
+  font-family:'Gowun Dodum',sans-serif;font-size:.72rem;
+  text-align:center;width:56px;padding:2px 4px;
+  border-radius:4px;
+  color:var(--fg);
+  backdrop-filter:blur(2px);
+}
+.jewel-inp:focus{
+  outline:2px solid var(--teal);background:#fff;
+}
+.jewel-inp:disabled{
+  background:rgba(255,255,255,.5);color:var(--muted);cursor:default;
+}
+.jewel-inp.wide{width:80px;}
+.jewel-center{
+  font-size:.75rem;font-weight:700;color:var(--navy);
+  font-family:'Gowun Batang',serif;
+}
+
+/* ── STEP INSTRUCTION BOX ── */
+.step-box{
+  background:linear-gradient(135deg,#F0F8FF 0%,#E8F4FD 100%);
+  border:1.5px solid #B0D4EC;border-radius:10px;
+  padding:14px 16px;margin-bottom:14px;
+}
+:root[data-theme="dark"] .step-box,
+@media(prefers-color-scheme:dark){
+}
+.step-box p{font-size:.88rem;line-height:1.7;color:var(--fg);}
+.step-box .example{
+  margin-top:8px;display:inline-block;
+  background:#FEF3C7;border:1px solid #F59E0B;
+  border-radius:6px;padding:4px 10px;font-size:.78rem;color:#92400E;
+}
+
+/* ── BRAIN WRITING ── */
+.bw-textarea{
+  width:100%;min-height:140px;border:1.5px solid var(--border);
+  border-radius:8px;padding:12px;resize:vertical;
+  font-family:'Gowun Dodum',sans-serif;font-size:.9rem;
+  background:var(--card);color:var(--fg);line-height:1.7;
+}
+.bw-textarea:focus{outline:2px solid var(--teal);border-color:var(--teal);}
+.hint-box{
+  background:#FEF9EC;border:1.5px solid var(--gold);
+  border-radius:8px;padding:12px;margin-top:10px;font-size:.82rem;
+  line-height:1.6;color:#6B4F12;
+}
+
+/* ── ADMIN PANEL ── */
+.admin-section{margin-bottom:24px;}
+.admin-section h3{
+  font-family:'Gowun Batang',serif;font-size:.95rem;color:var(--navy);
+  margin-bottom:10px;padding-bottom:6px;border-bottom:1px solid var(--border);
+}
+.student-table{width:100%;border-collapse:collapse;font-size:.82rem;}
+.student-table th,.student-table td{
+  padding:8px 10px;border:1px solid var(--border);text-align:center;
+}
+.student-table th{background:var(--navy);color:#fff;font-family:'Gowun Batang',serif;}
+.student-table tr:nth-child(even){background:rgba(0,0,0,.03);}
+
+.pick-box{
+  background:linear-gradient(135deg,var(--gold) 0%,#D4A945 100%);
+  border-radius:12px;padding:20px;text-align:center;color:#fff;
+  margin:12px 0;
+}
+.pick-box h2{font-family:'Gowun Batang',serif;font-size:1.6rem;}
+.pick-box p{font-size:.85rem;opacity:.85;margin-top:4px;}
+
+.jewel-summary{
+  background:var(--bg);border:1px solid var(--border);border-radius:10px;
+  padding:14px;margin-bottom:12px;
+}
+.jewel-summary h4{
+  font-family:'Gowun Batang',serif;color:var(--teal);
+  margin-bottom:8px;font-size:.9rem;
+}
+.jewel-row{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:4px;}
+.jewel-tag{
+  background:var(--card);border:1px solid var(--border);
+  border-radius:6px;padding:3px 8px;font-size:.78rem;
+}
+.bw-item{
+  background:var(--card);border:1px solid var(--border);
+  border-radius:8px;padding:12px;margin-bottom:8px;
+}
+.bw-item .bw-name{
+  font-family:'Gowun Batang',serif;font-size:.78rem;color:var(--teal);
+  margin-bottom:4px;
+}
+.bw-item p{font-size:.85rem;line-height:1.6;}
+
+.merge-area{
+  width:100%;min-height:120px;border:1.5px solid var(--border);
+  border-radius:8px;padding:12px;
+  font-family:'Gowun Dodum',sans-serif;font-size:.88rem;
+  background:var(--card);color:var(--fg);line-height:1.7;resize:vertical;
+}
+.merge-area:focus{outline:2px solid var(--teal);border-color:var(--teal);}
+
+/* ── RESULT DISPLAY ── */
+.result-card{
+  background:var(--card);border:1.5px solid var(--teal);
+  border-radius:10px;padding:16px;margin-bottom:12px;
+}
+.result-card h4{
+  font-family:'Gowun Batang',serif;color:var(--teal);margin-bottom:8px;
+}
+
+/* ── PHASE HEADER ── */
+.phase-hdr{
+  background:linear-gradient(135deg,var(--teal) 0%,#256858 100%);
+  color:#fff;border-radius:10px;padding:14px 16px;margin-bottom:14px;
+  text-align:center;
+}
+.phase-hdr h2{font-family:'Gowun Batang',serif;font-size:1.1rem;}
+.phase-hdr p{font-size:.8rem;opacity:.82;margin-top:3px;}
+
+/* ── ADMIN PW OVERLAY ── */
+#admin-pw-wrap{
+  position:fixed;inset:0;background:rgba(0,0,0,.5);
+  display:flex;align-items:center;justify-content:center;
+  z-index:200;
+}
+#admin-pw-box{
+  background:var(--card);border-radius:14px;padding:28px 24px;
+  width:300px;text-align:center;
+}
+#admin-pw-box h3{
+  font-family:'Gowun Batang',serif;margin-bottom:16px;color:var(--navy);
+}
+#admin-pw-inp{
+  width:100%;border:1.5px solid var(--border);border-radius:8px;
+  padding:10px;text-align:center;font-size:1rem;margin-bottom:12px;
+  background:var(--bg);color:var(--fg);
+}
+.pw-error{color:var(--red);font-size:.82rem;margin-bottom:8px;}
+
+/* ── TOAST ── */
+.toast{
+  position:fixed;bottom:24px;left:50%;transform:translateX(-50%);
+  background:#222;color:#fff;padding:10px 20px;border-radius:20px;
+  font-size:.85rem;opacity:0;transition:.3s;pointer-events:none;z-index:999;
+}
+.toast.show{opacity:1;}
+
+/* ── MISC ── */
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;}
+.mt{margin-top:12px;}
+.mb{margin-bottom:12px;}
+.txt-center{text-align:center;}
+.txt-muted{color:var(--muted);font-size:.82rem;}
+.sep{border:none;border-top:1px solid var(--border);margin:16px 0;}
+.progress-bar-wrap{
+  height:6px;background:var(--border);border-radius:3px;margin:10px 0;
+}
+.progress-bar{
+  height:6px;background:var(--teal);border-radius:3px;transition:.4s;
+}
+
+/* dark patch for step-box */
+@media(prefers-color-scheme:dark){
+  :root:not([data-theme="light"]) .step-box{
+    background:rgba(45,122,107,.12);border-color:#2D7A6B;
+  }
+  :root:not([data-theme="light"]) .hint-box{
+    background:rgba(181,147,58,.1);color:#D4B56A;
+  }
+}
+:root[data-theme="dark"] .step-box{
+  background:rgba(45,122,107,.12);border-color:#2D7A6B;
+}
+:root[data-theme="dark"] .hint-box{
+  background:rgba(181,147,58,.1);color:#D4B56A;
+}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="hdr">
+  <div>
+    <h1>📰 매체 단원 활동</h1>
+    <div class="hdr-sub">5학년 2학기 · 허위 정보와 매체 비판</div>
+  </div>
+  <div class="hdr-right">
+    <span class="badge" id="hdr-name-badge" style="display:none"></span>
+    <button class="btn btn-outline btn-sm" id="admin-btn" onclick="openAdmin()">관리자</button>
+  </div>
+</header>
+
+<!-- ────────────────────────────────
+     SCREEN 1: 이름 선택
+──────────────────────────────── -->
+<section class="screen active" id="screen-login">
+  <div class="card" style="max-width:520px;margin:0 auto;">
+    <div class="card-title">👤 이름을 선택하세요</div>
+    <div class="name-grid" id="name-grid"></div>
+  </div>
+
+  <div class="card" style="max-width:520px;margin:0 auto;display:none;" id="group-card">
+    <div class="card-title">🏷️ 모둠을 선택하세요</div>
+    <div class="group-grid" id="group-grid">
+      <button class="group-btn" data-gid="1" onclick="selectGroup(1)">🔴 1모둠</button>
+      <button class="group-btn" data-gid="2" onclick="selectGroup(2)">🟢 2모둠</button>
+      <button class="group-btn" data-gid="3" onclick="selectGroup(3)">🟣 3모둠</button>
+      <button class="group-btn" data-gid="4" onclick="selectGroup(4)">🟡 4모둠</button>
+    </div>
+    <div class="mt txt-center">
+      <button class="btn btn-primary btn-lg" id="start-btn" onclick="startActivity()" disabled>
+        ✅ 활동 시작하기
+      </button>
+    </div>
+  </div>
+</section>
+
+<!-- ────────────────────────────────
+     SCREEN 2: 보석맵 활동
+──────────────────────────────── -->
+<section class="screen" id="screen-jewel">
+  <div style="max-width:600px;margin:0 auto;">
+    <div class="phase-row" id="jewel-phase-row">
+      <div class="phase-chip" id="pc1">1단계: 반복 시 결과</div>
+      <div class="phase-chip" id="pc2">2단계: 나라면?</div>
+      <div class="phase-chip" id="pc3">3단계: 사회 문제점</div>
+      <div class="phase-chip" id="pc4">4단계: 발표</div>
+    </div>
+
+    <!-- 1단계 -->
+    <div id="jewel-step1">
+      <div class="phase-hdr">
+        <h2>1단계 📝 허위 정보가 반복되면?</h2>
+        <p>모둠이 함께 이야기하고 핵심 낱말을 적어보세요</p>
+      </div>
+      <div class="step-box">
+        <p>자료 (가)와 (나)와 같은 <strong>허위 정보가 반복</strong>되면 어떤 일이 생길지 생각하고<br>
+        <strong>'핵심 낱말'</strong>로 적어봅시다.</p>
+        <span class="example">예) 억울</span>
+      </div>
+      <div class="card">
+        <div class="jewel-svg-wrap" id="jewel1-wrap">
+          <svg viewBox="0 0 700 500" xmlns="http://www.w3.org/2000/svg" id="jewel-svg1">
+            <!-- outer bg -->
+            <rect width="700" height="500" fill="none"/>
+            <!-- Diamond layer 1 (outermost - for step1 border only shown partially) -->
+            <!-- We draw nested diamonds and triangles -->
+            <!-- Full diamond outline (largest) -->
+            <polygon points="350,20 680,250 350,480 20,250" fill="none" stroke="#4A72B8" stroke-width="2.5"/>
+            <!-- Center diamond -->
+            <polygon points="350,170 480,250 350,330 220,250" fill="#EEF2FF" stroke="#4A72B8" stroke-width="2"/>
+            <!-- cross lines from corners to center diamond -->
+            <line x1="350" y1="20" x2="350" y2="170" stroke="#4A72B8" stroke-width="2"/>
+            <line x1="680" y1="250" x2="480" y2="250" stroke="#4A72B8" stroke-width="2"/>
+            <line x1="350" y1="480" x2="350" y2="330" stroke="#4A72B8" stroke-width="2"/>
+            <line x1="20" y1="250" x2="220" y2="250" stroke="#4A72B8" stroke-width="2"/>
+            <!-- center label -->
+            <text x="350" y="246" text-anchor="middle" font-size="16" font-weight="bold" fill="#1F3350" font-family="'Gowun Batang',serif" dy="5">허위정보</text>
+          </svg>
+          <div class="jewel-inputs" id="jewel1-inputs">
+            <!-- 4 inputs for the 4 triangular regions (1-numbered) -->
+            <input class="jewel-inp wide" id="j1-top"    style="left:50%;top:13%"    placeholder="핵심 낱말" data-key="top">
+            <input class="jewel-inp wide" id="j1-right"  style="left:83%;top:50%"   placeholder="핵심 낱말" data-key="right">
+            <input class="jewel-inp wide" id="j1-bottom" style="left:50%;top:87%"   placeholder="핵심 낱말" data-key="bottom">
+            <input class="jewel-inp wide" id="j1-left"   style="left:17%;top:50%"   placeholder="핵심 낱말" data-key="left">
+          </div>
+        </div>
+        <div class="row mt">
+          <button class="btn btn-teal" onclick="saveStep(1)">💾 저장하기</button>
+          <span class="txt-muted" id="step1-saved"></span>
+        </div>
+      </div>
+      <div class="txt-center mt">
+        <button class="btn btn-primary btn-lg" id="go-step2-btn" onclick="goStep(2)" disabled>
+          2단계로 이동 →
+        </button>
+        <p class="txt-muted mt" style="font-size:.78rem">모든 모둠원이 저장하면 활성화됩니다</p>
+      </div>
+    </div>
+
+    <!-- 2단계 -->
+    <div id="jewel-step2" style="display:none;">
+      <div class="phase-hdr">
+        <h2>2단계 🤔 나라면 어떻게 했을까?</h2>
+        <p>허위 정보를 들었을 때 나라면 어떻게 행동했을지 적어보세요</p>
+      </div>
+      <div class="step-box">
+        <p><strong>2번 칸</strong>에 허위 정보를 들었을 때 <strong>어떻게 행동했을지</strong> 적어봅시다.</p>
+      </div>
+      <div class="card">
+        <div class="jewel-svg-wrap" id="jewel2-wrap">
+          <svg viewBox="0 0 700 500" xmlns="http://www.w3.org/2000/svg">
+            <!-- outer frame -->
+            <rect width="700" height="500" fill="none"/>
+            <!-- Layer 3 (outermost) - shown faintly as future -->
+            <!-- Layer 2 diamond -->
+            <polygon points="350,80 610,250 350,420 90,250" fill="none" stroke="#4A72B8" stroke-width="2.5"/>
+            <!-- Layer 1 diamond (filled light) -->
+            <polygon points="350,170 480,250 350,330 220,250" fill="#EEF2FF" stroke="#4A72B8" stroke-width="2"/>
+            <!-- lines from layer2 corners to layer1 -->
+            <line x1="350" y1="80"  x2="350" y2="170" stroke="#4A72B8" stroke-width="2"/>
+            <line x1="610" y1="250" x2="480" y2="250" stroke="#4A72B8" stroke-width="2"/>
+            <line x1="350" y1="420" x2="350" y2="330" stroke="#4A72B8" stroke-width="2"/>
+            <line x1="90"  y1="250" x2="220" y2="250" stroke="#4A72B8" stroke-width="2"/>
+            <!-- diagonal cross lines from outer corners through inner to center -->
+            <line x1="350" y1="20" x2="350" y2="80"   stroke="#4A72B8" stroke-width="1" stroke-dasharray="4"/>
+            <line x1="680" y1="250" x2="610" y2="250" stroke="#4A72B8" stroke-width="1" stroke-dasharray="4"/>
+            <line x1="350" y1="480" x2="350" y2="420" stroke="#4A72B8" stroke-width="1" stroke-dasharray="4"/>
+            <line x1="20"  y1="250" x2="90"  y2="250" stroke="#4A72B8" stroke-width="1" stroke-dasharray="4"/>
+            <!-- center -->
+            <text x="350" y="246" text-anchor="middle" font-size="16" font-weight="bold" fill="#1F3350" font-family="'Gowun Batang',serif" dy="5">허위정보</text>
+            <!-- number labels: 1=inner, 2=outer -->
+            <text x="350" y="123" text-anchor="middle" font-size="13" fill="#4A72B8" font-family="'Gowun Dodum',sans-serif">2</text>
+            <text x="555" y="255" text-anchor="middle" font-size="13" fill="#4A72B8" font-family="'Gowun Dodum',sans-serif">2</text>
+            <text x="350" y="378" text-anchor="middle" font-size="13" fill="#4A72B8" font-family="'Gowun Dodum',sans-serif">2</text>
+            <text x="145" y="255" text-anchor="middle" font-size="13" fill="#4A72B8" font-family="'Gowun Dodum',sans-serif">2</text>
+            <!-- 1 labels on inner -->
+            <text x="350" y="205" text-anchor="middle" font-size="11" fill="#888" font-family="'Gowun Dodum',sans-serif">1</text>
+            <text x="435" y="255" text-anchor="middle" font-size="11" fill="#888" font-family="'Gowun Dodum',sans-serif">1</text>
+            <text x="350" y="300" text-anchor="middle" font-size="11" fill="#888" font-family="'Gowun Dodum',sans-serif">1</text>
+            <text x="265" y="255" text-anchor="middle" font-size="11" fill="#888" font-family="'Gowun Dodum',sans-serif">1</text>
+          </svg>
+          <div class="jewel-inputs" id="jewel2-inputs">
+            <!-- layer 2 inputs -->
+            <input class="jewel-inp wide" id="j2-top"    style="left:50%;top:18%"   placeholder="행동" data-key="top">
+            <input class="jewel-inp wide" id="j2-right"  style="left:82%;top:50%"  placeholder="행동" data-key="right">
+            <input class="jewel-inp wide" id="j2-bottom" style="left:50%;top:82%"  placeholder="행동" data-key="bottom">
+            <input class="jewel-inp wide" id="j2-left"   style="left:18%;top:50%"  placeholder="행동" data-key="left">
+            <!-- layer 1 readonly (from step1) -->
+            <input class="jewel-inp" id="j2-r-top"    style="left:50%;top:34%"  disabled data-ref="top">
+            <input class="jewel-inp" id="j2-r-right"  style="left:68%;top:50%" disabled data-ref="right">
+            <input class="jewel-inp" id="j2-r-bottom" style="left:50%;top:66%" disabled data-ref="bottom">
+            <input class="jewel-inp" id="j2-r-left"   style="left:32%;top:50%" disabled data-ref="left">
+          </div>
+        </div>
+        <div class="row mt">
+          <button class="btn btn-teal" onclick="saveStep(2)">💾 저장하기</button>
+          <span class="txt-muted" id="step2-saved"></span>
+        </div>
+      </div>
+      <div class="txt-center mt">
+        <button class="btn btn-primary btn-lg" id="go-step3-btn" onclick="goStep(3)" disabled>
+          3단계로 이동 →
+        </button>
+        <p class="txt-muted mt" style="font-size:.78rem">모든 모둠원이 저장하면 활성화됩니다</p>
+      </div>
+    </div>
+
+    <!-- 3단계 -->
+    <div id="jewel-step3" style="display:none;">
+      <div class="phase-hdr">
+        <h2>3단계 🌐 사회적 문제점은?</h2>
+        <p>허위 정보가 계속 만들어진다면 생기는 문제점을 적어보세요</p>
+      </div>
+      <div class="step-box">
+        <p><strong>3번 칸</strong>에 생활 속에서 허위 정보가 계속 만들어진다면 <strong>어떤 문제점</strong>이 생길지 적어봅시다.</p>
+      </div>
+      <div class="card">
+        <div class="jewel-svg-wrap" id="jewel3-wrap">
+          <svg viewBox="0 0 700 500" xmlns="http://www.w3.org/2000/svg">
+            <rect width="700" height="500" fill="none"/>
+            <!-- outermost diamond -->
+            <polygon points="350,20 680,250 350,480 20,250" fill="none" stroke="#4A72B8" stroke-width="2.5"/>
+            <!-- layer 2 diamond -->
+            <polygon points="350,80 610,250 350,420 90,250" fill="none" stroke="#4A72B8" stroke-width="2"/>
+            <!-- layer 1 (center region) -->
+            <polygon points="350,170 480,250 350,330 220,250" fill="#EEF2FF" stroke="#4A72B8" stroke-width="2"/>
+            <!-- lines from outermost to layer2 -->
+            <line x1="350" y1="20"  x2="350" y2="80"   stroke="#4A72B8" stroke-width="2"/>
+            <line x1="680" y1="250" x2="610" y2="250"  stroke="#4A72B8" stroke-width="2"/>
+            <line x1="350" y1="480" x2="350" y2="420"  stroke="#4A72B8" stroke-width="2"/>
+            <line x1="20"  y1="250" x2="90"  y2="250"  stroke="#4A72B8" stroke-width="2"/>
+            <!-- lines from layer2 to layer1 -->
+            <line x1="350" y1="80"  x2="350" y2="170" stroke="#4A72B8" stroke-width="2"/>
+            <line x1="610" y1="250" x2="480" y2="250" stroke="#4A72B8" stroke-width="2"/>
+            <line x1="350" y1="420" x2="350" y2="330" stroke="#4A72B8" stroke-width="2"/>
+            <line x1="90"  y1="250" x2="220" y2="250" stroke="#4A72B8" stroke-width="2"/>
+            <!-- center -->
+            <text x="350" y="246" text-anchor="middle" font-size="16" font-weight="bold" fill="#1F3350" font-family="'Gowun Batang',serif" dy="5">허위정보</text>
+            <!-- number labels -->
+            <!-- 3 outer -->
+            <text x="350" y="48" text-anchor="middle" font-size="12" fill="#4A72B8">3</text>
+            <text x="648" y="255" text-anchor="middle" font-size="12" fill="#4A72B8">3</text>
+            <text x="350" y="458" text-anchor="middle" font-size="12" fill="#4A72B8">3</text>
+            <text x="52"  y="255" text-anchor="middle" font-size="12" fill="#4A72B8">3</text>
+            <!-- 2 mid -->
+            <text x="350" y="120" text-anchor="middle" font-size="11" fill="#888">2</text>
+            <text x="568" y="255" text-anchor="middle" font-size="11" fill="#888">2</text>
+            <text x="350" y="385" text-anchor="middle" font-size="11" fill="#888">2</text>
+            <text x="132" y="255" text-anchor="middle" font-size="11" fill="#888">2</text>
+            <!-- 1 inner -->
+            <text x="350" y="205" text-anchor="middle" font-size="10" fill="#aaa">1</text>
+            <text x="435" y="255" text-anchor="middle" font-size="10" fill="#aaa">1</text>
+            <text x="350" y="302" text-anchor="middle" font-size="10" fill="#aaa">1</text>
+            <text x="265" y="255" text-anchor="middle" font-size="10" fill="#aaa">1</text>
+          </svg>
+          <div class="jewel-inputs" id="jewel3-inputs">
+            <!-- outer layer 3 inputs -->
+            <input class="jewel-inp wide" id="j3-top"    style="left:50%;top:11%"   placeholder="문제점" data-key="top">
+            <input class="jewel-inp wide" id="j3-right"  style="left:88%;top:50%"  placeholder="문제점" data-key="right">
+            <input class="jewel-inp wide" id="j3-bottom" style="left:50%;top:89%"  placeholder="문제점" data-key="bottom">
+            <input class="jewel-inp wide" id="j3-left"   style="left:12%;top:50%"  placeholder="문제점" data-key="left">
+            <!-- layer 2 readonly -->
+            <input class="jewel-inp" id="j3-r2-top"    style="left:50%;top:25%"   disabled data-ref2="top">
+            <input class="jewel-inp" id="j3-r2-right"  style="left:76%;top:50%"  disabled data-ref2="right">
+            <input class="jewel-inp" id="j3-r2-bottom" style="left:50%;top:75%"  disabled data-ref2="bottom">
+            <input class="jewel-inp" id="j3-r2-left"   style="left:24%;top:50%"  disabled data-ref2="left">
+            <!-- layer 1 readonly -->
+            <input class="jewel-inp" id="j3-r1-top"    style="left:50%;top:38%"   disabled data-ref1="top">
+            <input class="jewel-inp" id="j3-r1-right"  style="left:64%;top:50%"  disabled data-ref1="right">
+            <input class="jewel-inp" id="j3-r1-bottom" style="left:50%;top:62%"  disabled data-ref1="bottom">
+            <input class="jewel-inp" id="j3-r1-left"   style="left:36%;top:50%"  disabled data-ref1="left">
+          </div>
+        </div>
+        <div class="row mt">
+          <button class="btn btn-teal" onclick="saveStep(3)">💾 저장하기</button>
+          <span class="txt-muted" id="step3-saved"></span>
+        </div>
+      </div>
+      <div class="txt-center mt">
+        <button class="btn btn-gold btn-lg" id="go-bw-btn" onclick="goBW()" disabled>
+          ✏️ 브레인라이팅으로 이동 →
+        </button>
+        <p class="txt-muted mt" style="font-size:.78rem">모든 모둠원이 저장하면 활성화됩니다</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ────────────────────────────────
+     SCREEN 3: 브레인라이팅
+──────────────────────────────── -->
+<section class="screen" id="screen-bw">
+  <div style="max-width:540px;margin:0 auto;">
+    <div class="phase-hdr" style="background:linear-gradient(135deg,var(--gold) 0%,#C9A445 100%);">
+      <h2>✏️ 브레인라이팅</h2>
+      <p>허위 정보에 대처하는 방법을 나만의 생각으로 써봐요</p>
+    </div>
+
+    <div class="card">
+      <div class="card-title">💡 허위 정보, 어떻게 대처할까?</div>
+      <div class="step-box">
+        <p>허위 정보를 접했을 때 <strong>대처하는 방법</strong>을 자유롭게 적어봅시다.<br>
+        여러 가지 방법이 있으면 모두 써도 좋아요!</p>
+      </div>
+      <textarea class="bw-textarea" id="bw-text" placeholder="예) 정보의 출처를 꼭 확인한다. 신뢰할 수 있는 기관의 정보와 비교해본다..."></textarea>
+      <div class="hint-box">
+        💬 작성이 어려우면 <strong>국어책 157쪽 평가표</strong>를 참고해서 작성해도 좋아요!
+      </div>
+      <div class="row mt">
+        <button class="btn btn-gold" onclick="submitBW()">📬 제출하기</button>
+        <span class="txt-muted" id="bw-status"></span>
+      </div>
+    </div>
+
+    <div id="bw-submitted-msg" style="display:none;">
+      <div class="card" style="text-align:center;border-color:var(--teal);">
+        <div style="font-size:2rem;margin-bottom:8px;">🎉</div>
+        <div class="card-title" style="justify-content:center;border-left:none;color:var(--teal);">제출 완료!</div>
+        <p class="txt-muted">선생님의 안내를 기다려주세요.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ────────────────────────────────
+     SCREEN 4: 관리자
+──────────────────────────────── -->
+<section class="screen" id="screen-admin">
+  <div style="max-width:700px;margin:0 auto;">
+    <div class="phase-hdr" style="background:linear-gradient(135deg,#111827 0%,#1F2937 100%);">
+      <h2>🔐 관리자 패널</h2>
+      <p>수업 진행 · 발표 모둠 뽑기 · 브레인라이팅 정리</p>
+    </div>
+
+    <!-- 진행 제어 -->
+    <div class="card">
+      <div class="card-title">⚙️ 수업 진행 제어</div>
+      <div class="row">
+        <button class="btn btn-primary" onclick="adminAdvancePhase(1)">1단계 완료 → 2단계</button>
+        <button class="btn btn-primary" onclick="adminAdvancePhase(2)">2단계 완료 → 3단계</button>
+        <button class="btn btn-primary" onclick="adminAdvancePhase(3)">3단계 완료 → BW</button>
+      </div>
+      <div class="mt">
+        <button class="btn btn-danger btn-sm" onclick="adminReset()">🔄 전체 초기화</button>
+      </div>
+    </div>
+
+    <!-- 학생 현황 -->
+    <div class="card">
+      <div class="card-title">👥 학생 참여 현황</div>
+      <div id="admin-students-wrap">로딩 중...</div>
+    </div>
+
+    <!-- 발표 모둠 뽑기 -->
+    <div class="card">
+      <div class="card-title">🎲 발표 모둠 뽑기</div>
+      <div class="row mb">
+        <button class="btn btn-gold btn-lg" onclick="pickGroup()">🎯 모둠 뽑기!</button>
+      </div>
+      <div id="pick-result"></div>
+
+      <!-- 선택된 모둠 보석맵 표시 -->
+      <div id="jewel-display" style="display:none;">
+        <hr class="sep">
+        <div class="card-title">📋 선택 모둠 정리 내용</div>
+        <div id="jewel-display-content"></div>
+      </div>
+    </div>
+
+    <!-- 브레인라이팅 답변 -->
+    <div class="card">
+      <div class="card-title">✏️ 브레인라이팅 제출 현황</div>
+      <div id="admin-bw-list">아직 제출한 학생이 없습니다.</div>
+    </div>
+
+    <!-- 요목화 정리 -->
+    <div class="card">
+      <div class="card-title">📋 요목화 정리 (선생님 편집)</div>
+      <p class="txt-muted mb" style="font-size:.82rem">중복되는 내용을 묶어 요목화한 대처 방법을 정리하세요</p>
+      <textarea class="merge-area" id="merge-area" placeholder="• 출처 확인하기&#10;• 신뢰할 수 있는 기관 정보와 비교하기&#10;• 주변 어른에게 물어보기..."></textarea>
+      <div class="row mt">
+        <button class="btn btn-teal" onclick="saveMerge()">💾 저장하기</button>
+        <button class="btn btn-primary" onclick="showMergeResult()">📢 학생에게 공개</button>
+        <span class="txt-muted" id="merge-status"></span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ────────────────────────────────
+     SCREEN 5: 정리 결과 보기
+──────────────────────────────── -->
+<section class="screen" id="screen-result">
+  <div style="max-width:560px;margin:0 auto;">
+    <div class="phase-hdr" style="background:linear-gradient(135deg,var(--navy) 0%,var(--teal) 100%);">
+      <h2>📋 대처 방법 정리</h2>
+      <p>우리 반이 함께 정리한 허위 정보 대처 방법</p>
+    </div>
+    <div class="card" id="result-content">
+      <p class="txt-muted txt-center">선생님이 정리 중입니다. 잠시 기다려주세요.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ── ADMIN PW ── -->
+<div id="admin-pw-wrap" style="display:none;">
+  <div id="admin-pw-box">
+    <h3>🔐 관리자 로그인</h3>
+    <input type="password" id="admin-pw-inp" placeholder="비밀번호" onkeydown="if(event.key==='Enter')checkAdminPw()">
+    <div class="pw-error" id="pw-error" style="display:none">비밀번호가 틀렸습니다.</div>
+    <div class="row" style="justify-content:center;gap:8px;">
+      <button class="btn btn-primary" onclick="checkAdminPw()">확인</button>
+      <button class="btn btn-outline" onclick="document.getElementById('admin-pw-wrap').style.display='none'">취소</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<!-- ── FIREBASE ── -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/9.23.0/firebase-app-compat.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/9.23.0/firebase-database-compat.min.js"></script>
+<script>
+// ─── Firebase Init ───────────────────────────────────────────
+const firebaseConfig = {
+  apiKey: "AIzaSyB7jCVyieaTKyvarkAvaDLNinxUWppTCdI",
+  authDomain: "banwel-51.firebaseapp.com",
+  databaseURL: "https://banwel-51-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "banwel-51",
+  storageBucket: "banwel-51.appspot.com",
+  messagingSenderId: "489949688381",
+  appId: "1:489949688381:web:680ce2806ba0f2e810b054"
+};
+
+// Try to initialize Firebase
+let db;
+try {
+  firebase.initializeApp(firebaseConfig);
+  db = firebase.database();
+} catch(e) {
+  console.warn('Firebase init failed, using local mode:', e);
+}
+
+const DB_ROOT = 'classroom/media_jewel';
+
+function dbRef(path) {
+  if (!db) return null;
+  return db.ref(DB_ROOT + '/' + path);
+}
+
+// ─── State ───────────────────────────────────────────────────
+const NAMES = [
+  '강단우','고예진','구예서','김나연','김다솜','김민후','김시우',
+  '김자유','노준혁','도현준','박서연','박성혁','박채원','반예준',
+  '서지유','신수아','심채현','양우혁','오성민','유연지','이서아',
+  '이서준','이수빈','이시원','이유리','이준혁','임건호','정유찬',
+  '조은율','채윤서','최아린','한수빈'
+];
+
+let myName = null;
+let myGroup = null;
+let currentStep = 1;
+let adminMode = false;
+
+// local data for jewel
+const jewel = {step1:{},step2:{},step3:{}};
+
+// ─── UI Helpers ──────────────────────────────────────────────
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+function toast(msg, dur=2000) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'), dur);
+}
+
+// ─── Name Grid ───────────────────────────────────────────────
+function renderNameGrid(takenMap={}) {
+  const grid = document.getElementById('name-grid');
+  grid.innerHTML = '';
+  NAMES.forEach(name => {
+    const btn = document.createElement('button');
+    btn.className = 'name-btn' +
+      (takenMap[name] ? ' taken' : '') +
+      (name===myName ? ' mine' : '');
+    btn.textContent = name;
+    btn.disabled = !!takenMap[name] && name!==myName;
+    btn.onclick = () => selectName(name);
+    grid.appendChild(btn);
+  });
+}
+
+function selectName(name) {
+  if (!name) return;
+  myName = name;
+  localStorage.setItem('mj_name', name);
+
+  // Show group card
+  document.getElementById('group-card').style.display = 'block';
+
+  // Update header badge
+  const badge = document.getElementById('hdr-name-badge');
+  badge.textContent = name;
+  badge.style.display = 'inline';
+
+  // Write to Firebase
+  const ref = dbRef('presence/' + name);
+  if (ref) {
+    ref.set({name, group: myGroup||null, step: 1, joinedAt: Date.now()});
+  }
+  renderNameGrid();
+  toast('👋 안녕하세요, ' + name + '!');
+}
+
+function selectGroup(gid) {
+  myGroup = gid;
+  document.querySelectorAll('.group-btn').forEach(b=>b.classList.remove('selected'));
+  document.querySelector(`.group-btn[data-gid="${gid}"]`).classList.add('selected');
+  document.getElementById('start-btn').disabled = false;
+
+  if (myName && db) {
+    dbRef('presence/' + myName).update({group: gid});
+  }
+}
+
+function startActivity() {
+  if (!myName || !myGroup) { toast('이름과 모둠을 선택해주세요!'); return; }
+  showScreen('screen-jewel');
+  setJewelPhase(1);
+  listenPhase();
+}
+
+// ─── Jewel Phase ─────────────────────────────────────────────
+function setJewelPhase(step) {
+  currentStep = step;
+  ['jewel-step1','jewel-step2','jewel-step3'].forEach((id,i)=>{
+    document.getElementById(id).style.display = (i+1===step)?'block':'none';
+  });
+  ['pc1','pc2','pc3','pc4'].forEach((id,i)=>{
+    const el = document.getElementById(id);
+    el.classList.remove('active','done');
+    if (i+1 < step) el.classList.add('done');
+    else if (i+1 === step) el.classList.add('active');
+  });
+
+  // If step2 or 3, fill in prior data
+  if (step>=2) fillStep2Refs();
+  if (step>=3) fillStep3Refs();
+}
+
+function fillStep2Refs() {
+  // Fill layer 1 readonly from group's step1 data
+  const grpRef = dbRef(`groups/g${myGroup}/step1`);
+  if (!grpRef) return;
+  grpRef.get().then(snap=>{
+    const d = snap.val()||{};
+    ['top','right','bottom','left'].forEach(k=>{
+      const inp = document.getElementById('j2-r-'+k);
+      if (inp) inp.value = d[k]||'';
+    });
+  });
+}
+
+function fillStep3Refs() {
+  const g = `g${myGroup}`;
+  // layer1
+  const r1 = dbRef(`groups/${g}/step1`);
+  if (r1) r1.get().then(snap=>{
+    const d = snap.val()||{};
+    ['top','right','bottom','left'].forEach(k=>{
+      const inp = document.getElementById('j3-r1-'+k);
+      if (inp) inp.value = d[k]||'';
+    });
+  });
+  // layer2
+  const r2 = dbRef(`groups/${g}/step2`);
+  if (r2) r2.get().then(snap=>{
+    const d = snap.val()||{};
+    ['top','right','bottom','left'].forEach(k=>{
+      const inp = document.getElementById('j3-r2-'+k);
+      if (inp) inp.value = d[k]||'';
+    });
+  });
+}
+
+// ─── Save Step ───────────────────────────────────────────────
+function saveStep(step) {
+  const keys = ['top','right','bottom','left'];
+  const data = {};
+  keys.forEach(k=>{
+    const inp = document.getElementById(`j${step}-${k}`);
+    if (inp) data[k] = inp.value.trim();
+  });
+
+  const empty = keys.every(k=>!data[k]);
+  if (empty) { toast('내용을 입력해주세요!'); return; }
+
+  const g = `g${myGroup}`;
+  const ref = dbRef(`groups/${g}/step${step}`);
+  if (ref) {
+    ref.update(data).then(()=>{
+      document.getElementById(`step${step}-saved`).textContent = '✅ 저장됨';
+      toast('저장되었습니다!');
+      // Mark personal save
+      const pRef = dbRef(`groups/${g}/saved/${myName}/step${step}`);
+      if (pRef) pRef.set(true);
+      checkAllSaved(step);
+    });
+  } else {
+    // local mode
+    Object.assign(jewel[`step${step}`], data);
+    document.getElementById(`step${step}-saved`).textContent = '✅ 저장됨 (로컬)';
+    toast('저장되었습니다! (오프라인)');
+    enableNextStep(step);
+  }
+}
+
+function checkAllSaved(step) {
+  // Enable next button after this person saves (simplified: just enable after own save)
+  enableNextStep(step);
+}
+
+function enableNextStep(step) {
+  if (step===1) document.getElementById('go-step2-btn').disabled = false;
+  if (step===2) document.getElementById('go-step3-btn').disabled = false;
+  if (step===3) document.getElementById('go-bw-btn').disabled = false;
+}
+
+function goStep(step) {
+  setJewelPhase(step);
+  // Notify Firebase of current step
+  if (myName && db) {
+    dbRef('presence/'+myName).update({step});
+  }
+}
+
+function goBW() {
+  showScreen('screen-bw');
+  if (myName && db) {
+    dbRef('presence/'+myName).update({step:'bw'});
+  }
+}
+
+// ─── Phase listener (teacher advances phase) ─────────────────
+function listenPhase() {
+  const ref = dbRef('control/phase');
+  if (!ref) return;
+  ref.on('value', snap=>{
+    const phase = snap.val();
+    if (!phase) return;
+    if (phase==='bw') { showScreen('screen-bw'); return; }
+    if (phase==='result') { loadResult(); showScreen('screen-result'); return; }
+    const n = parseInt(phase);
+    if (n>=1 && n<=3) setJewelPhase(n);
+  });
+}
+
+// ─── Brain Writing ───────────────────────────────────────────
+function submitBW() {
+  const text = document.getElementById('bw-text').value.trim();
+  if (!text) { toast('내용을 입력해주세요!'); return; }
+
+  const ref = dbRef('brainwriting/'+myName);
+  if (ref) {
+    ref.set({name:myName, group:myGroup, text, submittedAt:Date.now()}).then(()=>{
+      document.getElementById('bw-text').disabled = true;
+      document.querySelector('#screen-bw .btn-gold').disabled = true;
+      document.getElementById('bw-status').textContent = '✅ 제출 완료!';
+      document.getElementById('bw-submitted-msg').style.display='block';
+      toast('제출되었습니다!');
+    });
+  } else {
+    document.getElementById('bw-status').textContent = '✅ 제출 완료! (오프라인)';
+    document.getElementById('bw-submitted-msg').style.display='block';
+    toast('제출되었습니다! (오프라인)');
+  }
+
+  // Listen for result
+  const rRef = dbRef('control/mergeResult');
+  if (rRef) {
+    rRef.on('value', snap=>{
+      if (snap.val()) { loadResult(); showScreen('screen-result'); }
+    });
+  }
+}
+
+// ─── Admin ───────────────────────────────────────────────────
+function openAdmin() {
+  document.getElementById('admin-pw-wrap').style.display='flex';
+  document.getElementById('admin-pw-inp').value='';
+  document.getElementById('pw-error').style.display='none';
+  setTimeout(()=>document.getElementById('admin-pw-inp').focus(),100);
+}
+
+function checkAdminPw() {
+  const pw = document.getElementById('admin-pw-inp').value;
+  if (pw==='국어수업') {
+    document.getElementById('admin-pw-wrap').style.display='none';
+    adminMode=true;
+    showScreen('screen-admin');
+    loadAdminData();
+  } else {
+    document.getElementById('pw-error').style.display='block';
+  }
+}
+
+function loadAdminData() {
+  loadStudentTable();
+  loadBWList();
+  loadMerge();
+}
+
+function loadStudentTable() {
+  const ref = dbRef('presence');
+  if (!ref) { document.getElementById('admin-students-wrap').textContent='Firebase 연결 필요'; return; }
+  ref.on('value', snap=>{
+    const data = snap.val()||{};
+    let html = `<table class="student-table"><thead><tr>
+      <th>이름</th><th>모둠</th><th>진행 단계</th>
+    </tr></thead><tbody>`;
+    const gColors = ['','#E74C3C','#2D7A6B','#7C3AED','#B5933A'];
+    Object.values(data).forEach(s=>{
+      const step = s.step==='bw'?'✅ BW 제출 중':
+                   s.step?`${s.step}단계`:'대기 중';
+      const gc = s.group ? gColors[s.group]:'#888';
+      html+=`<tr>
+        <td>${s.name||'-'}</td>
+        <td style="color:${gc};font-weight:700">${s.group?s.group+'모둠':'-'}</td>
+        <td>${step}</td>
+      </tr>`;
+    });
+    html+='</tbody></table>';
+    document.getElementById('admin-students-wrap').innerHTML=html;
+  });
+}
+
+function loadBWList() {
+  const ref = dbRef('brainwriting');
+  if (!ref) return;
+  ref.on('value', snap=>{
+    const data = snap.val()||{};
+    const items = Object.values(data);
+    if (!items.length) {
+      document.getElementById('admin-bw-list').textContent='아직 제출한 학생이 없습니다.';
+      return;
+    }
+    let html='';
+    items.sort((a,b)=>a.submittedAt-b.submittedAt).forEach(item=>{
+      html+=`<div class="bw-item">
+        <div class="bw-name">📝 ${item.name} (${item.group||'?'}모둠)</div>
+        <p>${(item.text||'').replace(/\n/g,'<br>')}</p>
+      </div>`;
+    });
+    document.getElementById('admin-bw-list').innerHTML=html;
+  });
+}
+
+function loadMerge() {
+  const ref = dbRef('control/merge');
+  if (!ref) return;
+  ref.get().then(snap=>{
+    if (snap.val()) document.getElementById('merge-area').value=snap.val();
+  });
+}
+
+function saveMerge() {
+  const text = document.getElementById('merge-area').value.trim();
+  const ref = dbRef('control/merge');
+  if (ref) {
+    ref.set(text).then(()=>{ document.getElementById('merge-status').textContent='✅ 저장됨'; toast('저장되었습니다!'); });
+  } else {
+    document.getElementById('merge-status').textContent='✅ (로컬)';
+  }
+}
+
+function showMergeResult() {
+  const text = document.getElementById('merge-area').value.trim();
+  if (!text) { toast('먼저 내용을 작성하고 저장해주세요!'); return; }
+  const ref = dbRef('control/mergeResult');
+  if (ref) {
+    ref.set(text).then(()=>{ toast('학생들에게 공개되었습니다!'); });
+  }
+}
+
+function loadResult() {
+  const ref = dbRef('control/mergeResult');
+  if (!ref) return;
+  ref.get().then(snap=>{
+    const text = snap.val()||'';
+    const lines = text.split('\n').filter(l=>l.trim());
+    let html='<ul style="padding-left:18px;line-height:2;">';
+    lines.forEach(l=>{ html+=`<li style="font-size:.92rem;">${l}</li>`; });
+    html+='</ul>';
+    document.getElementById('result-content').innerHTML=html||'<p class="txt-muted txt-center">내용 없음</p>';
+  });
+}
+
+function adminAdvancePhase(fromStep) {
+  const next = fromStep===3?'bw':(fromStep+1).toString();
+  const ref = dbRef('control/phase');
+  if (ref) {
+    ref.set(next).then(()=>toast(`${fromStep}단계 → ${next==='bw'?'브레인라이팅':next+'단계'} 전환!`));
+  }
+}
+
+function adminReset() {
+  if (!confirm('전체 데이터를 초기화하시겠습니까? (되돌릴 수 없습니다)')) return;
+  const ref = dbRef('');
+  if (ref) {
+    ref.remove().then(()=>{ toast('초기화 완료!'); loadAdminData(); });
+  }
+}
+
+// ─── Pick Group ──────────────────────────────────────────────
+let pickAnimInterval = null;
+function pickGroup() {
+  const groups = [1,2,3,4];
+  const gNames = ['🔴 1모둠','🟢 2모둠','🟣 3모둠','🟡 4모둠'];
+  const el = document.getElementById('pick-result');
+
+  // animation
+  let cnt=0;
+  if (pickAnimInterval) clearInterval(pickAnimInterval);
+  pickAnimInterval = setInterval(()=>{
+    const r = groups[Math.floor(Math.random()*4)];
+    el.innerHTML=`<div class="pick-box"><h2>${gNames[r-1]}</h2><p>두근두근...</p></div>`;
+    cnt++;
+    if (cnt>15) {
+      clearInterval(pickAnimInterval);
+      const picked = groups[Math.floor(Math.random()*4)];
+      el.innerHTML=`<div class="pick-box"><h2>🎉 ${gNames[picked-1]}!</h2><p>발표해주세요! 👏</p></div>`;
+      showJewelForGroup(picked);
+      // broadcast
+      const ref = dbRef('control/presenter');
+      if (ref) ref.set(picked);
+    }
+  },120);
+}
+
+function showJewelForGroup(gid) {
+  const disp = document.getElementById('jewel-display');
+  const cont = document.getElementById('jewel-display-content');
+  const g = `g${gid}`;
+  disp.style.display='block';
+
+  const labels = ['top','right','bottom','left'];
+  const dirs = ['위','오른쪽','아래','왼쪽'];
+
+  Promise.all([
+    dbRef(`groups/${g}/step1`).get(),
+    dbRef(`groups/${g}/step2`).get(),
+    dbRef(`groups/${g}/step3`).get(),
+  ]).then(([s1,s2,s3])=>{
+    const d1=s1.val()||{}, d2=s2.val()||{}, d3=s3.val()||{};
+    let html='';
+
+    const makeRow = (title,data,color)=>{
+      const tags = labels.map((k,i)=>`<div class="jewel-tag">${dirs[i]}: ${data[k]||'—'}</div>`).join('');
+      html+=`<div class="jewel-summary">
+        <h4 style="color:${color};">${title}</h4>
+        <div class="jewel-row">${tags}</div>
+      </div>`;
+    };
+    makeRow('📝 1단계: 핵심 낱말',d1,'var(--teal)');
+    makeRow('🤔 2단계: 나라면',d2,'var(--gold)');
+    makeRow('🌐 3단계: 사회 문제점',d3,'var(--red)');
+    cont.innerHTML=html;
+  });
+}
+
+// ─── Init ────────────────────────────────────────────────────
+window.addEventListener('DOMContentLoaded', ()=>{
+  // Restore name from localStorage
+  const saved = localStorage.getItem('mj_name');
+
+  // Listen for presence to mark taken names
+  const presRef = dbRef('presence');
+  if (presRef) {
+    presRef.on('value', snap=>{
+      const d = snap.val()||{};
+      const takenMap = {};
+      Object.keys(d).forEach(n=>takenMap[n]=true);
+      renderNameGrid(takenMap);
+    });
+  } else {
+    renderNameGrid();
+  }
+
+  if (saved) {
+    // Auto-restore
+    myName=saved;
+    const badge=document.getElementById('hdr-name-badge');
+    badge.textContent=saved;
+    badge.style.display='inline';
+    document.getElementById('group-card').style.display='block';
+  }
+});
+</script>
+</body>
+</html>
