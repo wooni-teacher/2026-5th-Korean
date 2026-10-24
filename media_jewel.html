@@ -739,11 +739,10 @@ function dbRef(path) {
 
 // ─── State ───────────────────────────────────────────────────
 const NAMES = [
-  '강단우','고예진','구예서','김나연','김다솜','김민후','김시우',
-  '김자유','노준혁','도현준','박서연','박성혁','박채원','반예준',
-  '서지유','신수아','심채현','양우혁','오성민','유연지','이서아',
-  '이서준','이수빈','이시원','이유리','이준혁','임건호','정유찬',
-  '조은율','채윤서','최아린','한수빈'
+  '김다온','김도영','김채화','백수민',
+  '소진호','신은비','유준선','윤하늘',
+  '이보현','이지은','임규원','임휘재',
+  '장문혁','장준혁','한승우'
 ];
 
 let myName = null;
@@ -987,7 +986,7 @@ function openAdmin() {
 
 function checkAdminPw() {
   const pw = document.getElementById('admin-pw-inp').value;
-  if (pw==='국어수업') {
+  if (pw==='1234') {
     document.getElementById('admin-pw-wrap').style.display='none';
     adminMode=true;
     showScreen('screen-admin');
