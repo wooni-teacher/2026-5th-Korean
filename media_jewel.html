@@ -16,12 +16,12 @@
 }
 @media(prefers-color-scheme:dark){
   :root:not([data-theme="light"]){
-    --bg:#1A1F2E;--card:#252B3B;--border:#3A4255;--fg:#E8E4DC;--muted:#8890A8;
+    --bg:#1A1B1E;--card:#242428;--border:#38383E;--fg:#E8E4DC;--muted:#8A8A96;
     color-scheme:dark;
   }
 }
 :root[data-theme="dark"]{
-  --bg:#1A1F2E;--card:#252B3B;--border:#3A4255;--fg:#E8E4DC;--muted:#8890A8;
+  --bg:#1A1B1E;--card:#242428;--border:#38383E;--fg:#E8E4DC;--muted:#8A8A96;
   color-scheme:dark;
 }
 *{box-sizing:border-box;margin:0;padding:0}
@@ -624,13 +624,47 @@ body{
 
     <!-- 진행 제어 -->
     <div class="card">
-      <div class="card-title">⚙️ 수업 진행 제어</div>
-      <div class="row">
-        <button class="btn btn-primary" onclick="adminAdvancePhase(1)">1단계 완료 → 2단계</button>
-        <button class="btn btn-primary" onclick="adminAdvancePhase(2)">2단계 완료 → 3단계</button>
-        <button class="btn btn-primary" onclick="adminAdvancePhase(3)">3단계 완료 → BW</button>
+      <div class="card-title">⚙️ 수업 단계 진행 제어</div>
+
+      <!-- 현재 단계 표시 -->
+      <div id="admin-phase-display" style="
+        background:var(--bg);border:2px solid var(--teal);border-radius:12px;
+        padding:14px 18px;margin-bottom:16px;display:flex;align-items:center;gap:12px;">
+        <span style="font-size:1.4rem;">📍</span>
+        <div>
+          <div style="font-size:.75rem;color:var(--muted);font-family:'Gowun Batang',serif;">현재 진행 단계</div>
+          <div id="admin-phase-label" style="font-family:'Gowun Batang',serif;font-size:1.1rem;font-weight:700;color:var(--teal);">
+            대기 중
+          </div>
+        </div>
       </div>
-      <div class="mt">
+
+      <!-- 단계 버튼들 -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px;">
+        <button class="btn btn-primary btn-lg" id="phase-btn-1" onclick="adminSetPhase('1')" style="flex-direction:column;gap:4px;padding:16px;">
+          <span style="font-size:1.3rem;">📝</span>
+          <span>1단계 시작</span>
+          <span style="font-size:.72rem;opacity:.75;">허위 정보 반복 → 핵심 낱말</span>
+        </button>
+        <button class="btn btn-teal btn-lg" id="phase-btn-2" onclick="adminSetPhase('2')" style="flex-direction:column;gap:4px;padding:16px;">
+          <span style="font-size:1.3rem;">🤔</span>
+          <span>2단계 시작</span>
+          <span style="font-size:.72rem;opacity:.75;">나라면 어떻게 행동했을까?</span>
+        </button>
+        <button class="btn btn-gold btn-lg" id="phase-btn-3" onclick="adminSetPhase('3')" style="flex-direction:column;gap:4px;padding:16px;">
+          <span style="font-size:1.3rem;">🌐</span>
+          <span>3단계 시작</span>
+          <span style="font-size:.72rem;opacity:.75;">사회적 문제점은?</span>
+        </button>
+        <button class="btn btn-lg" id="phase-btn-bw" onclick="adminSetPhase('bw')" style="flex-direction:column;gap:4px;padding:16px;background:#7C3AED;color:#fff;">
+          <span style="font-size:1.3rem;">✏️</span>
+          <span>브레인라이팅</span>
+          <span style="font-size:.72rem;opacity:.75;">개인 대처 방법 작성</span>
+        </button>
+      </div>
+
+      <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+        <button class="btn btn-primary" onclick="adminSetPhase('result')">📢 결과 공개</button>
         <button class="btn btn-danger btn-sm" onclick="adminReset()">🔄 전체 초기화</button>
       </div>
     </div>
@@ -988,7 +1022,7 @@ function openAdmin() {
 
 function checkAdminPw() {
   const pw = document.getElementById('admin-pw-inp').value;
-  if (pw==='1234') {
+  if (pw==='국어수업') {
     document.getElementById('admin-pw-wrap').style.display='none';
     adminMode=true;
     showScreen('screen-admin');
@@ -1002,6 +1036,13 @@ function loadAdminData() {
   loadStudentTable();
   loadBWList();
   loadMerge();
+  // 현재 단계 실시간 반영
+  const phaseRef = dbRef('control/phase');
+  if (phaseRef) {
+    phaseRef.on('value', snap=>{
+      if (snap.val()) updateAdminPhaseDisplay(snap.val());
+    });
+  }
 }
 
 function loadStudentTable() {
@@ -1089,12 +1130,34 @@ function loadResult() {
   });
 }
 
-function adminAdvancePhase(fromStep) {
-  const next = fromStep===3?'bw':(fromStep+1).toString();
+function adminSetPhase(phase) {
   const ref = dbRef('control/phase');
+  const label = phase==='bw'?'브레인라이팅':phase==='result'?'결과 공개':phase+'단계';
   if (ref) {
-    ref.set(next).then(()=>toast(`${fromStep}단계 → ${next==='bw'?'브레인라이팅':next+'단계'} 전환!`));
+    ref.set(phase).then(()=>{
+      toast(`📢 ${label} 시작!`, 2500);
+      updateAdminPhaseDisplay(phase);
+    });
   }
+}
+
+function updateAdminPhaseDisplay(phase) {
+  const labelEl = document.getElementById('admin-phase-label');
+  if (!labelEl) return;
+  const map = {
+    '1':'📝 1단계 — 허위 정보 핵심 낱말',
+    '2':'🤔 2단계 — 나라면?',
+    '3':'🌐 3단계 — 사회 문제점',
+    'bw':'✏️ 브레인라이팅',
+    'result':'📢 결과 공개'
+  };
+  labelEl.textContent = map[phase]||'대기 중';
+
+  // 버튼 활성 표시
+  ['1','2','3','bw'].forEach(p=>{
+    const btn = document.getElementById('phase-btn-'+p);
+    if (btn) btn.style.outline = (p===phase)?'3px solid var(--gold)':'none';
+  });
 }
 
 function adminReset() {
