@@ -1,0 +1,1729 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>정보탐정단 – 같은 정보, 다른 광고?</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=Gowun+Batang:wght@400;700&family=Gowun+Dodum&family=Jua&display=swap">
+<style>
+:root{
+  --navy:#1F3350;--gold:#B5933A;--teal:#2D7A6B;--red:#D8483A;--ok:#2E8B57;
+  --bg:#F8F5EF;--card:#FFFFFF;--border:#DDD8CE;--fg:#2C2C2C;--muted:#7A7060;
+  --ink:#1F3350;--soft:#F3EEE4;--hover:#FFFBF0;--line:#3A3A3A;
+  color-scheme:light;
+}
+@media(prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --bg:#1A1B1E;--card:#242428;--border:#3A3A40;--fg:#E8E4DC;--muted:#A39E94;
+    --ink:#EBD9AE;--soft:#2D2D33;--hover:#2F2B22;--line:#77736C;color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#1A1B1E;--card:#242428;--border:#3A3A40;--fg:#E8E4DC;--muted:#A39E94;
+  --ink:#EBD9AE;--soft:#2D2D33;--hover:#2F2B22;--line:#77736C;color-scheme:dark;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{background:var(--bg);color:var(--fg);font-family:'Gowun Dodum',sans-serif;min-height:100vh}
+body{padding-left:env(safe-area-inset-left,0px);padding-right:env(safe-area-inset-right,0px)}
+button{font-family:inherit;cursor:pointer;color:inherit}
+input,textarea{font-family:inherit;color:var(--fg)}
+[hidden]{display:none!important}
+
+/* ── HEADER ── */
+.hdr{background:linear-gradient(135deg,#1F3350 0%,#2B4566 100%);color:#fff;
+  padding:12px max(16px,env(safe-area-inset-right,0px)) 12px max(16px,env(safe-area-inset-left,0px));
+  display:flex;align-items:center;gap:12px;position:sticky;top:0;z-index:60;box-shadow:0 2px 10px rgba(0,0,0,.18)}
+.logo{font-family:'Black Han Sans','Gowun Batang',sans-serif;font-size:1.4rem;color:#FFE08A;letter-spacing:.02em}
+.hdr .sub{font-size:.76rem;opacity:.82;margin-top:1px}
+.hdr-right{margin-left:auto;display:flex;gap:8px;align-items:center;flex-wrap:wrap;justify-content:flex-end}
+.chip-me{background:var(--gold);color:#fff;border-radius:20px;padding:5px 14px;font-family:'Gowun Batang',serif;font-weight:700;font-size:.92rem}
+.hbtn{background:transparent;border:1px solid rgba(255,255,255,.45);color:#fff;border-radius:8px;padding:6px 12px;font-size:.8rem}
+.hbtn:hover{background:rgba(255,255,255,.12)}
+.net-warn{background:#FDECEA;color:#8B1E14;text-align:center;padding:10px 16px;font-size:.9rem}
+
+/* ── LAYOUT ── */
+.screen{display:none}
+.screen.active{display:block}
+.wrap{max-width:1180px;margin:0 auto;padding:22px 16px 70px}
+.wrap.narrow{max-width:780px}
+.card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:20px;box-shadow:0 2px 8px rgba(0,0,0,.06);margin-bottom:16px}
+.card-title{font-family:'Gowun Batang',serif;font-weight:700;font-size:1.05rem;color:var(--ink);border-left:4px solid var(--teal);padding-left:10px;margin-bottom:12px;text-wrap:balance}
+.center{text-align:center}
+.tiny{font-size:.82rem;color:var(--muted);line-height:1.6}
+.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.mt{margin-top:12px}.mb{margin-bottom:12px}
+
+/* ── BUTTONS ── */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;border:none;border-radius:12px;padding:11px 20px;
+  font-family:'Gowun Batang',serif;font-weight:700;font-size:.95rem;transition:.15s;line-height:1.3}
+.btn-navy{background:var(--navy);color:#fff}.btn-navy:hover{background:#2B4566}
+.btn-teal{background:var(--teal);color:#fff}.btn-teal:hover{background:#256858}
+.btn-gold{background:var(--gold);color:#fff}.btn-gold:hover{background:#9E7F2F}
+.btn-red{background:var(--red);color:#fff}
+.btn-ghost{background:transparent;border:1.5px solid var(--border);color:var(--fg)}
+.btn-ghost:hover{border-color:var(--gold)}
+.btn-lg{padding:14px 26px;font-size:1.05rem}
+.btn-sm{padding:6px 12px;font-size:.82rem;border-radius:9px}
+.btn:disabled{opacity:.42;cursor:not-allowed}
+
+/* ── MISSION BANNER ── */
+.mission{background:linear-gradient(135deg,#1F3350 0%,#2D4B70 58%,#2D7A6B 100%);color:#fff;border-radius:20px;
+  padding:24px 22px 20px;position:relative;overflow:hidden;margin-bottom:18px;box-shadow:0 6px 20px rgba(31,51,80,.25)}
+.mission .tag{display:inline-block;background:#E2412F;color:#fff;font-family:'Black Han Sans',sans-serif;padding:4px 12px;border-radius:8px;font-size:1.05rem;transform:rotate(-2deg)}
+.mission h1{font-family:'Black Han Sans',sans-serif;font-weight:400;font-size:clamp(1.5rem,4.2vw,2.3rem);line-height:1.28;margin:12px 0 8px;color:#FFE08A;text-wrap:balance}
+.mission .unit{font-size:.86rem;opacity:.88;line-height:1.6}
+.mission .goal{margin-top:14px;background:rgba(255,255,255,.12);border:1px dashed rgba(255,255,255,.45);border-radius:12px;padding:10px 14px;font-size:.93rem;line-height:1.6}
+.mission .mag{position:absolute;right:-6px;top:-14px;font-size:7.5rem;opacity:.13;pointer-events:none}
+
+/* ── NUMBER LOGIN ── */
+.num-grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:12px}
+@media(max-width:560px){.num-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
+.num-btn{border-radius:18px;border:2.5px solid var(--border);background:var(--card);color:var(--ink);padding:16px 0 12px;
+  font-family:'Black Han Sans','Gowun Batang',sans-serif;font-size:2.1rem;position:relative;transition:.15s;line-height:1}
+.num-btn small{display:block;font-family:'Gowun Dodum',sans-serif;font-size:.72rem;color:var(--muted);margin-top:6px}
+.num-btn:hover{border-color:var(--gold);background:var(--hover);transform:translateY(-2px)}
+.num-btn .dot{position:absolute;top:9px;right:10px;width:9px;height:9px;border-radius:50%;background:var(--ok)}
+
+/* ── HEADINGS IN ACTIVITY ── */
+.act-head{font-family:'Black Han Sans','Gowun Batang',sans-serif;font-size:clamp(1.3rem,3vw,1.7rem);color:var(--ink);margin-bottom:8px;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.act-head .no{background:#E8742A;color:#fff;border-radius:50%;width:38px;height:38px;display:grid;place-items:center;font-size:1.2rem}
+.key-msg{background:var(--hover);border:1.5px solid var(--gold);border-radius:12px;padding:10px 14px;font-size:.92rem;line-height:1.6;margin-bottom:16px}
+
+/* ── STEPPER ── */
+.stepper{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}
+.step{flex:1;min-width:132px;display:flex;align-items:center;gap:8px;padding:10px 12px;border-radius:12px;background:var(--card);
+  border:1.5px solid var(--border);color:var(--muted);font-family:'Gowun Batang',serif;font-size:.88rem;font-weight:700;text-align:left}
+.step .no{flex:none;width:26px;height:26px;border-radius:50%;display:grid;place-items:center;background:var(--soft);font-size:.8rem}
+.step.on{border-color:var(--teal);color:var(--ink);box-shadow:0 0 0 3px rgba(45,122,107,.16)}
+.step.on .no{background:var(--teal);color:#fff}
+.step.done{color:var(--fg)}.step.done .no{background:var(--gold);color:#fff}
+.step:disabled{cursor:default}
+.a1p{display:none}.a1p.on{display:block}
+
+/* ── WHEEL ── */
+.wheel-area{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:24px;align-items:center}
+@media(max-width:860px){.wheel-area{grid-template-columns:1fr}}
+.wheel-col{display:flex;flex-direction:column;align-items:center;gap:16px}
+.wheel-box{position:relative;width:min(400px,84vw);aspect-ratio:1/1;max-width:100%}
+.wheel-rot{width:100%;height:100%}
+.wheel-rot svg{width:100%;height:100%;display:block;filter:drop-shadow(0 6px 14px rgba(0,0,0,.2))}
+.wheel-pin{position:absolute;top:-8px;left:50%;transform:translateX(-50%);width:0;height:0;border-left:18px solid transparent;
+  border-right:18px solid transparent;border-top:36px solid #E2412F;z-index:2;filter:drop-shadow(0 2px 2px rgba(0,0,0,.35))}
+.wheel-hub{position:absolute;inset:0;margin:auto;width:20%;height:20%;border-radius:50%;background:#fff;border:5px solid #1F3350;
+  display:grid;place-items:center;font-size:1.7rem;z-index:2}
+.wait-role{border:2.5px dashed var(--border);border-radius:18px;padding:30px 20px;text-align:center;color:var(--muted);line-height:1.7}
+
+/* ── ROLE CARD ── */
+.role-card{border-radius:18px;padding:18px;border:3px solid var(--rc);background:var(--card);position:relative}
+.rc-top{display:flex;gap:14px;align-items:center}
+.rc-top img{width:86px;height:86px;object-fit:contain;flex:none}
+.rc-label{font-size:.8rem;color:var(--muted)}
+.rc-name{font-family:'Black Han Sans','Gowun Batang',sans-serif;font-size:1.45rem;color:var(--rc);line-height:1.25}
+.rc-situ{margin-top:12px;line-height:1.75;font-size:.96rem}
+.rc-view{margin-top:10px;background:var(--soft);border-radius:10px;padding:10px 12px;font-weight:700;line-height:1.6}
+.rc-hint{margin-top:8px;font-size:.88rem;color:var(--muted);line-height:1.6}
+.pop{animation:pop .55s cubic-bezier(.2,1.6,.4,1)}
+@keyframes pop{from{transform:scale(.6);opacity:0}to{transform:scale(1);opacity:1}}
+.rl{display:flex;gap:8px;align-items:flex-start;padding:8px 10px;border-radius:10px;font-size:.92rem;line-height:1.55;color:var(--muted)}
+.rl .box{font-size:1.1rem;line-height:1.3}
+.rl.on{background:var(--soft);color:var(--fg);box-shadow:inset 4px 0 0 var(--rc)}
+.rl.on b{color:var(--rc)}
+.rchip{display:inline-flex;align-items:center;gap:4px;border-radius:999px;padding:3px 10px;font-size:.78rem;color:#fff;background:var(--rc);white-space:nowrap;font-weight:700}
+.rchip img{width:16px;height:16px;object-fit:contain}
+
+/* ── DATA TABLE ── */
+.data-box{background:var(--soft);border-radius:16px;padding:16px}
+.db-title{font-family:'Gowun Batang',serif;font-weight:700;margin-bottom:10px;color:var(--ink);display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.db-title img{height:34px}
+.tbl-x{overflow-x:auto}
+.dtable{width:100%;border-collapse:collapse;font-size:.92rem;background:var(--card);min-width:420px}
+.dtable th,.dtable td{border:1.5px solid var(--line);padding:8px 10px;text-align:center}
+.dtable th{background:var(--soft);font-family:'Gowun Batang',serif}
+.note{font-size:.88rem;line-height:1.75;margin:10px 0 0 18px}
+
+/* ── FACT CHIPS ── */
+.fgroup{margin-bottom:14px}
+.fgroup h4{font-family:'Gowun Batang',serif;font-size:.92rem;margin-bottom:8px;color:var(--ink)}
+.fchips{display:flex;flex-wrap:wrap;gap:8px}
+.fchip{border:2px solid var(--border);background:var(--card);border-radius:12px;padding:8px 12px;font-size:.88rem;text-align:left;line-height:1.45}
+.fchip b{color:var(--fc)}
+.fchip:hover{border-color:var(--fc)}
+.fchip.on{border-color:var(--fc);box-shadow:inset 0 0 0 1.5px var(--fc);background:var(--soft)}
+.fchip.on::before{content:'✔ ';color:var(--fc);font-weight:700}
+.field-label{display:block;font-family:'Gowun Batang',serif;font-weight:700;color:var(--ink);margin:14px 0 6px}
+.ta{width:100%;min-height:96px;border:1.5px solid var(--border);border-radius:10px;padding:10px 12px;font-size:.95rem;line-height:1.7;background:var(--card);resize:vertical}
+.ta:focus,.inp:focus{outline:2px solid var(--teal);border-color:var(--teal)}
+.inp{border:1.5px solid var(--border);border-radius:10px;padding:10px 12px;font-size:.95rem;background:var(--card)}
+.next-row{display:flex;justify-content:flex-end;gap:10px;margin-top:16px;flex-wrap:wrap}
+
+/* ── POSTER ── */
+.poster-frame{width:100%;max-width:520px;margin:0 auto}
+.poster{position:relative;width:100%;aspect-ratio:3/4;overflow:hidden;border-radius:12px;background:#fff;color:#222;
+  box-shadow:0 4px 18px rgba(0,0,0,.16);user-select:none;-webkit-user-select:none;--pw:5px}
+.p-empty{position:absolute;inset:0;display:grid;place-items:center;text-align:center;color:#8a8a8a;font-size:calc(4 * var(--pw));line-height:1.6;padding:10%}
+.pi{position:absolute;left:50%;top:50%;font-size:calc(var(--s,4) * var(--pw));line-height:1.22;max-width:96%;width:max-content;word-break:keep-all;overflow-wrap:anywhere}
+.pi-img img{width:100%;display:block;pointer-events:none;-webkit-user-drag:none}
+.pi-emo{line-height:1}
+.poster.editable .pi{cursor:grab;touch-action:none}
+.pi.sel{outline:2px dashed #E2412F;outline-offset:3px}
+/* fact styles */
+.pi-fact{color:#222}
+.fs-card{background:#fff;border-left:.5em solid var(--fc);border-radius:.45em;padding:.45em .75em;box-shadow:0 .15em .5em rgba(0,0,0,.16);
+  display:flex;flex-direction:column;gap:.1em;max-width:84%}
+.fs-card .fl{font-size:.74em;color:#666;font-weight:700}
+.fs-card .fm{font-size:1.4em;color:var(--fc);font-family:'Black Han Sans','Gowun Batang',sans-serif}
+.fs-card .ft{font-size:.82em}
+.fs-big{display:flex;flex-direction:column;align-items:center;text-align:center;max-width:90%}
+.fs-big .fl{font-size:.8em;font-weight:700}
+.fs-big .fm{font-family:'Black Han Sans','Gowun Batang',sans-serif;font-size:2em;color:var(--fc);background:linear-gradient(transparent 58%,rgba(255,226,77,.95) 58%);padding:0 .15em;line-height:1.15}
+.fs-big .ft{font-size:.86em;font-weight:700}
+.fs-small{color:#5a5a5a;max-width:88%}
+.fs-small .fm{font-weight:700}
+.fs-tag{background:var(--fc);color:#fff;border-radius:999px;padding:.35em .95em;font-weight:700;max-width:88%}
+.fs-table{background:#fff;border-radius:.4em;padding:.4em;box-shadow:0 .15em .5em rgba(0,0,0,.16)}
+.mt-tbl{border-collapse:collapse;font-size:.82em;color:#222}
+.mt-tbl th,.mt-tbl td{border:.07em solid #444;padding:.2em .45em;text-align:center}
+.mt-tbl th{background:#f1f1f1}
+.mt-tbl td:first-child{text-align:left}
+.mt-src{font-size:.7em;color:#555;margin-top:.2em;text-align:right}
+/* text styles */
+.pi-text{white-space:pre-wrap;text-align:center}
+.ts-plain{font-weight:400}
+.ts-outline{text-shadow:.06em 0 0 var(--ol),-.06em 0 0 var(--ol),0 .06em 0 var(--ol),0 -.06em 0 var(--ol),.045em .045em 0 var(--ol),-.045em -.045em 0 var(--ol),.045em -.045em 0 var(--ol),-.045em .045em 0 var(--ol)}
+.ts-band span{background:linear-gradient(transparent 55%,rgba(255,226,77,.95) 55%);-webkit-box-decoration-break:clone;box-decoration-break:clone}
+.ts-box{background:var(--tc);color:#fff!important;border-radius:.3em;padding:.2em .55em}
+.ts-bubble{background:#fff;border:.08em solid #333;border-radius:1em;padding:.4em .8em}
+.ts-bubble::after{content:'';position:absolute;left:24%;bottom:-.5em;border-left:.35em solid transparent;border-right:.35em solid transparent;border-top:.5em solid #333}
+
+/* ── EDITOR ── */
+.role-strip{display:flex;gap:12px;align-items:center;background:var(--card);border:1.5px solid var(--rc);border-radius:14px;padding:10px 14px;margin-bottom:14px;flex-wrap:wrap}
+.role-strip img{width:44px;height:44px;object-fit:contain}
+.role-strip .rs-t{flex:1;min-width:220px;font-size:.9rem;line-height:1.55}
+.role-strip .rs-t b{color:var(--rc)}
+.editor{display:grid;grid-template-columns:minmax(0,520px) minmax(0,1fr);gap:20px;align-items:start}
+@media(max-width:920px){.editor{grid-template-columns:minmax(0,1fr)}}
+.ed-left{position:sticky;top:78px}
+@media(max-width:920px){.ed-left{position:static}}
+.ed-status{font-size:.82rem;color:var(--muted);text-align:center;margin-top:8px}
+.ed-tools{margin-top:12px;background:var(--card);border:1px solid var(--border);border-radius:14px;padding:10px}
+.tool-row{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-bottom:6px}
+.tool-row:last-child{margin-bottom:0}
+.tool-lab{font-size:.76rem;color:var(--muted);min-width:38px}
+.tbtn{border:1.5px solid var(--border);background:var(--soft);border-radius:9px;padding:7px 10px;font-size:.84rem}
+.tbtn:hover{border-color:var(--gold)}
+.tbtn.on{background:var(--teal);color:#fff;border-color:var(--teal)}
+.tbtn.danger{color:var(--red)}
+.cdot{width:26px;height:26px;border-radius:50%;border:2px solid #fff;box-shadow:0 0 0 1.5px var(--border);padding:0}
+.cdot.on{box-shadow:0 0 0 3px var(--gold)}
+.tool-hint{font-size:.86rem;color:var(--muted);text-align:center;padding:6px;line-height:1.6}
+.pal-tabs{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px;margin-bottom:10px}
+.pal-tab{padding:10px 6px;border-radius:12px;border:2px solid var(--border);background:var(--card);font-family:'Gowun Batang',serif;font-weight:700;font-size:.88rem}
+.pal-tab.on{background:var(--navy);border-color:var(--navy);color:#fff}
+@media(max-width:480px){.pal-tab{font-size:.76rem;padding:9px 2px;white-space:nowrap}}
+.pal-body{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:14px}
+.pal-sec{font-family:'Gowun Batang',serif;font-weight:700;font-size:.9rem;color:var(--ink);margin:12px 0 8px}
+.pal-sec:first-child{margin-top:0}
+.img-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(92px,1fr));gap:10px}
+.img-opt{border:2px solid var(--border);border-radius:12px;background:#fff;padding:8px 4px;display:flex;flex-direction:column;align-items:center;gap:4px;font-size:.74rem;color:#444}
+.img-opt:hover{border-color:var(--gold)}
+.img-opt img{width:64px;height:64px;object-fit:contain}
+.emo-grid{display:flex;flex-wrap:wrap;gap:6px}
+.emo-opt{font-size:1.6rem;border:1.5px solid var(--border);background:#fff;border-radius:10px;width:46px;height:46px}
+.bg-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(72px,1fr));gap:8px}
+.bg-opt{border:2px solid var(--border);border-radius:10px;height:56px;font-size:.72rem;color:#333;display:flex;align-items:flex-end;justify-content:center;padding-bottom:4px}
+.bg-opt.on{box-shadow:0 0 0 3px var(--gold)}
+.rule-box{background:#FDF1EF;border:1.5px solid #F0B7AE;color:#7A2A1F;border-radius:12px;padding:10px 12px;font-size:.86rem;line-height:1.6}
+:root[data-theme="dark"] .rule-box{background:#3A2522;border-color:#7A3A31;color:#F6C9C2}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]) .rule-box{background:#3A2522;border-color:#7A3A31;color:#F6C9C2}}
+.err{color:var(--red);font-size:.86rem;margin-top:6px;line-height:1.5}
+.opt-row{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-top:8px}
+.submit-bar{margin-top:18px;display:flex;gap:12px;align-items:center;justify-content:center;flex-wrap:wrap;text-align:center}
+.done-banner{background:#E6F4EC;border:1.5px solid #8CC7A3;color:#1D5E39;border-radius:12px;padding:12px 16px;font-size:.92rem;line-height:1.6}
+:root[data-theme="dark"] .done-banner{background:#1E3328;border-color:#3E7A57;color:#BDE6CB}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]) .done-banner{background:#1E3328;border-color:#3E7A57;color:#BDE6CB}}
+details.peek{border:1.5px solid var(--border);border-radius:12px;padding:8px 12px;margin-bottom:10px}
+details.peek summary{cursor:pointer;font-weight:700;font-size:.88rem;color:var(--ink)}
+
+/* ── ACT 2 ── */
+.fr-tabs{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px;margin-bottom:16px}
+@media(max-width:700px){.fr-tabs{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.fr-tab{border:2px solid var(--border);background:var(--card);border-radius:14px;padding:10px 8px;font-family:'Gowun Batang',serif;font-weight:700;font-size:.92rem;line-height:1.35}
+.fr-tab small{display:block;font-family:'Gowun Dodum',sans-serif;font-weight:400;font-size:.78rem;color:var(--muted)}
+.fr-tab.on{border-color:var(--teal);box-shadow:0 0 0 3px rgba(45,122,107,.18)}
+.fr-tab.done{background:var(--soft)}
+.fr-grid{display:grid;grid-template-columns:minmax(0,460px) minmax(0,1fr);gap:20px;align-items:start}
+@media(max-width:880px){.fr-grid{grid-template-columns:minmax(0,1fr)}}
+.guess-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.guess{border:2px solid var(--border);background:var(--card);border-radius:12px;padding:10px;display:flex;align-items:center;gap:8px;font-size:.9rem;text-align:left;line-height:1.35}
+.guess img{width:34px;height:34px;object-fit:contain;flex:none}
+.guess.on{border-color:var(--rc);background:var(--soft);box-shadow:inset 0 0 0 1.5px var(--rc)}
+.guess.on b{color:var(--rc)}
+.sum-line{font-size:1.02rem;line-height:2.2;font-family:'Gowun Batang',serif}
+.sum-line input{font-family:'Gowun Dodum',sans-serif}
+.lock{opacity:.6}
+
+/* ── REVEAL ── */
+.score-hero{text-align:center;background:linear-gradient(135deg,#1F3350,#2D7A6B);color:#fff;border-radius:20px;padding:26px 18px;margin-bottom:16px}
+.score-hero .big{font-family:'Black Han Sans',sans-serif;font-size:clamp(2rem,6vw,3rem);color:#FFE08A;line-height:1.2}
+.score-hero .rp{display:inline-block;margin-top:10px;background:rgba(255,255,255,.14);border-radius:999px;padding:6px 16px;font-size:1rem}
+.rv-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:14px}
+.rv-item{background:var(--card);border:2px solid var(--border);border-radius:14px;padding:10px}
+.rv-item.ok{border-color:#8CC7A3}.rv-item.no{border-color:#F0B7AE}
+.rv-item .head{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;font-family:'Gowun Batang',serif;font-weight:700}
+.rv-item .lines{font-size:.86rem;line-height:1.9;margin-top:8px}
+
+/* ── MODAL / TOAST ── */
+.modal{position:fixed;inset:0;background:rgba(15,20,30,.58);display:flex;align-items:center;justify-content:center;z-index:200;padding:16px}
+.mbox{background:var(--card);color:var(--fg);border-radius:18px;padding:22px;width:min(520px,100%);max-height:92vh;overflow:auto;box-shadow:0 10px 40px rgba(0,0,0,.3)}
+.mbox.wide{width:min(1120px,100%)}
+.mbox h3{font-family:'Gowun Batang',serif;color:var(--ink);margin-bottom:12px}
+.mbox .msg{white-space:pre-line;line-height:1.7}
+.check-item{display:flex;gap:10px;align-items:flex-start;padding:10px;border:1.5px solid var(--border);border-radius:10px;margin-bottom:8px;cursor:pointer;line-height:1.5}
+.check-item input{width:20px;height:20px;margin-top:2px;flex:none;accent-color:var(--teal)}
+.toast{position:fixed;bottom:max(24px,env(safe-area-inset-bottom,0px));left:50%;transform:translateX(-50%);background:#222;color:#fff;padding:11px 20px;
+  border-radius:20px;font-size:.9rem;opacity:0;transition:.3s;pointer-events:none;z-index:999;max-width:calc(100% - 32px);text-align:center}
+.toast.show{opacity:1}
+
+/* ── ADMIN ── */
+.atabs{display:flex;gap:4px;flex-wrap:wrap;border-bottom:2px solid var(--border);margin-bottom:18px}
+.atab{border:none;background:none;padding:10px 14px;font-family:'Gowun Batang',serif;font-weight:700;color:var(--muted);border-bottom:3px solid transparent;margin-bottom:-2px;font-size:.95rem}
+.atab.on{color:var(--ink);border-bottom-color:var(--teal)}
+.apanel{display:none}.apanel.on{display:block}
+.phase-bar{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+@media(max-width:720px){.phase-bar{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.ph-btn{border:2.5px solid var(--border);background:var(--card);border-radius:14px;padding:14px 8px;font-family:'Gowun Batang',serif;font-weight:700;display:flex;flex-direction:column;gap:4px;align-items:center;line-height:1.35}
+.ph-btn .ic{font-size:1.5rem}
+.ph-btn small{font-family:'Gowun Dodum',sans-serif;font-weight:400;font-size:.74rem;color:var(--muted)}
+.ph-btn.on{border-color:var(--gold);background:var(--hover);box-shadow:0 0 0 3px rgba(181,147,58,.28)}
+.stat-row{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}
+.stat{flex:1;min-width:120px;background:var(--soft);border-radius:12px;padding:10px 12px;font-size:.84rem;color:var(--muted)}
+.stat b{display:block;font-size:1.5rem;font-family:'Black Han Sans','Gowun Batang',sans-serif;color:var(--ink);font-weight:400}
+.tbl-wrap{overflow-x:auto}
+.atable{width:100%;border-collapse:collapse;font-size:.88rem}
+.atable th{background:var(--navy);color:#fff;padding:9px 10px;font-family:'Gowun Batang',serif;white-space:nowrap}
+.atable td{padding:8px 10px;border-bottom:1px solid var(--border);text-align:center;vertical-align:middle}
+.atable tr.click{cursor:pointer}
+.atable tr.click:hover td{background:var(--hover)}
+.on-dot{display:inline-block;width:10px;height:10px;border-radius:50%;background:#bbb}
+.on-dot.on{background:var(--ok)}
+.pill{display:inline-block;border-radius:999px;padding:2px 9px;font-size:.76rem;background:var(--soft)}
+.pill.ok{background:#D9F0E2;color:#1D5E39}.pill.warn{background:#FFF1CC;color:#7A5A00}
+.gallery{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:16px}
+.g-item{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:10px;cursor:pointer;text-align:left}
+.g-item:hover{border-color:var(--gold)}
+.g-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;font-family:'Gowun Batang',serif;font-weight:700;gap:6px}
+.g-foot{font-size:.78rem;color:var(--muted);margin-top:6px}
+.det-grid{display:grid;grid-template-columns:minmax(0,420px) minmax(0,1fr);gap:20px;align-items:start}
+@media(max-width:860px){.det-grid{grid-template-columns:minmax(0,1fr)}}
+.pres{display:flex;flex-direction:column;align-items:center;gap:12px}
+.pres .poster-frame{max-width:min(560px,62vh)}
+.txt-list li{margin:0 0 6px 18px;line-height:1.6}
+</style>
+</head>
+<body>
+
+<header class="hdr">
+  <div>
+    <div class="logo">🔎 정보탐정단</div>
+    <div class="sub">5-2(나) 매체 단원 · 5~6차시 · 매체 자료에 담긴 관점 파악하기</div>
+  </div>
+  <div class="hdr-right">
+    <span id="meChip" class="chip-me" hidden></span>
+    <button id="logoutBtn" class="hbtn" hidden>번호 바꾸기</button>
+    <button id="adminBtn" class="hbtn">관리자</button>
+  </div>
+</header>
+<div id="netWarn" class="net-warn" hidden>⚠️ 서버에 연결하지 못했어요. 인터넷 연결을 확인하고 새로고침해 주세요.</div>
+
+<!-- ══════════ 로그인 ══════════ -->
+<section id="scr-login" class="screen">
+  <div class="wrap narrow">
+    <div class="mission">
+      <div class="mag">🔍</div>
+      <span class="tag">정보 탐정단</span>
+      <h1>미션 : 같은 정보, 다른 광고?<br>광고에 숨은 관점 찾아내기</h1>
+      <div class="unit">5-2(나) 매체 단원 · 여러 가지 매체 자료에 담긴 관점 파악하기</div>
+      <div class="goal">🎯 제작자의 <b>관점</b>에 따라 <b>선택되고 강조되는 정보</b>가 달라질 수 있음을 알아봐요.</div>
+    </div>
+    <div class="card">
+      <div class="card-title">🙋 내 번호를 눌러 들어와요</div>
+      <div class="num-grid" id="numGrid"></div>
+      <p class="tiny mt">초록 점은 지금 접속 중인 번호예요. 내 번호를 잘 확인하고 눌러요!</p>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════ 대기 ══════════ -->
+<section id="scr-wait" class="screen">
+  <div class="wrap narrow">
+    <div class="card center" style="padding:36px 20px">
+      <div style="font-size:3rem">⏳</div>
+      <h2 style="font-family:'Gowun Batang',serif;color:var(--ink);margin:10px 0 6px">선생님이 활동을 열어 주면 시작해요</h2>
+      <p class="tiny">화면을 켜 둔 채로 기다려 주세요. 자동으로 넘어가요.</p>
+    </div>
+    <div id="waitRole"></div>
+  </div>
+</section>
+
+<!-- ══════════ 활동 1 ══════════ -->
+<section id="scr-act1" class="screen">
+  <div class="wrap">
+    <div class="act-head"><span class="no">1</span>선크림 광고 제작하기</div>
+    <div class="key-msg">💡 모두 <b>같은 조사 결과</b>를 받아요. 내 역할의 관점에 따라 어떤 정보를 <b>고르고 강조할지</b> 정해 광고를 만들어요. 단, <b>숫자와 조사 결과를 바꾸거나 자료에 없는 사실을 만들 수는 없어요.</b></div>
+    <div class="stepper" id="stepper"></div>
+
+    <!-- 1. 역할 뽑기 -->
+    <div class="a1p" id="a1-1">
+      <div class="card">
+        <div class="card-title">🎡 돌림판을 돌려 내 역할을 뽑아요</div>
+        <div class="wheel-area">
+          <div class="wheel-col">
+            <div class="wheel-box">
+              <div class="wheel-pin"></div>
+              <div class="wheel-rot" id="wheelRot"></div>
+              <div class="wheel-hub">🔎</div>
+            </div>
+            <button class="btn btn-gold btn-lg" id="spinBtn">🎡 돌림판 돌리기</button>
+          </div>
+          <div id="roleReveal"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 2. 관점 확인 -->
+    <div class="a1p" id="a1-2">
+      <div class="card">
+        <div class="card-title">🧭 내가 맡은 역할과 역할에 따른 관점</div>
+        <div id="a2Role"></div>
+        <div class="mt" id="a2List"></div>
+      </div>
+      <div class="card">
+        <div class="card-title">📋 모두가 받은 같은 자료</div>
+        <div id="a2Data"></div>
+        <div class="next-row"><button class="btn btn-teal btn-lg" data-go="3">관점을 확인했어요 →</button></div>
+      </div>
+    </div>
+
+    <!-- 3. 중요한 정보 고르기 -->
+    <div class="a1p" id="a1-3">
+      <div class="card">
+        <div class="card-title">⭐ 내 관점에서 중요하게 생각하는 정보를 골라요</div>
+        <div id="a3Strip"></div>
+        <details class="peek"><summary>📋 조사 결과 표 다시 보기</summary><div class="mt" id="a3Data"></div></details>
+        <p class="tiny mb">아래 정보는 모두 조사 결과에 있는 <b>사실</b>이에요. 내 역할이라면 어떤 정보를 광고에 넣고 싶은지 눌러서 골라요. (여러 개 가능)</p>
+        <div id="a3Facts"></div>
+        <label class="field-label" for="whyTa">✏️ 내 역할과 관점에서 이 정보들이 중요한 까닭을 정리해요</label>
+        <textarea class="ta" id="whyTa" maxlength="300" placeholder="예) 나는 ○○ 회사 마케터라서 우리 제품이 좋다고 답한 사람이 많은 정보를 알리고 싶다."></textarea>
+        <div class="next-row">
+          <button class="btn btn-ghost" data-go="2">← 관점 다시 보기</button>
+          <button class="btn btn-teal btn-lg" data-go="4">광고 만들러 가기 →</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 4. 광고 만들기 -->
+    <div class="a1p" id="a1-4">
+      <div id="roleStrip"></div>
+      <div class="editor">
+        <div class="ed-left">
+          <div class="poster-frame"><div class="poster editable" id="edPoster"></div></div>
+          <div class="ed-status"><span id="saveState">자동 저장돼요</span> · 요소 <b id="itemCount">0</b>/30</div>
+          <div class="ed-tools" id="edTools"></div>
+        </div>
+        <div class="ed-right">
+          <div class="pal-tabs" id="palTabs">
+            <button class="pal-tab" data-pal="fact">📊 정보 카드</button>
+            <button class="pal-tab" data-pal="img">🖼️ 이미지</button>
+            <button class="pal-tab" data-pal="text">✏️ 광고 문구</button>
+            <button class="pal-tab" data-pal="deco">🎨 꾸미기</button>
+          </div>
+          <div class="pal-body" id="palBody"></div>
+        </div>
+      </div>
+      <div class="submit-bar" id="submitBar"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════ 활동 2 ══════════ -->
+<section id="scr-act2" class="screen">
+  <div class="wrap">
+    <div class="act-head"><span class="no">2</span>친구의 광고에서 관점 찾아내기</div>
+    <div class="key-msg">🕵️ 친구 4명의 광고를 보고 이미지, 설명, 숫자 등 <b>눈에 띄는 정보나 표현</b>을 찾아요. 그다음 관찰한 내용을 바탕으로 친구가 맡은 <b>역할</b>과 광고에 드러난 <b>관점</b>을 추측해요.</div>
+    <div id="act2Body"></div>
+  </div>
+</section>
+
+<!-- ══════════ 정답 공개 ══════════ -->
+<section id="scr-reveal" class="screen">
+  <div class="wrap">
+    <div id="revealBody"></div>
+  </div>
+</section>
+
+<!-- ══════════ 관리자 ══════════ -->
+<section id="scr-admin" class="screen">
+  <div class="wrap">
+    <div class="row mb" style="justify-content:space-between">
+      <div class="act-head" style="margin:0">🔐 선생님 관리 화면</div>
+      <button class="btn btn-ghost btn-sm" id="adminExit">학생 화면으로</button>
+    </div>
+    <div class="atabs" id="atabs">
+      <button class="atab on" data-at="live">🎛️ 진행 · 관찰</button>
+      <button class="atab" data-at="gallery">🖼️ 광고 갤러리</button>
+      <button class="atab" data-at="obs">🕵️ 관찰 결과</button>
+      <button class="atab" data-at="reward">📚 독서력 보내기</button>
+      <button class="atab" data-at="setting">⚙️ 설정</button>
+    </div>
+
+    <div class="apanel on" id="ap-live">
+      <div class="card">
+        <div class="card-title">수업 단계</div>
+        <div class="phase-bar" id="phaseBar"></div>
+        <div class="stat-row" id="statRow"></div>
+        <div class="row mt" id="roleDist"></div>
+      </div>
+      <div class="card">
+        <div class="card-title">학생별 진행 상황 <span class="tiny">(줄을 누르면 자세히 볼 수 있어요)</span></div>
+        <div class="tbl-wrap" id="liveTable"></div>
+      </div>
+    </div>
+
+    <div class="apanel" id="ap-gallery">
+      <div class="card">
+        <div class="row" style="justify-content:space-between">
+          <div class="card-title" style="margin:0">광고 갤러리</div>
+          <label class="row tiny"><input type="checkbox" id="showRoles"> 역할 보이기</label>
+        </div>
+        <p class="tiny mt mb">광고를 누르면 크게 띄워 발표할 수 있어요. 역할은 ‘역할 공개’를 눌러야 보여요.</p>
+        <div class="gallery" id="galleryGrid"></div>
+      </div>
+      <div class="card">
+        <div class="card-title">📝 광고 문구 모아 보기 (사실 점검)</div>
+        <p class="tiny mb">학생이 직접 쓴 문구예요. 숫자·과장 표현은 막혀 있지만, 자료와 다른 비교(예: ‘더 싸요’)가 있는지 함께 살펴보세요.</p>
+        <div id="textList"></div>
+      </div>
+    </div>
+
+    <div class="apanel" id="ap-obs">
+      <div class="card">
+        <div class="row" style="justify-content:space-between">
+          <div class="card-title" style="margin:0">관찰 친구 배정 · 역할 추측 결과</div>
+          <button class="btn btn-ghost btn-sm" id="reassignBtn">🔀 친구 다시 배정</button>
+        </div>
+        <p class="tiny mt mb">모든 광고가 고르게 4번씩 관찰되도록 배정해요. ✅는 역할을 맞힌 것, ❌는 틀린 것, · 는 아직 고르지 않은 것이에요.</p>
+        <div class="tbl-wrap" id="assignTable"></div>
+      </div>
+      <div class="card">
+        <div class="card-title">⭐ 오늘의 한 줄 정리</div>
+        <div class="tbl-wrap" id="sumTable"></div>
+      </div>
+    </div>
+
+    <div class="apanel" id="ap-reward">
+      <div class="card">
+        <div class="card-title">📚 우리 반 마을(학급경영 프로그램)로 독서력 보내기</div>
+        <p style="line-height:1.7">친구 광고를 보고 <b>역할을 맞힌 개수 × 100</b>만큼 📚 독서력을 보내요. 학생이 우리 반 마을에 들어가면 “⭐ 선생님이 능력치를 줬어요!”로 받아요.</p>
+        <ul class="note tiny">
+          <li>우리 반 마을을 <b>선생님으로 쓰는 기기·브라우저</b>에서 이 화면을 열어야 보낼 수 있어요.</li>
+          <li>이미 보낸 만큼은 다시 보내지 않아요. 여러 번 눌러도 안전해요.</li>
+        </ul>
+        <div class="row mt">
+          <label for="rwRoom" style="font-weight:700">반 코드</label>
+          <input class="inp" id="rwRoom" style="width:180px" placeholder="우리 반 마을 반 코드">
+          <button class="btn btn-navy btn-sm" id="rwConnect">🔗 연결 확인</button>
+        </div>
+        <div id="rwStatus" class="mt tiny"></div>
+        <div class="row mt"><button class="btn btn-gold btn-lg" id="rwSend" disabled>📚 독서력 보내기</button></div>
+      </div>
+      <div class="card">
+        <div class="card-title">학생별 독서력</div>
+        <div class="tbl-wrap" id="rwTable"></div>
+      </div>
+      <div class="card">
+        <div class="card-title">✋ 직접 줄 때 (연결이 안 될 때)</div>
+        <p class="tiny mb">우리 반 마을 → 관리 → ⭐ 능력치 주기에서 📚 독서력을 아래처럼 주세요.</p>
+        <div id="rwGroups"></div>
+      </div>
+    </div>
+
+    <div class="apanel" id="ap-setting">
+      <div class="card">
+        <div class="card-title">초기화</div>
+        <p class="tiny mb">수업을 다시 할 때 사용해요. 지운 내용은 되돌릴 수 없어요.</p>
+        <div class="row">
+          <button class="btn btn-ghost btn-sm" data-reset="roles">🎡 역할 뽑기 초기화</button>
+          <button class="btn btn-ghost btn-sm" data-reset="assign">🔀 친구 배정 초기화</button>
+          <button class="btn btn-ghost btn-sm" data-reset="obs">🕵️ 관찰 기록 초기화</button>
+          <button class="btn btn-red btn-sm" data-reset="all">🗑 전체 초기화 (보낸 독서력 기록은 남겨요)</button>
+        </div>
+        <div class="row mt"><button class="btn btn-ghost btn-sm" data-reset="rewards">📚 보낸 독서력 기록 지우기</button>
+          <span class="tiny">지우면 다음에 ‘보내기’를 누를 때 독서력을 다시 보내요.</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════ MODALS ══════════ -->
+<div class="modal" id="modal" hidden><div class="mbox" id="mbox"></div></div>
+<div class="toast" id="toast"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/9.23.0/firebase-app-compat.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/9.23.0/firebase-database-compat.min.js"></script>
+<script>
+/* ═════════════════════════════════════════════
+   설정 · 자료
+═════════════════════════════════════════════ */
+const firebaseConfig = {
+  apiKey: "AIzaSyB7jCVyieaTKyvarkAvaDLNinxUWppTCdI",
+  authDomain: "banwel-51.firebaseapp.com",
+  databaseURL: "https://banwel-51-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "banwel-51",
+  storageBucket: "banwel-51.appspot.com",
+  messagingSenderId: "489949688381",
+  appId: "1:489949688381:web:680ce2806ba0f2e810b054"
+};
+// 📚 우리 반 마을(학급경영 프로그램) — 독서력 보내기에만 사용 (선생님 기기에서만)
+const VILLAGE_CONFIG = {
+  apiKey: "AIzaSyBI7v_99qd2sMxLcnYnZinrUfshZm3_e0w",
+  authDomain: "kinball-project.firebaseapp.com",
+  databaseURL: "https://kinball-project-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "kinball-project",
+  storageBucket: "kinball-project.firebasestorage.app",
+  messagingSenderId: "673457878504",
+  appId: "1:673457878504:web:af603917ee1f2db38de05d"
+};
+const VILLAGE_APP = 'school-village', VILLAGE_ROOT = 'schoolVillage', READ_PER_HIT = 100;
+
+const ROOT = 'classroom/info_detective';
+const ADMIN_PW = '126758';
+const N = 15, MAX_ITEMS = 30;
+const NAMES = [
+  '김다온','김도영','김채화','백수민','소진호',
+  '신은비','유준선','윤하늘','이보현','이지은',
+  '임규원','임휘재','장문혁','장준혁','한승우'
+];
+const IMG_DIR = 'img/info_detective/';
+
+const ROLE_KEYS = ['A','B','F','O'];
+const ROLES = {
+  A:{name:'A 화장품 회사 마케터', short:'A사 마케터', wheel:'A사', icon:'a_tube', color:'#2F7FD0', light:'#DCEBFA',
+     view:'A 선크림의 장점을 알리고 싶음.',
+     situ:'여름을 맞아 A 회사에서 선크림 홍보 광고를 제작하려고 해. 우리 제품의 매력을 소비자에게 효과적으로 알리고 싶어.',
+     hint:'우리 제품에 대한 긍정적인 응답 결과를 활용해볼까?'},
+  B:{name:'B 화장품 회사 마케터', short:'B사 마케터', wheel:'B사', icon:'b_bottle', color:'#E8741C', light:'#FCE6D3',
+     view:'B 선크림의 장점을 알리고 싶음.',
+     situ:'B 회사에서도 여름 선크림 광고를 준비하고 있어. 다른 제품과 비교했을 때 우리 제품의 매력이 돋보이도록 홍보하고 싶어.',
+     hint:'우리 제품에 대한 긍정적인 응답 결과를 활용해볼까?'},
+  F:{name:'식품의약품안전처 홍보 담당자', short:'식약처', wheel:'식약처', icon:'officer', color:'#2D7A6B', light:'#D7EDE7',
+     view:'선크림 선택에 필요한 정보를 소비자들에게 알리고 싶음.',
+     situ:'여름철 선크림을 고르는 사람들이 많아졌어. 소비자들이 광고 문구만 믿지 않고 제품 정보를 확인한 뒤 자신에게 맞는 제품을 선택하도록 돕고 싶어.',
+     hint:'두 제품의 용량별 가격, SPF 지수를 소비자들이 살펴보게 해볼까?'},
+  O:{name:'*리브영 마케터', short:'*리브영', wheel:'*리브영', icon:'olive', color:'#6E8F25', light:'#E6EFCF',
+     view:'A와 B 선크림을 홍보해 여름 선크림 판매율을 높이고 싶음.',
+     situ:'여름을 맞아 다양한 선크림을 특가로 판매하는 ‘여름 선크림 대전’을 열 예정이야. 고객들이 모든 제품에 관심을 가지고 구매하도록 홍보하고 싶어.',
+     hint:'두 제품에 대한 긍정적인 응답 결과를 모두 활용해볼까?'}
+};
+const WHEEL_ORDER = ['A','F','B','O','A','F','B','O'];
+
+const TABLE_ROWS = [
+  ['촉촉하다고 답한 사람 (100명 대상)','72명','58명'],
+  ['끈적임이 적다고 답한 사람 (100명 대상)','80명','63명'],
+  ['눈시림과 자극이 적다고 답한 사람 (100명 대상)','48명','82명'],
+  ['10mL 기준 가격','1200원','800원'],
+  ['자외선 차단 지수','spf 30','spf 30']
+];
+const SPF_NOTE = 'SPF는 자외선 차단 지수로 SPF 30은 자외선을 약 97% 차단하고, 약 7시간 30분 동안 보호해 줍니다. 단, 실제로는 땀으로 인해 2시간마다 덧바르는 게 좋습니다.';
+
+// 정보 카드: 조사 결과에 있는 사실만 (문장은 바꿀 수 없어요)
+const FCOL = ['#1F3350','#2F7FD0','#E8741C','#2D7A6B','#D8483A','#7C3AED','#B8860B','#6E8F25'];
+const FACTS = {
+  a_moist: {l:'A 선크림',m:'100명 중 72명',t:"‘촉촉하다’고 답했어요",c:1},
+  a_sticky:{l:'A 선크림',m:'100명 중 80명',t:"‘끈적임이 적다’고 답했어요",c:1},
+  a_eye:   {l:'A 선크림',m:'100명 중 48명',t:"‘눈시림과 자극이 적다’고 답했어요",c:1},
+  a_price: {l:'A 선크림',m:'10mL 1200원',t:'(10mL 기준 가격)',c:1},
+  a_spf:   {l:'A 선크림',m:'SPF 30',t:'자외선 차단 지수',c:1},
+  b_moist: {l:'B 선크림',m:'100명 중 58명',t:"‘촉촉하다’고 답했어요",c:2},
+  b_sticky:{l:'B 선크림',m:'100명 중 63명',t:"‘끈적임이 적다’고 답했어요",c:2},
+  b_eye:   {l:'B 선크림',m:'100명 중 82명',t:"‘눈시림과 자극이 적다’고 답했어요",c:2},
+  b_price: {l:'B 선크림',m:'10mL 800원',t:'(10mL 기준 가격)',c:2},
+  b_spf:   {l:'B 선크림',m:'SPF 30',t:'자외선 차단 지수',c:2},
+  c_moist: {l:'촉촉하다고 답한 사람 (100명 중)',m:'A 72명 · B 58명',t:'',c:0},
+  c_sticky:{l:'끈적임이 적다고 답한 사람 (100명 중)',m:'A 80명 · B 63명',t:'',c:0},
+  c_eye:   {l:'눈시림과 자극이 적다고 답한 사람 (100명 중)',m:'A 48명 · B 82명',t:'',c:0},
+  c_price: {l:'10mL 기준 가격',m:'A 1200원 · B 800원',t:'',c:0},
+  c_spf:   {l:'자외선 차단 지수',m:'A · B 모두 SPF 30',t:'',c:0},
+  s_block: {l:'SPF 30은',m:'자외선 약 97% 차단',t:'',c:6},
+  s_time:  {l:'SPF 30은',m:'약 7시간 30분 보호',t:'',c:6},
+  s_re:    {l:'실제로는 땀 때문에',m:'2시간마다 덧바르기',t:'를 하는 게 좋아요',c:4},
+  src:     {l:'출처',m:'식품의약품안전처',t:'',c:3},
+  table:   {l:'조사 결과 전체 표',m:'',t:'',c:0}
+};
+const FACT_GROUPS = [
+  {n:'🧴 A 선크림 정보', ks:['a_moist','a_sticky','a_eye','a_price','a_spf']},
+  {n:'🧴 B 선크림 정보', ks:['b_moist','b_sticky','b_eye','b_price','b_spf']},
+  {n:'⚖️ 두 제품 비교', ks:['c_moist','c_sticky','c_eye','c_price','c_spf']},
+  {n:'☀️ SPF · 사용법 · 출처', ks:['s_block','s_time','s_re','src','table']}
+];
+const STYLE_S = {card:3.4, big:4.2, small:2.4, tag:3, table:2.5};
+const FSTYLES = [['card','카드'],['big','크게 강조'],['small','작은 글씨'],['tag','딱지']];
+
+const IMGS = [
+  {k:'a_tube',n:'A 선크림'},{k:'b_bottle',n:'B 선크림'},{k:'sun',n:'선글라스 해님'},{k:'eye',n:'눈 보호'},
+  {k:'drop',n:'물방울'},{k:'woman',n:'선크림 바르기'},{k:'mom_child',n:'아이와 함께'},{k:'scientist',n:'꼼꼼한 확인'},
+  {k:'vs',n:'VS 비교'},{k:'card',n:'카드 결제'},{k:'spf',n:'SPF 30'}
+];
+const IMG = Object.fromEntries(IMGS.map(o=>[o.k,o]));
+
+const BGS = [
+  {n:'하얀 종이',v:'#FFFFFF'},
+  {n:'여름 하늘',v:'linear-gradient(180deg,#BFE6FF 0%,#FFF6D8 100%)'},
+  {n:'햇살',v:'linear-gradient(180deg,#FFE27A 0%,#FFF9E3 100%)'},
+  {n:'바다',v:'linear-gradient(180deg,#7FD3E8 0%,#EAFBFF 100%)'},
+  {n:'민트',v:'linear-gradient(180deg,#C6EFDF 0%,#F4FFF9 100%)'},
+  {n:'복숭아',v:'linear-gradient(180deg,#FFD0BD 0%,#FFF4EE 100%)'},
+  {n:'올리브',v:'linear-gradient(180deg,#DCE8B4 0%,#F9FBEA 100%)'},
+  {n:'진한 남색',v:'linear-gradient(180deg,#1F3350 0%,#2E4C72 100%)'}
+];
+const TCOL = ['#222222','#FFFFFF','#D8483A','#E8741C','#2F7FD0','#2D7A6B','#7C3AED','#B8860B','#1F3350'];
+const FONTS = [
+  {n:'굵은 제목',css:"'Black Han Sans','Gowun Batang',sans-serif"},
+  {n:'동글동글',css:"'Jua','Gowun Dodum',sans-serif"},
+  {n:'바탕',css:"'Gowun Batang',serif"},
+  {n:'돋움',css:"'Gowun Dodum',sans-serif"}
+];
+const TSTYLES = [['plain','기본'],['outline','테두리'],['band','형광펜'],['box','색 상자'],['bubble','말풍선']];
+const TSIZES = [['큰 제목',8],['보통',5],['작은 글',3.4]];
+const EMOJIS = ['✨','☀️','💧','🌊','🏖️','😎','👍','❤️','⭐','🎉','👀','🔍','🛡️','✔️','➡️','❗','❓','🌴','🧴','👶'];
+// 조사 자료로 확인할 수 없는 말 (없는 사실 만들기 방지)
+const BANNED = ['최고','1위','일등','최초','유일','완벽','무조건','절대','부작용','전문가','의사','피부과','인증','특허','천연','유기농',
+  '방수','워터프루프','하루종일','종일','평생','영원','세계','기적','완전차단','100%','퍼센트','프로센트','백명','천명','만명','백원','천원'];
+
+const AT_LABEL = {wheel:'역할 뽑는 중',role:'역할 확인',view:'관점 확인',info:'정보 고르는 중',poster:'광고 만드는 중',act2:'친구 광고 관찰',summary:'한 줄 정리',reveal:'결과 보는 중',wait:'대기'};
+
+/* ═════════════════════════════════════════════
+   Firebase
+═════════════════════════════════════════════ */
+let db = null;
+try { firebase.initializeApp(firebaseConfig); db = firebase.database(); }
+catch (e) { console.warn('Firebase init failed', e); }
+const R = p => db.ref(ROOT + (p ? '/' + p : ''));
+const TS = () => firebase.database.ServerValue.TIMESTAMP;
+
+/* ═════════════════════════════════════════════
+   공통 도구
+═════════════════════════════════════════════ */
+const $ = (s, r = document) => r.querySelector(s);
+const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const K = n => 'n' + String(n).padStart(2, '0');
+const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+const r2 = v => Math.round(v * 100) / 100;
+const clean = o => JSON.parse(JSON.stringify(o));
+const store = {
+  get(k){ try { return localStorage.getItem(k); } catch(e){ return null; } },
+  set(k,v){ try { localStorage.setItem(k, v); } catch(e){} },
+  del(k){ try { localStorage.removeItem(k); } catch(e){} }
+};
+const nameOf = n => NAMES[n - 1] || (n + '번');
+const arr = v => Array.isArray(v) ? v.filter(x => x != null) : (v ? Object.values(v) : []);
+function shuffle(a){ a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; }
+function debounce(fn, ms){ let t; const d = (...a) => { clearTimeout(t); t = setTimeout(() => fn(...a), ms); }; d.flush = (...a) => { clearTimeout(t); fn(...a); }; return d; }
+
+let toastT;
+function toast(msg, ms = 2400){ const t = $('#toast'); t.textContent = msg; t.classList.add('show'); clearTimeout(toastT); toastT = setTimeout(() => t.classList.remove('show'), ms); }
+
+let modalClose = null;
+function openModal(html, {wide = false, onClose = null} = {}){
+  const m = $('#modal'), b = $('#mbox');
+  b.className = 'mbox' + (wide ? ' wide' : ''); b.innerHTML = html; m.hidden = false; modalClose = onClose;
+}
+function closeModal(){ $('#modal').hidden = true; $('#mbox').innerHTML = ''; const f = modalClose; modalClose = null; if (f) f(); }
+$('#modal').addEventListener('click', e => { if (e.target.id === 'modal') closeModal(); });
+function ask(msg, {ok = '확인', cancel = '취소', danger = false, title = '확인해 주세요'} = {}){
+  return new Promise(res => {
+    openModal(`<h3>${esc(title)}</h3><div class="msg">${esc(msg)}</div>
+      <div class="next-row"><button class="btn btn-ghost" id="askNo">${esc(cancel)}</button>
+      <button class="btn ${danger ? 'btn-red' : 'btn-navy'}" id="askYes">${esc(ok)}</button></div>`, {onClose: () => res(false)});
+    $('#askNo').onclick = () => closeModal();
+    $('#askYes').onclick = () => { modalClose = null; closeModal(); res(true); };
+  });
+}
+
+function roleChip(k, small){ const r = ROLES[k]; if (!r) return '<span class="pill">—</span>'; return `<span class="rchip" style="--rc:${r.color}"><img src="${IMG_DIR}${r.icon}.webp" alt="">${esc(small ? r.short : r.name)}</span>`; }
+function roleCardHTML(k, {pop = false} = {}){
+  const r = ROLES[k]; if (!r) return '';
+  return `<div class="role-card ${pop ? 'pop' : ''}" style="--rc:${r.color}">
+    <div class="rc-top"><img src="${IMG_DIR}${r.icon}.webp" alt=""><div><div class="rc-label">나의 역할</div><div class="rc-name">${esc(r.name)}</div></div></div>
+    <div class="rc-situ"><b>상황 :</b> ${esc(r.situ)}</div>
+    <div class="rc-view">🧭 나의 관점 : ${esc(r.view)}</div>
+    <div class="rc-hint">💡 힌트) ${esc(r.hint)}</div></div>`;
+}
+function roleListHTML(mine){
+  return ROLE_KEYS.map(k => `<div class="rl ${k === mine ? 'on' : ''}" style="--rc:${ROLES[k].color}"><span class="box">${k === mine ? '☑' : '☐'}</span><span><b>${esc(ROLES[k].name)}</b> : ${esc(ROLES[k].view)}</span></div>`).join('');
+}
+function dataBoxHTML(){
+  return `<div class="data-box"><div class="db-title"><img src="${IMG_DIR}a_tube.webp" alt=""><img src="${IMG_DIR}b_bottle.webp" alt="">A와 B, 두 선크림을 비교한 조사 결과</div>
+    <div class="tbl-x"><table class="dtable"><tr><th>비교항목</th><th>A 선크림</th><th>B 선크림</th></tr>
+    ${TABLE_ROWS.map(r => `<tr><td>${r[0]}</td><td>${r[1]}</td><td>${r[2]}</td></tr>`).join('')}</table></div>
+    <ul class="note"><li>${SPF_NOTE}</li><li>출처 : 식품의약품안전처</li></ul></div>`;
+}
+const factText = k => { const f = FACTS[k]; return k === 'table' ? '조사 결과 전체 표' : [f.l, f.m, f.t].filter(Boolean).join(' '); };
+function factChipHTML(k, on, attr){
+  const f = FACTS[k];
+  const label = k === 'table' ? '📋 <b>조사 결과 전체 표</b>' : `${esc(f.l)} <b>${esc(f.m)}</b> ${esc(f.t)}`;
+  return `<button class="fchip ${on ? 'on' : ''}" ${attr}="${k}" style="--fc:${FCOL[f.c]}">${label}</button>`;
+}
+
+/* ═════════════════════════════════════════════
+   광고 포스터 그리기
+═════════════════════════════════════════════ */
+const posterRO = ('ResizeObserver' in window) ? new ResizeObserver(es => {
+  for (const e of es) e.target.style.setProperty('--pw', (e.contentRect.width / 100) + 'px');
+}) : null;
+function fitPoster(el){ if (el.clientWidth) el.style.setProperty('--pw', (el.clientWidth / 100) + 'px'); if (posterRO) posterRO.observe(el); }
+function refitAll(){ $$('.poster').forEach(p => { if (p.clientWidth) p.style.setProperty('--pw', (p.clientWidth / 100) + 'px'); }); }
+window.addEventListener('resize', refitAll);
+
+function normPoster(v){ return {bg: (v && v.bg != null) ? v.bg : 1, items: arr(v && v.items)}; }
+function factInner(k){
+  if (k === 'table') return `<table class="mt-tbl"><tr><th>비교항목</th><th>A 선크림</th><th>B 선크림</th></tr>${TABLE_ROWS.map(r => `<tr><td>${r[0]}</td><td>${r[1]}</td><td>${r[2]}</td></tr>`).join('')}</table><div class="mt-src">출처 : 식품의약품안전처</div>`;
+  const f = FACTS[k];
+  return `<span class="fl">${esc(f.l)}</span> <span class="fm">${esc(f.m)}</span>${f.t ? ` <span class="ft">${esc(f.t)}</span>` : ''}`;
+}
+function itemHTML(it, i, sel){
+  if (!it) return '';
+  let cls = 'pi pi-' + it.t + (sel ? ' sel' : '');
+  let st = `left:${it.x}%;top:${it.y}%;transform:translate(-50%,-50%) rotate(${it.r || 0}deg);`;
+  let inner = '';
+  if (it.t === 'img') {
+    if (!IMG[it.k]) return '';
+    st += `width:${it.s}%;`;
+    inner = `<img src="${IMG_DIR}${it.k}.webp" alt="${esc(IMG[it.k].n)}" draggable="false"${it.fl ? ' style="transform:scaleX(-1)"' : ''}>`;
+  } else if (it.t === 'fact') {
+    const f = FACTS[it.k]; if (!f) return '';
+    const sty = it.k === 'table' ? 'table' : (it.st || 'card');
+    cls += ' fs-' + sty;
+    st += `--s:${it.s};--fc:${FCOL[it.c != null ? it.c : f.c] || FCOL[0]};`;
+    inner = factInner(it.k);
+  } else if (it.t === 'text') {
+    const col = TCOL[it.c || 0] || TCOL[0];
+    cls += ' ts-' + (it.st || 'plain');
+    st += `--s:${it.s};color:${col};--tc:${col};--ol:${(it.c === 1) ? '#222' : '#fff'};font-family:${(FONTS[it.f || 0] || FONTS[0]).css};`;
+    inner = `<span>${esc(it.v)}</span>`;
+  } else if (it.t === 'emo') {
+    st += `--s:${it.s};`; inner = esc(it.v);
+  } else return '';
+  return `<div class="${cls}" data-i="${i}" style="${st}">${inner}</div>`;
+}
+function renderPoster(el, p, o = {}){
+  p = normPoster(p);
+  el.classList.add('poster'); el.classList.toggle('editable', !!o.edit);
+  el.style.background = (BGS[p.bg] || BGS[1]).v;
+  el.innerHTML = p.items.length ? p.items.map((it, i) => itemHTML(it, i, i === o.sel)).join('') : (o.empty ? `<div class="p-empty">${o.empty}</div>` : '');
+  fitPoster(el);
+}
+function posterBox(p, empty){ const d = document.createElement('div'); renderPoster(d, p, {empty}); return d; }
+
+function checkClaim(t){
+  const s = t.replace(/\s+/g, '');
+  if (/[0-9０-９]/.test(t)) return '🚫 숫자는 직접 쓸 수 없어요. 숫자와 조사 결과는 📊 정보 카드로만 넣어요!';
+  if (/[%％]/.test(t)) return '🚫 % 같은 비율은 직접 쓸 수 없어요. 📊 정보 카드를 사용해요!';
+  const bad = BANNED.find(w => s.includes(w));
+  if (bad) return `🚫 ‘${bad}’은(는) 조사 자료로 확인할 수 없는 말이에요. 자료에 없는 사실은 광고에 쓸 수 없어요.`;
+  return '';
+}
+
+/* ═════════════════════════════════════════════
+   화면 전환
+═════════════════════════════════════════════ */
+let curScreen = null;
+function show(id){
+  $$('.screen').forEach(s => s.classList.toggle('active', s.id === 'scr-' + id));
+  curScreen = id; window.scrollTo(0, 0);
+  requestAnimationFrame(refitAll);
+}
+
+/* ═════════════════════════════════════════════
+   학생: 상태
+═════════════════════════════════════════════ */
+let me = null, phase = 'wait', myRole = null, ST = {}, P = {bg:1, items:[]}, ASG = null, OBS = {}, SUMM = {}, REWARD = null;
+let presenceAll = {}, subs = [], connRef = null, adminOn = false;
+let a1step = 1, sel = -1, palTab = 'fact', lastLocal = 0, frIdx = 0, step3Dirty = false, spinning = false, wheelDeg = 0, lastAt = null;
+let txtOpt = {f:0, c:0, st:'outline', s:8};
+const friendPosters = {};
+
+function sub(ref, cb){ ref.on('value', cb); subs.push(() => ref.off('value', cb)); }
+function setAt(v){ if (!db || me == null || lastAt === v) return; lastAt = v; R(`students/${K(me)}/at`).set(v); }
+
+function renderNumGrid(){
+  $('#numGrid').innerHTML = Array.from({length:N}, (_, i) => {
+    const n = i + 1, on = !!presenceAll[K(n)];
+    return `<button class="num-btn" data-num="${n}">${on ? '<span class="dot" title="접속 중"></span>' : ''}${n}<small>번</small></button>`;
+  }).join('');
+}
+$('#numGrid').addEventListener('click', async e => {
+  const b = e.target.closest('[data-num]'); if (!b) return;
+  const n = +b.dataset.num;
+  const extra = presenceAll[K(n)] ? '\n(지금 다른 기기에서 접속 중인 번호예요.)' : '';
+  if (await ask(`${n}번이 맞나요?${extra}`, {ok:`네, ${n}번이에요`, cancel:'아니요', title:'번호 확인'})) login(n);
+});
+
+function login(n){
+  me = n; store.set('idt_num', String(n));
+  $('#meChip').textContent = `🔎 ${n}번 탐정`; $('#meChip').hidden = false; $('#logoutBtn').hidden = false;
+  if (db) {
+    connRef = db.ref('.info/connected');
+    const onConn = s => { if (s.val() && me != null) { const pr = R(`presence/${K(me)}`); pr.onDisconnect().remove(); pr.set({at: TS()}); } };
+    connRef.on('value', onConn); subs.push(() => connRef.off('value', onConn));
+    sub(R(`roles/${K(me)}`), s => { myRole = s.val(); onRoleChange(); });
+    sub(R(`students/${K(me)}`), s => { ST = s.val() || {}; onSTChange(); });
+    sub(R(`posters/${K(me)}`), s => {
+      if (Date.now() - lastLocal < 4000 || savePoster.pending) return;
+      P = normPoster(s.val());
+      if (curScreen === 'act1' && a1step === 4) renderEditor();
+    });
+    sub(R(`assign/${K(me)}`), s => { ASG = arr(s.val()); if (curScreen === 'act2') renderAct2(); });
+    sub(R(`rewards/${K(me)}`), s => { REWARD = s.val(); if (curScreen === 'reveal') renderReveal(); });
+    R(`obs/${K(me)}`).once('value', s => { OBS = s.val() || {}; if (curScreen === 'act2') renderAct2(); });
+    R(`summary/${K(me)}`).once('value', s => { SUMM = s.val() || {}; if (curScreen === 'act2' && frIdx >= (ASG || []).length) renderAct2(); });
+  }
+  route();
+}
+async function logout(){
+  if (!(await ask('번호 선택 화면으로 돌아갈까요? (작성한 내용은 저장되어 있어요)', {ok:'돌아가기'}))) return;
+  savePoster.flush();
+  if (db && me != null) R(`presence/${K(me)}`).remove();
+  subs.forEach(f => f()); subs = [];
+  me = null; myRole = null; ST = {}; P = {bg:1, items:[]}; ASG = null; OBS = {}; SUMM = {}; REWARD = null; lastAt = null; sel = -1; frIdx = 0;
+  roleLoaded = stLoaded = resumed = false;
+  store.del('idt_num');
+  $('#meChip').hidden = true; $('#logoutBtn').hidden = true;
+  curScreen = null; route();
+}
+$('#logoutBtn').onclick = logout;
+
+function route(){
+  if (adminOn) return;
+  if (me == null) { renderNumGrid(); show('login'); return; }
+  const ph = phase || 'wait';
+  if (ph === 'act1') {
+    if (curScreen !== 'act1') { show('act1'); a1step = !myRole ? 1 : clamp(ST.maxStep || 2, 1, 4); renderAct1(); }
+  } else if (ph === 'act2') {
+    if (curScreen !== 'act2') { savePoster.flush(); sel = -1; show('act2'); renderAct2(); setAt('act2'); }
+  } else if (ph === 'reveal') {
+    if (curScreen !== 'reveal') { savePoster.flush(); show('reveal'); setAt('reveal'); }
+    renderReveal();
+  } else {
+    if (curScreen !== 'wait') show('wait');
+    renderWait(); setAt('wait');
+  }
+}
+function renderWait(){ $('#waitRole').innerHTML = myRole ? `<div class="card"><div class="card-title">내 역할</div>${roleCardHTML(myRole)}</div>` : ''; }
+
+let roleLoaded = false, stLoaded = false, resumed = false;
+function maybeResume(){
+  if (resumed || !roleLoaded || !stLoaded) return;
+  resumed = true;
+  if (curScreen === 'act1' && a1step === 1 && myRole && (ST.maxStep || 1) > 1 && !spinning) { a1step = clamp(ST.maxStep, 1, 4); renderAct1(); }
+}
+function onRoleChange(){
+  roleLoaded = true;
+  if (curScreen === 'act1') {
+    if (!myRole && a1step !== 1) { a1step = 1; renderAct1(); }
+    else if (a1step === 1) { renderStepper(); renderWheelPanel(); }
+    else renderStepper();
+  } else if (curScreen === 'wait') renderWait();
+  maybeResume();
+}
+function onSTChange(){
+  stLoaded = true; maybeResume();
+  if (curScreen !== 'act1') return;
+  renderStepper();
+  if (a1step === 3 && !step3Dirty) renderStep3();
+  if (a1step === 4) renderSubmitBar();
+}
+function reach(step){ const m = ST.maxStep || 1; if (step > m && db) { ST.maxStep = step; R(`students/${K(me)}/maxStep`).set(step); } }
+
+/* ═════════════════════════════════════════════
+   활동 1
+═════════════════════════════════════════════ */
+const STEPS = [[1,'역할 뽑기'],[2,'관점 확인'],[3,'중요한 정보 고르기'],[4,'광고 만들기']];
+function renderStepper(){
+  const max = myRole ? Math.max(2, ST.maxStep || 2) : 1;
+  $('#stepper').innerHTML = STEPS.map(([n, t]) => {
+    const done = n < max || (n === 4 && ST.submitted);
+    const can = n <= max && (n === 1 || myRole);
+    return `<button class="step ${n === a1step ? 'on' : ''} ${done && n !== a1step ? 'done' : ''}" data-step="${n}" ${can ? '' : 'disabled'}><span class="no">${done && n !== a1step ? '✓' : n}</span>${t}</button>`;
+  }).join('');
+}
+$('#stepper').addEventListener('click', e => { const b = e.target.closest('[data-step]'); if (b && !b.disabled) goStep(+b.dataset.step); });
+$('#scr-act1').addEventListener('click', e => { const b = e.target.closest('[data-go]'); if (b) goStep(+b.dataset.go); });
+
+function goStep(n){
+  if (n >= 2 && !myRole) { toast('먼저 돌림판으로 역할을 뽑아요!'); return; }
+  if (n === 4) {
+    const picks = Object.keys(ST.picks || {});
+    const why = ($('#whyTa').value || ST.why || '').trim();
+    if (a1step === 3 || (ST.maxStep || 1) < 4) {
+      if (!picks.length) { toast('⭐ 중요하게 생각하는 정보를 1개 이상 골라요'); return; }
+      if (why.length < 5) { toast('✏️ 정보가 중요한 까닭을 한 문장 이상 써요'); $('#whyTa').focus(); return; }
+      saveWhy.flush();
+    }
+  }
+  if (a1step === 4 && n !== 4) savePoster.flush();
+  a1step = n; reach(n); renderAct1(); window.scrollTo({top:0, behavior:'smooth'});
+}
+function renderAct1(){
+  renderStepper();
+  $$('.a1p').forEach(p => p.classList.toggle('on', p.id === 'a1-' + a1step));
+  if (a1step === 1) { renderWheelPanel(); setAt(myRole ? 'role' : 'wheel'); }
+  if (a1step === 2) { $('#a2Role').innerHTML = roleCardHTML(myRole); $('#a2List').innerHTML = roleListHTML(myRole); $('#a2Data').innerHTML = dataBoxHTML(); setAt('view'); }
+  if (a1step === 3) { step3Dirty = false; renderStep3(); setAt('info'); }
+  if (a1step === 4) { renderEditor(); setAt('poster'); }
+}
+
+/* ── 1. 돌림판 ── */
+function wheelSVG(){
+  let s = '<svg viewBox="-110 -110 220 220" xmlns="http://www.w3.org/2000/svg">';
+  s += '<circle r="108" fill="#1F3350"/>';
+  WHEEL_ORDER.forEach((k, i) => {
+    const a0 = (i * 45 - 90) * Math.PI / 180, a1 = ((i + 1) * 45 - 90) * Math.PI / 180, r = 102;
+    const x0 = (r * Math.cos(a0)).toFixed(2), y0 = (r * Math.sin(a0)).toFixed(2), x1 = (r * Math.cos(a1)).toFixed(2), y1 = (r * Math.sin(a1)).toFixed(2);
+    const fill = i < 4 ? ROLES[k].color : ROLES[k].light;
+    s += `<path d="M0,0 L${x0},${y0} A${r},${r} 0 0 1 ${x1},${y1} Z" fill="${fill}" stroke="#fff" stroke-width="1.5"/>`;
+    const c = i * 45 + 22.5, tc = i < 4 ? '#fff' : ROLES[k].color;
+    s += `<g transform="rotate(${c})"><image href="${IMG_DIR}${ROLES[k].icon}.webp" x="-13" y="-94" width="26" height="26"/>
+      <text y="-52" text-anchor="middle" font-size="11" font-weight="700" fill="${tc}" font-family="'Black Han Sans','Gowun Batang',sans-serif">${ROLES[k].wheel}</text></g>`;
+  });
+  return s + '</svg>';
+}
+function setWheelTo(role){
+  const i = WHEEL_ORDER.indexOf(role); if (i < 0) return;
+  wheelDeg = 360 - (i * 45 + 22.5);
+  const rot = $('#wheelRot'); rot.style.transition = 'none'; rot.style.transform = `rotate(${wheelDeg}deg)`;
+}
+function renderWheelPanel(){
+  const rot = $('#wheelRot');
+  if (!rot.dataset.built) { rot.innerHTML = wheelSVG(); rot.dataset.built = '1'; }
+  if (spinning) return;
+  const btn = $('#spinBtn');
+  if (myRole) {
+    setWheelTo(myRole);
+    btn.disabled = true; btn.textContent = '✅ 역할을 뽑았어요';
+    $('#roleReveal').innerHTML = roleCardHTML(myRole) + `<div class="next-row"><button class="btn btn-teal btn-lg" data-go="2">관점 확인하러 가기 →</button></div>`;
+  } else {
+    btn.disabled = false; btn.textContent = '🎡 돌림판 돌리기';
+    $('#roleReveal').innerHTML = `<div class="wait-role"><div style="font-size:2.4rem">🎭</div><b>돌림판을 돌려 오늘 맡을 역할을 뽑아요!</b><br>
+      A 화장품 회사 마케터 · B 화장품 회사 마케터<br>식품의약품안전처 홍보 담당자 · *리브영 마케터 중 하나가 나와요.</div>`;
+  }
+}
+async function drawRole(){
+  const cap = Math.ceil(N / ROLE_KEYS.length);
+  let picked = null;
+  const res = await R('roles').transaction(cur => {
+    cur = (cur && typeof cur === 'object') ? cur : {};
+    if (cur[K(me)]) return;                       // 이미 뽑았으면 그대로
+    const cnt = {A:0, B:0, F:0, O:0};
+    Object.values(cur).forEach(v => { if (cnt[v] != null) cnt[v]++; });
+    let opts = ROLE_KEYS.filter(k => cnt[k] < cap);
+    if (!opts.length) opts = ROLE_KEYS.slice();
+    picked = opts[Math.floor(Math.random() * opts.length)];
+    cur[K(me)] = picked; return cur;
+  });
+  const v = res.snapshot.val();
+  return (v && v[K(me)]) || picked;
+}
+$('#spinBtn').addEventListener('click', async () => {
+  if (spinning || myRole || !db) { if (!db) toast('⚠️ 인터넷 연결을 확인해 주세요'); return; }
+  spinning = true;
+  const btn = $('#spinBtn'); btn.disabled = true; btn.textContent = '🎡 돌아가는 중...';
+  const rot = $('#wheelRot');
+  rot.style.transition = 'transform 1.2s linear'; rot.style.transform = `rotate(${wheelDeg + 540}deg)`;
+  let role = null;
+  try { role = await drawRole(); } catch (e) { console.warn(e); }
+  if (!role) { spinning = false; toast('⚠️ 역할을 뽑지 못했어요. 다시 돌려 주세요'); renderWheelPanel(); return; }
+  const segs = WHEEL_ORDER.map((k, i) => k === role ? i : -1).filter(i => i >= 0);
+  const seg = segs[Math.floor(Math.random() * segs.length)];
+  const c = seg * 45 + 22.5, jitter = Math.random() * 26 - 13;
+  wheelDeg = (Math.ceil((wheelDeg + 540) / 360) + 5) * 360 + (360 - c) + jitter;
+  rot.style.transition = 'transform 4.2s cubic-bezier(.12,.72,.12,1)';
+  rot.style.transform = `rotate(${wheelDeg}deg)`;
+  setTimeout(() => {
+    spinning = false; myRole = role;
+    $('#roleReveal').innerHTML = roleCardHTML(role, {pop:true}) + `<div class="next-row"><button class="btn btn-teal btn-lg" data-go="2">관점 확인하러 가기 →</button></div>`;
+    btn.textContent = '✅ 역할을 뽑았어요';
+    reach(2); renderStepper(); setAt('role');
+    toast(`🎉 ${ROLES[role].name} 역할이에요!`);
+  }, 4300);
+});
+
+/* ── 3. 중요한 정보 고르기 ── */
+function roleStripHTML(){
+  const r = ROLES[myRole]; if (!r) return '';
+  return `<div class="role-strip" style="--rc:${r.color}"><img src="${IMG_DIR}${r.icon}.webp" alt="">
+    <div class="rs-t"><b>${esc(r.name)}</b> · 관점: ${esc(r.view)}<br><span class="tiny">💡 ${esc(r.hint)}</span></div></div>`;
+}
+function renderStep3(){
+  $('#a3Strip').innerHTML = roleStripHTML();
+  $('#a3Data').innerHTML = dataBoxHTML();
+  const picks = ST.picks || {};
+  $('#a3Facts').innerHTML = FACT_GROUPS.map(g => `<div class="fgroup"><h4>${g.n}</h4><div class="fchips">${g.ks.map(k => factChipHTML(k, !!picks[k], 'data-pick')).join('')}</div></div>`).join('');
+  if (document.activeElement !== $('#whyTa')) $('#whyTa').value = ST.why || '';
+}
+$('#a3Facts').addEventListener('click', e => {
+  const b = e.target.closest('[data-pick]'); if (!b || !db) return;
+  const k = b.dataset.pick; const picks = Object.assign({}, ST.picks || {});
+  if (picks[k]) delete picks[k]; else picks[k] = true;
+  ST.picks = picks; b.classList.toggle('on', !!picks[k]);
+  R(`students/${K(me)}/picks`).set(Object.keys(picks).length ? picks : null);
+});
+const saveWhy = debounce(() => { if (db && me != null) R(`students/${K(me)}/why`).set($('#whyTa').value.slice(0, 300)); }, 700);
+$('#whyTa').addEventListener('input', () => { step3Dirty = true; ST.why = $('#whyTa').value; saveWhy(); });
+
+/* ── 4. 광고 만들기 ── */
+function doSavePoster(){
+  if (!savePoster.pending) return;
+  savePoster.pending = false;
+  if (!db || me == null) return;
+  const data = clean({bg: P.bg, items: P.items.map(it => { const o = Object.assign({}, it); o.x = r2(o.x); o.y = r2(o.y); o.s = r2(o.s); return o; })});
+  data.updatedAt = TS();
+  R(`posters/${K(me)}`).set(data).then(() => { $('#saveState').textContent = '✅ 저장됨'; }).catch(() => { $('#saveState').textContent = '⚠️ 저장 실패 — 연결 확인'; });
+}
+const savePoster = debounce(doSavePoster, 900);
+function touch(){ lastLocal = Date.now(); savePoster.pending = true; $('#saveState').textContent = '저장 중…'; savePoster(); }
+
+function renderEditor(pal = true){
+  $('#roleStrip').innerHTML = roleStripHTML();
+  if (sel >= P.items.length) sel = -1;
+  renderPoster($('#edPoster'), P, {edit:true, sel, empty:'📊 정보 카드와 🖼️ 이미지를 골라<br>나의 관점이 드러나는 광고를 만들어요!'});
+  $('#itemCount').textContent = P.items.length;
+  renderTools(); if (pal) renderPalette(); renderSubmitBar();
+}
+function markSel(){ $$('#edPoster .pi').forEach(el => el.classList.toggle('sel', +el.dataset.i === sel)); }
+
+(function bindDrag(){
+  const el = $('#edPoster'); let drag = null;
+  el.addEventListener('pointerdown', e => {
+    if (phase !== 'act1') return;
+    const pi = e.target.closest('.pi');
+    if (!pi) { if (sel !== -1) { sel = -1; markSel(); renderTools(); } return; }
+    const i = +pi.dataset.i, it = P.items[i]; if (!it) return;
+    if (sel !== i) { sel = i; markSel(); renderTools(); }
+    const r = el.getBoundingClientRect();
+    drag = {i, sx:e.clientX, sy:e.clientY, x0:it.x, y0:it.y, w:r.width, h:r.height, moved:false, pi};
+    try { pi.setPointerCapture(e.pointerId); } catch (_) {}
+    e.preventDefault();
+  });
+  el.addEventListener('pointermove', e => {
+    if (!drag) return;
+    const dx = (e.clientX - drag.sx) / drag.w * 100, dy = (e.clientY - drag.sy) / drag.h * 100;
+    if (!drag.moved && Math.hypot(dx, dy) < 0.8) return;
+    drag.moved = true;
+    const it = P.items[drag.i]; it.x = clamp(drag.x0 + dx, 0, 100); it.y = clamp(drag.y0 + dy, 0, 100);
+    drag.pi.style.left = it.x + '%'; drag.pi.style.top = it.y + '%';
+  });
+  const end = () => { if (drag && drag.moved) touch(); drag = null; };
+  el.addEventListener('pointerup', end); el.addEventListener('pointercancel', end);
+})();
+
+function colorDots(list, cur, attr){ return list.map((c, i) => `<button class="cdot ${i === cur ? 'on' : ''}" ${attr}="${i}" style="background:${c}" aria-label="색 ${i + 1}"></button>`).join(''); }
+function renderTools(){
+  const t = $('#edTools'), it = P.items[sel];
+  if (!it) { t.innerHTML = `<p class="tool-hint">👆 광고 속 요소를 누르면 크기·색·모양을 바꿀 수 있어요.<br>손가락(마우스)으로 끌어서 옮겨요!</p>`; return; }
+  const kind = {img:'🖼️ 이미지', fact:'📊 정보 카드', text:'✏️ 광고 문구', emo:'✨ 꾸미기'}[it.t];
+  let h = `<div class="tool-row"><span class="tool-lab">${kind}</span>
+    <button class="tbtn" data-t="smaller">➖ 작게</button><button class="tbtn" data-t="bigger">➕ 크게</button>
+    <button class="tbtn" data-t="rotL">↺</button><button class="tbtn" data-t="rotR">↻</button>
+    <button class="tbtn" data-t="front">⬆ 앞으로</button><button class="tbtn" data-t="back">⬇ 뒤로</button>
+    <button class="tbtn" data-t="dup">⧉ 복사</button><button class="tbtn danger" data-t="del">🗑 삭제</button></div>`;
+  if (it.t === 'fact' && it.k !== 'table') {
+    h += `<div class="tool-row"><span class="tool-lab">모양</span>${FSTYLES.map(([k, n]) => `<button class="tbtn ${(it.st || 'card') === k ? 'on' : ''}" data-fst="${k}">${n}</button>`).join('')}</div>
+      <div class="tool-row"><span class="tool-lab">색</span>${colorDots(FCOL, it.c != null ? it.c : FACTS[it.k].c, 'data-fc')}</div>
+      <p class="tiny">정보 카드의 글은 바꿀 수 없어요. 대신 <b>크게 강조</b>하거나 <b>작은 글씨</b>로 줄여서 관점을 드러내요.</p>`;
+  }
+  if (it.t === 'text') {
+    h += `<div class="tool-row"><span class="tool-lab">글자</span><button class="tbtn" data-t="edit">✏️ 문구 고치기</button>${FONTS.map((f, i) => `<button class="tbtn ${(it.f || 0) === i ? 'on' : ''}" data-ff="${i}" style="font-family:${f.css}">${f.n}</button>`).join('')}</div>
+      <div class="tool-row"><span class="tool-lab">모양</span>${TSTYLES.map(([k, n]) => `<button class="tbtn ${(it.st || 'plain') === k ? 'on' : ''}" data-tst="${k}">${n}</button>`).join('')}</div>
+      <div class="tool-row"><span class="tool-lab">색</span>${colorDots(TCOL, it.c || 0, 'data-tc')}</div>`;
+  }
+  if (it.t === 'img') h += `<div class="tool-row"><span class="tool-lab">모양</span><button class="tbtn" data-t="flip">↔ 좌우 뒤집기</button></div>`;
+  t.innerHTML = h;
+}
+$('#edTools').addEventListener('click', e => {
+  const it = P.items[sel]; if (!it || phase !== 'act1') return;
+  const b = e.target.closest('button'); if (!b) return;
+  const d = b.dataset;
+  if (d.t) {
+    const big = it.t === 'img' ? [6, 96] : [1.4, 22];
+    switch (d.t) {
+      case 'bigger': it.s = r2(clamp(it.s * 1.12, big[0], big[1])); break;
+      case 'smaller': it.s = r2(clamp(it.s / 1.12, big[0], big[1])); break;
+      case 'rotL': it.r = clamp((it.r || 0) - 5, -45, 45); break;
+      case 'rotR': it.r = clamp((it.r || 0) + 5, -45, 45); break;
+      case 'front': P.items.push(P.items.splice(sel, 1)[0]); sel = P.items.length - 1; break;
+      case 'back': P.items.unshift(P.items.splice(sel, 1)[0]); sel = 0; break;
+      case 'dup': if (P.items.length >= MAX_ITEMS) { toast(`요소는 ${MAX_ITEMS}개까지 넣을 수 있어요`); return; }
+        { const c = clean(it); c.x = clamp(c.x + 5, 0, 100); c.y = clamp(c.y + 5, 0, 100); P.items.push(c); sel = P.items.length - 1; } break;
+      case 'del': P.items.splice(sel, 1); sel = -1; break;
+      case 'flip': it.fl = !it.fl; break;
+      case 'edit': editText(); return;
+    }
+  } else if (d.fst) { it.st = d.fst; it.s = STYLE_S[d.fst]; }
+  else if (d.fc != null) it.c = +d.fc;
+  else if (d.ff != null) it.f = +d.ff;
+  else if (d.tst) it.st = d.tst;
+  else if (d.tc != null) it.c = +d.tc;
+  else return;
+  touch(); renderEditor(false);
+});
+function editText(){
+  const it = P.items[sel]; if (!it || it.t !== 'text') return;
+  openModal(`<h3>✏️ 광고 문구 고치기</h3><textarea class="ta" id="etIn" maxlength="40" style="min-height:70px">${esc(it.v)}</textarea>
+    <div class="err" id="etErr"></div><div class="next-row"><button class="btn btn-ghost" id="etNo">취소</button><button class="btn btn-teal" id="etOk">바꾸기</button></div>`);
+  $('#etNo').onclick = closeModal;
+  $('#etOk').onclick = () => {
+    const v = $('#etIn').value.trim(); if (!v) { $('#etErr').textContent = '문구를 써 주세요'; return; }
+    const er = checkClaim(v); if (er) { $('#etErr').textContent = er; return; }
+    it.v = v; closeModal(); touch(); renderEditor(false);
+  };
+}
+
+function renderPalette(){
+  $$('#palTabs .pal-tab').forEach(b => b.classList.toggle('on', b.dataset.pal === palTab));
+  const box = $('#palBody'); const r = ROLES[myRole] || ROLES.A;
+  if (palTab === 'fact') {
+    const picks = Object.keys(ST.picks || {}).filter(k => FACTS[k]);
+    box.innerHTML = `<details class="peek"><summary>📋 조사 결과 표 보기</summary><div class="mt">${dataBoxHTML()}</div></details>
+      ${picks.length ? `<div class="pal-sec">⭐ 내가 고른 중요한 정보</div><div class="fchips">${picks.map(k => factChipHTML(k, true, 'data-addf')).join('')}</div>` : ''}
+      ${FACT_GROUPS.map(g => `<div class="pal-sec">${g.n}</div><div class="fchips">${g.ks.map(k => factChipHTML(k, false, 'data-addf')).join('')}</div>`).join('')}
+      <p class="tiny mt">누르면 광고에 들어가요. 넣은 뒤 카드를 누르면 <b>크게 강조</b>, <b>작은 글씨</b> 등으로 모양을 바꿀 수 있어요.</p>`;
+  } else if (palTab === 'img') {
+    box.innerHTML = `<div class="pal-sec">나의 관점을 잘 드러낼 수 있는 이미지를 골라요</div>
+      <div class="img-grid">${IMGS.map(o => `<button class="img-opt" data-addi="${o.k}"><img src="${IMG_DIR}${o.k}.webp" alt="">${esc(o.n)}</button>`).join('')}</div>`;
+  } else if (palTab === 'text') {
+    box.innerHTML = `<div class="rule-box">📏 <b>광고 문구 규칙</b><br>· 숫자와 조사 결과는 직접 쓰지 않고 📊 정보 카드로만 넣어요.<br>· ‘최고’, ‘1위’, ‘부작용 없음’처럼 <b>자료에 없는 사실</b>은 쓸 수 없어요.<br>· 내 관점이 드러나도록 짧고 눈에 띄게 써요!</div>
+      <div class="pal-sec">💡 ${esc(r.short)}의 힌트</div><p class="tiny">${esc(r.hint)}</p>
+      <div class="pal-sec">문구 쓰기 (40자까지)</div>
+      <textarea class="ta" id="txtIn" maxlength="40" style="min-height:64px" placeholder="예) 이번 여름, 내 피부를 지켜요!"></textarea>
+      <div class="err" id="txtErr"></div>
+      <div class="opt-row"><span class="tool-lab">크기</span>${TSIZES.map(([n, s]) => `<button class="tbtn ${txtOpt.s === s ? 'on' : ''}" data-ts="${s}">${n}</button>`).join('')}</div>
+      <div class="opt-row"><span class="tool-lab">글꼴</span>${FONTS.map((f, i) => `<button class="tbtn ${txtOpt.f === i ? 'on' : ''}" data-tf="${i}" style="font-family:${f.css}">${f.n}</button>`).join('')}</div>
+      <div class="opt-row"><span class="tool-lab">모양</span>${TSTYLES.map(([k, n]) => `<button class="tbtn ${txtOpt.st === k ? 'on' : ''}" data-tsty="${k}">${n}</button>`).join('')}</div>
+      <div class="opt-row"><span class="tool-lab">색</span>${colorDots(TCOL, txtOpt.c, 'data-tcol')}</div>
+      <div class="next-row"><button class="btn btn-teal" id="txtAdd">➕ 광고에 넣기</button></div>`;
+  } else {
+    box.innerHTML = `<div class="pal-sec">🎨 배경</div><div class="bg-grid">${BGS.map((b, i) => `<button class="bg-opt ${P.bg === i ? 'on' : ''}" data-bg="${i}" style="background:${b.v};${i === 7 ? 'color:#fff' : ''}">${b.n}</button>`).join('')}</div>
+      <div class="pal-sec">✨ 꾸미기 스티커</div><div class="emo-grid">${EMOJIS.map(e => `<button class="emo-opt" data-emo="${e}">${e}</button>`).join('')}</div>
+      <div class="pal-sec">🧹 처음부터 다시</div><button class="btn btn-ghost btn-sm" id="clearAll">광고 모두 지우기</button>`;
+  }
+}
+$('#palTabs').addEventListener('click', e => { const b = e.target.closest('[data-pal]'); if (b) { palTab = b.dataset.pal; renderPalette(); } });
+function addItem(it){
+  if (phase !== 'act1') return;
+  if (P.items.length >= MAX_ITEMS) { toast(`요소는 ${MAX_ITEMS}개까지 넣을 수 있어요`); return; }
+  it.x = r2(clamp(50 + (Math.random() * 20 - 10), 8, 92)); it.y = r2(clamp(46 + (Math.random() * 20 - 10), 8, 92)); it.r = 0;
+  P.items.push(it); sel = P.items.length - 1; touch(); renderEditor(palTab === 'text');
+  if (window.innerWidth <= 920) $('#edPoster').scrollIntoView({behavior:'smooth', block:'center'});
+}
+$('#palBody').addEventListener('click', async e => {
+  const b = e.target.closest('button'); if (!b) return;
+  const d = b.dataset;
+  if (d.addf) { const k = d.addf; addItem(k === 'table' ? {t:'fact', k, st:'table', s:STYLE_S.table, c:0} : {t:'fact', k, st:'card', s:STYLE_S.card, c:FACTS[k].c}); }
+  else if (d.addi) addItem({t:'img', k:d.addi, s:28});
+  else if (d.emo) addItem({t:'emo', v:d.emo, s:9});
+  else if (d.bg != null) { P.bg = +d.bg; touch(); renderEditor(); }
+  else if (d.ts) { txtOpt.s = +d.ts; keepText(renderPalette); }
+  else if (d.tf != null) { txtOpt.f = +d.tf; keepText(renderPalette); }
+  else if (d.tsty) { txtOpt.st = d.tsty; keepText(renderPalette); }
+  else if (d.tcol != null) { txtOpt.c = +d.tcol; keepText(renderPalette); }
+  else if (b.id === 'txtAdd') {
+    const v = $('#txtIn').value.trim();
+    if (!v) { $('#txtErr').textContent = '문구를 먼저 써 주세요'; return; }
+    const er = checkClaim(v); if (er) { $('#txtErr').textContent = er; return; }
+    addItem({t:'text', v, f:txtOpt.f, c:txtOpt.c, st:txtOpt.st, s:txtOpt.s});
+  } else if (b.id === 'clearAll') {
+    if (await ask('광고에 넣은 것을 모두 지울까요?', {ok:'모두 지우기', danger:true})) { P.items = []; sel = -1; touch(); renderEditor(); }
+  }
+});
+function keepText(fn){ const v = $('#txtIn') ? $('#txtIn').value : ''; fn(); if ($('#txtIn')) $('#txtIn').value = v; }
+$('#palBody').addEventListener('input', e => { if (e.target.id === 'txtIn') { const er = e.target.value ? checkClaim(e.target.value) : ''; $('#txtErr').textContent = er; } });
+
+function renderSubmitBar(){
+  const bar = $('#submitBar'); if (!bar) return;
+  const facts = P.items.filter(i => i.t === 'fact').length;
+  if (ST.submitted) {
+    bar.innerHTML = `<div class="done-banner">✅ 광고를 제출했어요! 활동 2가 시작되기 전까지는 계속 고칠 수 있어요. (고친 내용은 자동 저장)</div>`;
+  } else {
+    const ok = facts >= 1 && P.items.length >= 2;
+    bar.innerHTML = `<button class="btn btn-gold btn-lg" id="submitBtn" ${ok ? '' : 'disabled'}>📮 광고 완성! 제출하기</button>
+      <span class="tiny">${ok ? '다 만들었으면 제출해요.' : '📊 정보 카드 1개 이상을 포함해 2개 이상 넣으면 제출할 수 있어요.'}</span>`;
+  }
+}
+$('#submitBar').addEventListener('click', e => {
+  if (e.target.id !== 'submitBtn') return;
+  openModal(`<h3>📮 제출하기 전에 스스로 점검해요</h3>
+    <label class="check-item"><input type="checkbox" class="sc"> 숫자와 조사 결과를 바꾸지 않았어요.</label>
+    <label class="check-item"><input type="checkbox" class="sc"> 자료에 없는 사실을 만들지 않았어요.</label>
+    <label class="check-item"><input type="checkbox" class="sc"> 내 역할의 관점이 잘 드러나도록 정보와 이미지를 골라 강조했어요.</label>
+    <div class="next-row"><button class="btn btn-ghost" id="scNo">조금 더 고칠래요</button><button class="btn btn-gold" id="scOk" disabled>제출하기</button></div>`);
+  $$('.sc').forEach(c => c.onchange = () => { $('#scOk').disabled = !$$('.sc').every(x => x.checked); });
+  $('#scNo').onclick = closeModal;
+  $('#scOk').onclick = () => {
+    savePoster.flush();
+    R(`students/${K(me)}`).update({submitted:true, submittedAt:TS()}).then(() => toast('📮 제출했어요! 친구들을 기다려요'));
+    ST.submitted = true; closeModal(); renderStepper(); renderSubmitBar();
+  };
+});
+
+/* ═════════════════════════════════════════════
+   활동 2
+═════════════════════════════════════════════ */
+const obsOf = f => OBS[K(f)] || {};
+const obsDone = f => { const o = obsOf(f); return !!(o.guess && (o.see || '').trim() && (o.view || '').trim()); };
+const saveObs = {};
+function saveObsFor(f){
+  if (!saveObs[f]) saveObs[f] = debounce(() => {
+    const o = obsOf(f);
+    R(`obs/${K(me)}/${K(f)}`).set(clean({see:(o.see || '').slice(0, 400), guess:o.guess || null, view:(o.view || '').slice(0, 400), at:TS()}))
+      .then(() => { const s = $('#obsSave'); if (s) s.textContent = '✅ 저장됨'; });
+  }, 700);
+  const s = $('#obsSave'); if (s) s.textContent = '저장 중…';
+  saveObs[f]();
+}
+const saveSum = debounce(() => { if (db && me != null) R(`summary/${K(me)}`).set(clean({gj:(SUMM.gj || '').slice(0, 20), how:(SUMM.how || '').slice(0, 200), at:TS()})); }, 700);
+
+function renderAct2(){
+  const box = $('#act2Body'), list = ASG || [];
+  if (!list.length) { box.innerHTML = `<div class="card center" style="padding:34px 18px"><div style="font-size:2.4rem">⏳</div><b>선생님이 관찰할 친구를 배정하고 있어요...</b></div>`; return; }
+  const locked = phase !== 'act2';
+  frIdx = clamp(frIdx, 0, list.length);
+  const allDone = list.every(obsDone);
+  let h = `<div class="fr-tabs">${list.map((f, i) => `<button class="fr-tab ${i === frIdx ? 'on' : ''} ${obsDone(f) ? 'done' : ''}" data-fr="${i}">친구 ${i + 1} ${obsDone(f) ? '✅' : ''}<small>${f}번 ${esc(nameOf(f))}</small></button>`).join('')}
+    <button class="fr-tab ${frIdx === list.length ? 'on' : ''}" data-fr="${list.length}">⭐ 한 줄 정리<small>${allDone ? '이제 정리해요!' : '관찰을 마치면'}</small></button></div>`;
+  if (frIdx < list.length) {
+    const f = list[frIdx], o = obsOf(f);
+    h += `<div class="fr-grid ${locked ? 'lock' : ''}">
+      <div><div class="poster-frame"><div class="poster" id="frPoster"></div></div>
+        <div class="center mt"><button class="btn btn-ghost btn-sm" id="zoomBtn">🔍 크게 보기</button></div></div>
+      <div class="card" style="margin:0">
+        <div class="card-title">친구 ${frIdx + 1} · ${f}번 ${esc(nameOf(f))}의 광고</div>
+        <label class="field-label" for="oSee">① 👀 광고에서 눈에 띄는 정보나 표현</label>
+        <p class="tiny">이미지, 설명(문구), 숫자 등 눈에 띄는 것을 찾아 적어요.</p>
+        <textarea class="ta" id="oSee" data-of="see" maxlength="400" ${locked ? 'disabled' : ''} placeholder="예) ‘100명 중 80명’을 크게 강조했다 · 물방울 그림 · 가격은 작은 글씨">${esc(o.see || '')}</textarea>
+        <label class="field-label">② 🕵️ 내가 추측하는 친구의 역할</label>
+        <div class="guess-grid">${ROLE_KEYS.map(k => `<button class="guess ${o.guess === k ? 'on' : ''}" data-guess="${k}" style="--rc:${ROLES[k].color}" ${locked ? 'disabled' : ''}><img src="${IMG_DIR}${ROLES[k].icon}.webp" alt=""><b>${esc(ROLES[k].name)}</b></button>`).join('')}</div>
+        <label class="field-label" for="oView">③ 💡 광고에 드러난 친구의 관점</label>
+        <textarea class="ta" id="oView" data-of="view" maxlength="400" ${locked ? 'disabled' : ''} placeholder="예) 두 제품의 정보를 모두 공개해 소비자에게 도움이 되어야 한다.">${esc(o.view || '')}</textarea>
+        <div class="next-row" style="align-items:center"><span class="tiny" id="obsSave">${obsDone(f) ? '✅ 다 적었어요' : '세 가지를 모두 적어요'}</span>
+          <button class="btn btn-teal" data-fr="${frIdx + 1}">${frIdx + 1 < list.length ? '다음 친구 →' : '한 줄 정리하러 가기 →'}</button></div>
+      </div></div>`;
+    box.innerHTML = h;
+    loadFriendPoster(f, $('#frPoster'));
+    setAt('act2');
+  } else {
+    h += `<div class="card ${locked ? 'lock' : ''}" style="max-width:860px;margin:0 auto">
+      <div class="card-title">⭐ 오늘의 한 줄 정리</div>
+      ${allDone ? '' : `<p class="tiny mb">⚠️ 아직 다 관찰하지 않은 친구가 있어요. 관찰을 먼저 마쳐도 좋아요.</p>`}
+      <div class="sum-line">제작자의 ( <input class="inp" id="sGj" maxlength="20" style="width:120px;text-align:center" placeholder="ㄱ ㅈ" value="${esc(SUMM.gj || '')}" ${locked ? 'disabled' : ''}> )에 따라 선택하거나 강조하는 정보가 달라질 수 있다.</div>
+      <div class="sum-line mt">매체의 관점을 파악하려면 <input class="inp" id="sHow" maxlength="200" style="width:min(420px,100%)" placeholder="무엇을 살펴봐야 할까요?" value="${esc(SUMM.how || '')}" ${locked ? 'disabled' : ''}> 등을 살펴봐야 한다.</div>
+      <p class="tiny mt" id="sumSave">${(SUMM.gj && SUMM.how) ? '✅ 저장됨' : '빈칸을 채우면 자동으로 저장돼요.'}</p></div>`;
+    box.innerHTML = h;
+    setAt('summary');
+  }
+}
+function loadFriendPoster(f, el){
+  if (friendPosters[f]) renderPoster(el, friendPosters[f], {empty:'광고가 비어 있어요'});
+  else el.innerHTML = '<div class="p-empty">불러오는 중…</div>';
+  if (!db) return;
+  R(`posters/${K(f)}`).once('value', s => { friendPosters[f] = normPoster(s.val()); if (el.isConnected) renderPoster(el, friendPosters[f], {empty:'광고가 비어 있어요'}); });
+}
+function zoomPoster(p, title){
+  openModal(`<h3>${esc(title)}</h3><div class="pres"><div class="poster-frame"><div class="poster" id="zoomP"></div></div><button class="btn btn-ghost" id="zClose">닫기</button></div>`, {wide:true});
+  renderPoster($('#zoomP'), p); $('#zClose').onclick = closeModal;
+}
+$('#act2Body').addEventListener('click', e => {
+  const t = e.target.closest('[data-fr]');
+  if (t) { frIdx = +t.dataset.fr; renderAct2(); window.scrollTo({top:0, behavior:'smooth'}); return; }
+  const g = e.target.closest('[data-guess]');
+  if (g && phase === 'act2') {
+    const f = ASG[frIdx]; OBS[K(f)] = Object.assign({}, obsOf(f), {guess:g.dataset.guess});
+    $$('#act2Body [data-guess]').forEach(b => b.classList.toggle('on', b === g));
+    saveObsFor(f); refreshTabs(); return;
+  }
+  if (e.target.id === 'zoomBtn') { const f = ASG[frIdx]; zoomPoster(friendPosters[f] || {}, `친구 ${frIdx + 1} · ${f}번 ${nameOf(f)}의 광고`); }
+});
+$('#act2Body').addEventListener('input', e => {
+  if (phase !== 'act2') return;
+  const k = e.target.dataset.of;
+  if (k) { const f = ASG[frIdx]; OBS[K(f)] = Object.assign({}, obsOf(f), {[k]:e.target.value}); saveObsFor(f); refreshTabs(); return; }
+  if (e.target.id === 'sGj' || e.target.id === 'sHow') {
+    SUMM.gj = $('#sGj').value; SUMM.how = $('#sHow').value; saveSum();
+    const s = $('#sumSave'); if (s) s.textContent = '저장 중…'; setTimeout(() => { const s2 = $('#sumSave'); if (s2) s2.textContent = '✅ 저장됨'; }, 1000);
+  }
+});
+function refreshTabs(){
+  const list = ASG || [];
+  $$('#act2Body .fr-tab').forEach(b => {
+    const i = +b.dataset.fr; if (i >= list.length) return; const f = list[i];
+    b.classList.toggle('done', obsDone(f));
+    b.innerHTML = `친구 ${i + 1} ${obsDone(f) ? '✅' : ''}<small>${f}번 ${esc(nameOf(f))}</small>`;
+  });
+  const f = list[frIdx], s = $('#obsSave');
+  if (f && s && obsDone(f) && s.textContent !== '저장 중…') s.textContent = '✅ 다 적었어요';
+}
+
+/* ═════════════════════════════════════════════
+   정답 공개
+═════════════════════════════════════════════ */
+let revealSeq = 0;
+async function renderReveal(){
+  const box = $('#revealBody'); if (!db) return;
+  const seq = ++revealSeq;
+  if (!box.innerHTML) box.innerHTML = '<div class="card center">결과를 불러오는 중…</div>';
+  const [rolesS, asgS, obsS] = await Promise.all([R('roles').once('value'), R('assign').once('value'), R('obs').once('value')]);
+  if (seq !== revealSeq) return;
+  const roles = rolesS.val() || {}, asgAll = asgS.val() || {}, obsAll = obsS.val() || {};
+  OBS = obsAll[K(me)] || OBS;
+  const list = arr(asgAll[K(me)]);
+  const results = list.map(f => { const g = (OBS[K(f)] || {}).guess || null, r = roles[K(f)] || null; return {f, g, r, ok: !!(g && r && g === r)}; });
+  const hit = results.filter(x => x.ok).length, pts = hit * READ_PER_HIT;
+  let byTot = 0, byOk = 0;
+  for (let n = 1; n <= N; n++) { if (n === me) continue; if (arr(asgAll[K(n)]).includes(me)) { const g = ((obsAll[K(n)] || {})[K(me)] || {}).guess; if (g) { byTot++; if (g === roles[K(me)]) byOk++; } } }
+  const sent = (REWARD && REWARD.sent) || 0;
+  const rpMsg = pts ? (sent >= pts ? `📚 독서력 +${pts} · 우리 반 마을로 보냈어요! ✅` : `📚 독서력 +${pts} · 선생님이 곧 우리 반 마을로 보내 줘요`) : '📚 다음엔 더 꼼꼼히 관찰해 봐요!';
+  box.innerHTML = `<div class="score-hero"><div style="font-size:2.4rem">🏆</div>
+      <div style="font-family:'Gowun Batang',serif;font-weight:700;opacity:.9">친구의 역할 맞히기 결과</div>
+      <div class="big">${results.length}명 중 ${hit}명 정답!</div><div class="rp">${rpMsg}</div></div>
+    <div class="card"><div class="card-title">🕵️ 내가 관찰한 친구들</div>
+      ${results.length ? `<div class="rv-list">${results.map((x, i) => `<div class="rv-item ${x.ok ? 'ok' : 'no'}">
+        <div class="head"><span>친구 ${i + 1} · ${x.f}번 ${esc(nameOf(x.f))}</span><span style="font-size:1.4rem">${x.ok ? '✅' : '❌'}</span></div>
+        <div class="rv-poster" data-rvp="${x.f}"></div>
+        <div class="lines">내 추측: ${x.g ? roleChip(x.g, true) : '<span class="pill">고르지 않음</span>'}<br>정답: ${roleChip(x.r, true)}</div></div>`).join('')}</div>` : '<p class="tiny">관찰한 친구가 없어요.</p>'}
+    </div>
+    <div class="card"><div class="card-title">🎨 내 광고는 관점이 잘 드러났을까?</div>
+      <div class="fr-grid"><div><div class="poster-frame"><div class="poster" id="rvMine"></div></div></div>
+      <div><div class="mb">${roleChip(roles[K(me)])}</div>
+        <p style="font-size:1.1rem;line-height:1.7">내 광고를 본 친구 <b>${byTot}명</b> 중 <b>${byOk}명</b>이 내 역할을 맞혔어요.</p>
+        <p class="tiny mt">맞힌 친구가 많을수록 내 관점이 광고에 잘 드러났다는 뜻이에요. 어떤 정보를 고르고 강조했는지 다시 살펴봐요.</p></div></div></div>
+    <div class="card"><div class="card-title">⭐ 오늘의 한 줄 정리 — 정답 확인</div>
+      <p class="sum-line">제작자의 ( <b style="color:var(--teal)">관점</b> )에 따라 선택하거나 강조하는 정보가 달라질 수 있다.</p>
+      <p class="sum-line">매체의 관점을 파악하려면 <b style="color:var(--teal)">강조된 정보, 이미지, 문구(표현), 숫자</b> 등을 살펴봐야 한다.</p>
+      <p class="tiny mt">내가 쓴 답: ( ${esc(SUMM.gj || '—')} ) · ${esc(SUMM.how || '—')}</p></div>`;
+  $$('#revealBody [data-rvp]').forEach(el => { const f = +el.dataset.rvp; const d = document.createElement('div'); el.appendChild(d); loadFriendPoster(f, d); });
+  renderPoster($('#rvMine'), P, {empty:'광고가 비어 있어요'});
+}
+
+/* ═════════════════════════════════════════════
+   관리자
+═════════════════════════════════════════════ */
+let AD = {}, adminTab = 'live', detailNum = null, presIdx = null, presShow = false;
+const gRole = n => (AD.roles || {})[K(n)] || null;
+const gS = n => (AD.students || {})[K(n)] || {};
+const gP = n => normPoster((AD.posters || {})[K(n)]);
+const gA = n => arr((AD.assign || {})[K(n)]);
+const gO = (n, f) => (((AD.obs || {})[K(n)]) || {})[K(f)] || {};
+const isOn = n => !!(AD.presence || {})[K(n)];
+const hits = n => gA(n).filter(f => { const g = gO(n, f).guess, r = gRole(f); return g && r && g === r; }).length;
+const obsDoneN = n => gA(n).filter(f => { const o = gO(n, f); return o.guess && (o.see || '').trim() && (o.view || '').trim(); }).length;
+function guessedBy(f){ let tot = 0, ok = 0; for (let n = 1; n <= N; n++) { if (!gA(n).includes(f)) continue; const g = gO(n, f).guess; if (g) { tot++; if (g === gRole(f)) ok++; } } return {tot, ok}; }
+const hasPoster = n => gP(n).items.length > 0;
+const isSubmitted = n => !!gS(n).submitted;
+
+$('#adminBtn').onclick = () => {
+  if (adminOn) return;
+  openModal(`<h3>🔐 관리자 로그인</h3><input type="password" class="inp" id="pwIn" style="width:100%;text-align:center" placeholder="비밀번호" inputmode="numeric">
+    <div class="err" id="pwErr"></div><div class="next-row"><button class="btn btn-ghost" id="pwNo">취소</button><button class="btn btn-navy" id="pwOk">들어가기</button></div>`);
+  const go = () => { if ($('#pwIn').value === ADMIN_PW) { closeModal(); enterAdmin(); } else $('#pwErr').textContent = '비밀번호가 틀렸어요.'; };
+  $('#pwOk').onclick = go; $('#pwNo').onclick = closeModal;
+  $('#pwIn').onkeydown = e => { if (e.key === 'Enter') go(); };
+  setTimeout(() => $('#pwIn').focus(), 60);
+};
+let adminCb = null;
+function enterAdmin(){
+  adminOn = true; show('admin');
+  if (!$('#rwRoom').value) $('#rwRoom').value = store.get('idt_room') || cleanRoom(store.get('sv-room') || '');
+  if (db) { adminCb = s => { AD = s.val() || {}; renderAdmin(); }; R().on('value', adminCb); }
+  renderAdmin();
+}
+$('#adminExit').onclick = () => {
+  if (db && adminCb) R().off('value', adminCb); adminCb = null;
+  adminOn = false; curScreen = null; route();
+};
+$('#atabs').addEventListener('click', e => { const b = e.target.closest('[data-at]'); if (!b) return; adminTab = b.dataset.at; $$('#atabs .atab').forEach(x => x.classList.toggle('on', x === b)); $$('.apanel').forEach(p => p.classList.toggle('on', p.id === 'ap-' + adminTab)); renderAdmin(); });
+
+function renderAdmin(){
+  if (!adminOn) return;
+  const ph = (AD.control && AD.control.phase) || 'wait';
+  if (adminTab === 'live') renderLive(ph);
+  if (adminTab === 'gallery') renderGallery();
+  if (adminTab === 'obs') renderObsTab();
+  if (adminTab === 'reward') renderRewardTab();
+  if (detailNum != null && !$('#modal').hidden && $('#detBody')) renderDetail();
+  if (presIdx != null && !$('#modal').hidden && $('#presBody')) renderPres();
+}
+const PHASES = [['wait','⏸','대기','학생들이 기다려요'],['act1','🎨','활동 1','역할 뽑기 · 광고 만들기'],['act2','🔍','활동 2','친구 광고에서 관점 찾기'],['reveal','🏆','정답 공개','역할 공개 · 독서력']];
+function renderLive(ph){
+  $('#phaseBar').innerHTML = PHASES.map(([k, ic, t, s]) => `<button class="ph-btn ${ph === k ? 'on' : ''}" data-ph="${k}"><span class="ic">${ic}</span>${t}<small>${s}</small></button>`).join('');
+  let online = 0, roled = 0, subm = 0, obsAll = 0, sumN = 0;
+  for (let n = 1; n <= N; n++) { if (isOn(n)) online++; if (gRole(n)) roled++; if (isSubmitted(n)) subm++; if (gA(n).length && obsDoneN(n) === gA(n).length) obsAll++; const sm = (AD.summary || {})[K(n)]; if (sm && sm.gj && sm.how) sumN++; }
+  $('#statRow').innerHTML = [['접속 중', online], ['역할 뽑음', roled], ['광고 제출', subm], ['관찰 완료', obsAll], ['한 줄 정리', sumN]].map(([t, v]) => `<div class="stat"><b>${v}<span style="font-size:.9rem">/${N}</span></b>${t}</div>`).join('');
+  const cnt = {A:0, B:0, F:0, O:0}; for (let n = 1; n <= N; n++) { const r = gRole(n); if (cnt[r] != null) cnt[r]++; }
+  $('#roleDist').innerHTML = '<span class="tiny">역할 분포 :</span> ' + ROLE_KEYS.map(k => `${roleChip(k, true)} <b>${cnt[k]}명</b>`).join(' &nbsp;');
+  let rows = '';
+  for (let n = 1; n <= N; n++) {
+    const s = gS(n), p = gP(n), r = gRole(n), a = gA(n);
+    let a1 = '<span class="pill">시작 전</span>';
+    if (s.submitted) a1 = `<span class="pill ok">✅ 제출 · 요소 ${p.items.length}</span>`;
+    else if (p.items.length) a1 = `<span class="pill warn">광고 만드는 중 · 요소 ${p.items.length}</span>`;
+    else if ((s.maxStep || 0) >= 3) a1 = `<span class="pill">정보 고르기 · ${Object.keys(s.picks || {}).length}개</span>`;
+    else if (r) a1 = '<span class="pill">관점 확인</span>';
+    const a2 = a.length ? `${obsDoneN(n)}/${a.length}` : '—';
+    const hitTxt = a.length && a.some(f => gO(n, f).guess) ? `${hits(n)}/${a.length}` : '—';
+    rows += `<tr class="click" data-det="${n}"><td><b>${n}</b></td><td style="text-align:left">${esc(nameOf(n))}</td>
+      <td><span class="on-dot ${isOn(n) ? 'on' : ''}"></span></td><td>${r ? roleChip(r, true) : '—'}</td>
+      <td>${a1}</td><td class="tiny">${esc(AT_LABEL[s.at] || '')}</td><td>${a2}</td><td><b>${hitTxt}</b></td></tr>`;
+  }
+  $('#liveTable').innerHTML = `<table class="atable"><tr><th>번호</th><th>이름</th><th>접속</th><th>역할</th><th>활동 1</th><th>지금 화면</th><th>활동 2 관찰</th><th>맞힌 수</th></tr>${rows}</table>`;
+}
+$('#phaseBar').addEventListener('click', async e => {
+  const b = e.target.closest('[data-ph]'); if (!b || !db) return;
+  const p = b.dataset.ph;
+  if (p === 'act2') {
+    const notSub = []; for (let n = 1; n <= N; n++) if (!isSubmitted(n) && hasPoster(n)) notSub.push(n);
+    if (notSub.length && !(await ask(`아직 제출하지 않은 학생: ${notSub.map(n => n + '번').join(', ')}\n활동 2로 넘어가면 광고를 더 고칠 수 없어요. 넘어갈까요?\n(제출하지 않았어도 요소가 3개 이상인 광고는 관찰 대상에 들어가요.)`, {ok:'활동 2 시작'}))) return;
+    if (!AD.assign) { await R('assign').set(makeAssign()); toast('👥 관찰할 친구를 고르게 배정했어요'); }
+  }
+  if (p === 'reveal' && !(await ask('정답을 공개할까요? 학생 화면에 친구들의 역할과 맞힌 개수가 나타나요.', {ok:'정답 공개'}))) return;
+  await R('control/phase').set(p);
+  toast(`📢 ${PHASES.find(x => x[0] === p)[2]} 단계로 바꿨어요`);
+});
+$('#liveTable').addEventListener('click', e => { const tr = e.target.closest('[data-det]'); if (tr) openDetail(+tr.dataset.det); });
+
+function makeAssign(){
+  const owners = [];
+  for (let n = 1; n <= N; n++) { const c = gP(n).items.length; if ((isSubmitted(n) && c > 0) || c >= 3) owners.push(n); }
+  const order = shuffle(owners), m = order.length, k = Math.min(4, Math.max(0, m - 1)), out = {}, cnt = {};
+  order.forEach(o => cnt[o] = 0);
+  order.forEach((o, i) => { const l = []; for (let j = 1; j <= k; j++) { const f = order[(i + j) % m]; l.push(f); cnt[f]++; } out[K(o)] = l; });
+  for (let n = 1; n <= N; n++) {
+    if (out[K(n)]) continue;
+    const pool = shuffle(order).sort((a, b) => cnt[a] - cnt[b]).slice(0, Math.min(4, m));
+    pool.forEach(f => cnt[f]++); if (pool.length) out[K(n)] = pool;
+  }
+  return out;
+}
+
+function openDetail(n){ detailNum = n; openModal('<div id="detBody"></div>', {wide:true, onClose: () => { detailNum = null; }}); renderDetail(); }
+function renderDetail(){
+  const n = detailNum, s = gS(n), r = gRole(n), a = gA(n), sm = (AD.summary || {})[K(n)] || {};
+  const picks = Object.keys(s.picks || {}).filter(k => FACTS[k]);
+  const gb = guessedBy(n);
+  $('#detBody').innerHTML = `<div class="row" style="justify-content:space-between"><h3 style="margin:0">${n}번 ${esc(nameOf(n))} ${isOn(n) ? '<span class="on-dot on"></span>' : ''}</h3><button class="btn btn-ghost btn-sm" id="detClose">닫기</button></div>
+    <div class="det-grid mt"><div><div class="poster-frame"><div class="poster" id="detPoster"></div></div>
+      <p class="tiny center mt">${s.submitted ? '✅ 제출함' : '아직 제출 안 함'} · 이 광고를 본 친구 ${gb.tot}명 중 ${gb.ok}명이 역할을 맞힘</p></div>
+    <div>
+      <div class="mb">${r ? roleChip(r) : '<span class="pill">역할 뽑기 전</span>'} ${r ? `<span class="tiny">관점: ${esc(ROLES[r].view)}</span>` : ''}</div>
+      <div class="field-label">⭐ 고른 중요한 정보</div><div class="fchips">${picks.length ? picks.map(k => factChipHTML(k, true, 'data-x')).join('') : '<span class="tiny">아직 없음</span>'}</div>
+      <div class="field-label">✏️ 정보가 중요한 까닭</div><p style="line-height:1.7">${esc(s.why || '—')}</p>
+      <div class="field-label">🕵️ 친구 광고 관찰</div>
+      ${a.length ? `<div class="tbl-wrap"><table class="atable"><tr><th>친구</th><th>눈에 띄는 정보·표현</th><th>추측</th><th>관점</th></tr>${a.map(f => { const o = gO(n, f); const ok = o.guess && o.guess === gRole(f);
+        return `<tr><td>${f}번<br>${esc(nameOf(f))}</td><td style="text-align:left">${esc(o.see || '—')}</td><td>${o.guess ? roleChip(o.guess, true) + (ok ? ' ✅' : ' ❌') : '—'}</td><td style="text-align:left">${esc(o.view || '—')}</td></tr>`; }).join('')}</table></div>` : '<p class="tiny">아직 배정 전</p>'}
+      <div class="field-label">⭐ 한 줄 정리</div><p style="line-height:1.7">( ${esc(sm.gj || '—')} ) · ${esc(sm.how || '—')}</p>
+      <div class="row mt"><button class="btn btn-ghost btn-sm" data-dact="role">🎡 역할 다시 뽑게 하기</button>
+        <button class="btn btn-ghost btn-sm" data-dact="unsubmit">📮 제출 취소</button>
+        <button class="btn btn-ghost btn-sm" data-dact="clear" style="color:var(--red)">🗑 광고 지우기</button></div>
+    </div></div>`;
+  renderPoster($('#detPoster'), gP(n), {empty:'아직 광고가 없어요'});
+  $('#detClose').onclick = closeModal;
+  $$('#detBody [data-dact]').forEach(b => b.onclick = async () => {
+    const act = b.dataset.dact;
+    if (act === 'role' && await ask(`${n}번의 역할을 지우고 다시 뽑게 할까요?`, {ok:'다시 뽑게 하기'})) { await R(`roles/${K(n)}`).remove(); await R(`students/${K(n)}/maxStep`).set(1); }
+    if (act === 'unsubmit') await R(`students/${K(n)}/submitted`).remove();
+    if (act === 'clear' && await ask(`${n}번의 광고를 모두 지울까요?`, {ok:'지우기', danger:true})) { await R(`posters/${K(n)}`).remove(); await R(`students/${K(n)}/submitted`).remove(); }
+  });
+}
+
+let showRolesG = false;
+$('#showRoles').onchange = e => { showRolesG = e.target.checked; renderGallery(); };
+function galleryList(){ const l = []; for (let n = 1; n <= N; n++) if (hasPoster(n)) l.push(n); return l; }
+function renderGallery(){
+  const l = galleryList(), g = $('#galleryGrid');
+  if (!l.length) { g.innerHTML = '<p class="tiny">아직 만든 광고가 없어요.</p>'; $('#textList').innerHTML = ''; return; }
+  g.innerHTML = l.map(n => { const gb = guessedBy(n); return `<button class="g-item" data-pres="${n}"><div class="g-head"><span>${n}번 ${esc(nameOf(n))}</span>${showRolesG && gRole(n) ? roleChip(gRole(n), true) : (isSubmitted(n) ? '<span class="pill ok">제출</span>' : '<span class="pill warn">작성 중</span>')}</div>
+    <div class="gp" data-gp="${n}"></div><div class="g-foot">${gb.tot ? `친구 ${gb.tot}명 중 ${gb.ok}명이 역할을 맞힘` : '아직 관찰 전'}</div></button>`; }).join('');
+  $$('#galleryGrid [data-gp]').forEach(el => el.appendChild(posterBox(gP(+el.dataset.gp))));
+  const texts = [];
+  l.forEach(n => gP(n).items.filter(i => i.t === 'text').forEach(i => texts.push([n, i.v])));
+  $('#textList').innerHTML = texts.length ? `<ul class="txt-list">${texts.map(([n, v]) => `<li><b>${n}번 ${esc(nameOf(n))}</b> ${showRolesG && gRole(n) ? roleChip(gRole(n), true) : ''} —“${esc(v)}”</li>`).join('')}</ul>` : '<p class="tiny">직접 쓴 문구가 아직 없어요.</p>';
+}
+$('#galleryGrid').addEventListener('click', e => { const b = e.target.closest('[data-pres]'); if (!b) return; presIdx = galleryList().indexOf(+b.dataset.pres); presShow = false; openModal('<div id="presBody"></div>', {wide:true, onClose: () => { presIdx = null; }}); renderPres(); });
+function renderPres(){
+  const l = galleryList(); if (!l.length) { closeModal(); return; }
+  presIdx = clamp(presIdx, 0, l.length - 1); const n = l[presIdx], r = gRole(n);
+  $('#presBody').innerHTML = `<div class="pres"><div class="row" style="justify-content:space-between;width:100%"><h3 style="margin:0">🎤 ${n}번 ${esc(nameOf(n))}의 광고</h3><button class="btn btn-ghost btn-sm" id="pClose">닫기</button></div>
+    <div class="poster-frame"><div class="poster" id="presP"></div></div>
+    <div class="row" style="justify-content:center">
+      <button class="btn btn-ghost" id="pPrev" ${presIdx === 0 ? 'disabled' : ''}>← 이전</button>
+      ${presShow && r ? `<div class="role-card pop" style="--rc:${ROLES[r].color};padding:10px 16px"><b style="color:${ROLES[r].color}">🎭 ${esc(ROLES[r].name)}</b><div class="tiny">관점: ${esc(ROLES[r].view)}</div></div>` : `<button class="btn btn-gold btn-lg" id="pShow">🎭 역할 공개</button>`}
+      <button class="btn btn-ghost" id="pNext" ${presIdx >= l.length - 1 ? 'disabled' : ''}>다음 →</button></div></div>`;
+  renderPoster($('#presP'), gP(n));
+  $('#pClose').onclick = closeModal;
+  $('#pPrev').onclick = () => { presIdx--; presShow = false; renderPres(); };
+  $('#pNext').onclick = () => { presIdx++; presShow = false; renderPres(); };
+  if ($('#pShow')) $('#pShow').onclick = () => { presShow = true; renderPres(); };
+}
+
+function renderObsTab(){
+  const has = !!AD.assign;
+  let rows = '';
+  const seen = {};
+  for (let n = 1; n <= N; n++) gA(n).forEach(f => seen[f] = (seen[f] || 0) + 1);
+  for (let n = 1; n <= N; n++) {
+    const a = gA(n);
+    rows += `<tr><td><b>${n}</b> ${esc(nameOf(n))}</td>${[0,1,2,3].map(i => { const f = a[i]; if (!f) return '<td>—</td>'; const o = gO(n, f); const mark = !o.guess ? '·' : (o.guess === gRole(f) ? '✅' : '❌'); return `<td>${f}번 ${esc(nameOf(f))} <b>${mark}</b></td>`; }).join('')}<td><b>${a.length ? hits(n) : '—'}</b></td><td>${seen[n] || 0}번</td></tr>`;
+  }
+  $('#assignTable').innerHTML = has ? `<table class="atable"><tr><th>관찰하는 학생</th><th>친구 1</th><th>친구 2</th><th>친구 3</th><th>친구 4</th><th>맞힌 수</th><th>관찰받은 횟수</th></tr>${rows}</table>`
+    : '<p class="tiny">아직 배정하지 않았어요. ‘활동 2’ 단계로 넘어가면 자동으로 배정돼요. (지금 배정하려면 ‘친구 다시 배정’을 눌러요)</p>';
+  let srows = '';
+  for (let n = 1; n <= N; n++) { const sm = (AD.summary || {})[K(n)] || {}; srows += `<tr><td><b>${n}</b> ${esc(nameOf(n))}</td><td>${esc(sm.gj || '—')} ${sm.gj ? (sm.gj.replace(/\s/g, '') === '관점' ? '✅' : '') : ''}</td><td style="text-align:left">${esc(sm.how || '—')}</td></tr>`; }
+  $('#sumTable').innerHTML = `<table class="atable"><tr><th>학생</th><th>( ㄱ ㅈ )</th><th>매체의 관점을 파악하려면 ___ 등을 살펴봐야 한다</th></tr>${srows}</table>`;
+}
+$('#reassignBtn').onclick = async () => {
+  if (!db) return;
+  if (!(await ask('관찰할 친구를 새로 배정할까요?\n이미 쓴 관찰 기록은 남지만, 새로 배정된 친구가 다르면 학생 화면에서 보이지 않아요.', {ok:'다시 배정'}))) return;
+  await R('assign').set(makeAssign()); toast('🔀 친구를 다시 배정했어요');
+};
+
+/* ── 📚 독서력 보내기 ── */
+function cleanRoom(v){ return String(v || '').trim().toLowerCase().replace(/[^a-z0-9가-힣-]/g, '').slice(0, 20); }
+const cleanNick = v => String(v || '').replace(/[\u0000-\u001f<>]/g, '').replace(/\s+/g, ' ').trim().slice(0, 8);
+let VIL = null;
+function rewardRows(){ const out = []; for (let n = 1; n <= N; n++) { const a = gA(n), h = a.length ? hits(n) : 0, target = h * READ_PER_HIT, sent = (((AD.rewards || {})[K(n)]) || {}).sent || 0; out.push({n, h, a:a.length, target, sent}); } return out; }
+function renderRewardTab(){
+  const rows = rewardRows(), ph = (AD.control && AD.control.phase) || 'wait';
+  $('#rwTable').innerHTML = `${ph !== 'reveal' ? '<p class="tiny mb">⚠️ 아직 정답 공개 전이에요. 보통은 ‘정답 공개’ 뒤에 보내요.</p>' : ''}
+    <table class="atable"><tr><th>번호</th><th>이름</th><th>맞힌 수</th><th>받을 독서력</th><th>보낸 독서력</th><th>상태</th></tr>
+    ${rows.map(x => `<tr><td><b>${x.n}</b></td><td>${esc(nameOf(x.n))}</td><td>${x.a ? `${x.h}/${x.a}` : '—'}</td><td>📚 ${x.target}</td><td>${x.sent}</td>
+      <td>${x.target === 0 ? '<span class="pill">—</span>' : (x.sent >= x.target ? '<span class="pill ok">보냄 ✅</span>' : `<span class="pill warn">+${x.target - x.sent} 보낼 차례</span>`)}</td></tr>`).join('')}</table>`;
+  const groups = {};
+  rows.forEach(x => { const d = x.target - x.sent; if (d > 0) (groups[d] = groups[d] || []).push(x.n); });
+  const ks = Object.keys(groups).map(Number).sort((a, b) => b - a);
+  $('#rwGroups').innerHTML = ks.length ? ks.map(d => `<p style="line-height:1.8"><b>📚 +${d}</b> : ${groups[d].map(n => `${n}번 ${esc(nameOf(n))}`).join(', ')}</p>`).join('')
+    + '<div class="row mt"><button class="btn btn-ghost btn-sm" id="rwManual">✋ 직접 줬어요 (보낸 것으로 표시)</button></div>' : '<p class="tiny">보낼 독서력이 없어요.</p>';
+  $('#rwSend').disabled = !(VIL && VIL.ok) || !ks.length;
+}
+function loadScript(src){ return new Promise((res, rej) => { const s = document.createElement('script'); s.src = src; s.onload = res; s.onerror = rej; document.head.appendChild(s); }); }
+async function villageConnect(room){
+  if (!firebase.auth) {
+    try { await loadScript('https://cdnjs.cloudflare.com/ajax/libs/firebase/9.23.0/firebase-auth-compat.min.js'); }
+    catch (e) { await loadScript('https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js'); }
+  }
+  const app = firebase.apps.find(a => a.name === VILLAGE_APP) || firebase.initializeApp(VILLAGE_CONFIG, VILLAGE_APP);
+  const auth = app.auth();
+  const user = await new Promise(res => { const off = auth.onAuthStateChanged(u => { off(); res(u); }); });
+  if (!user) return {ok:false, why:'nouser'};
+  const vdb = app.database();
+  let isT = false;
+  try { isT = (await vdb.ref(`${VILLAGE_ROOT}/teachers/${user.uid}`).get()).val() === true; } catch (e) {}
+  if (!isT) return {ok:false, why:'notteacher', uid:user.uid};
+  let roster = [];
+  try { const raw = (await vdb.ref(`${VILLAGE_ROOT}/rooms/${room}/state/roster`).get()).val() || ''; roster = [...new Set(String(raw).split(/[,\n]+/).map(cleanNick).filter(Boolean))]; } catch (e) {}
+  return {ok:true, uid:user.uid, vdb, room, roster};
+}
+$('#rwConnect').onclick = async () => {
+  const room = cleanRoom($('#rwRoom').value), st = $('#rwStatus');
+  if (!room) { st.innerHTML = '⚠️ 우리 반 마을의 <b>반 코드</b>를 넣어 주세요.'; return; }
+  store.set('idt_room', room); $('#rwRoom').value = room;
+  st.textContent = '🔗 연결하는 중…'; VIL = null; renderRewardTab();
+  try { VIL = await villageConnect(room); }
+  catch (e) { console.warn(e); VIL = {ok:false, why:'error'}; }
+  if (VIL.ok) {
+    const miss = NAMES.filter(nm => !VIL.roster.includes(nm));
+    st.innerHTML = `✅ 연결됐어요 · 선생님 기기 확인 · 반 코드 <b>${esc(room)}</b><br>` + (VIL.roster.length
+      ? (miss.length ? `⚠️ 우리 반 마을 명단에 없는 이름: ${miss.map(esc).join(', ')} — 이 학생들은 받지 못하니 마을 명단을 확인하거나 직접 주세요.` : `👥 명단 ${N}명 모두 일치해요.`)
+      : '⚠️ 우리 반 마을에 학생 명단이 없어요. 반 코드가 맞는지 확인해 주세요.');
+  } else {
+    st.innerHTML = {
+      nouser:'⚠️ 이 브라우저에는 우리 반 마을 로그인 정보가 없어요.<br>우리 반 마을을 <b>선생님으로 쓰는 기기·브라우저</b>에서 이 관리 화면을 열어 주세요. 안 되면 아래 ‘직접 줄 때’ 목록을 보고 마을에서 직접 주세요.',
+      notteacher:'⚠️ 이 기기는 우리 반 마을의 <b>선생님 기기로 등록되어 있지 않아요.</b> 선생님 기기에서 열거나, 아래 목록을 보고 직접 주세요.',
+      error:'⚠️ 우리 반 마을에 연결하지 못했어요. 인터넷 연결을 확인하고 다시 눌러 주세요.'
+    }[VIL.why] || '⚠️ 연결하지 못했어요.';
+  }
+  renderRewardTab();
+};
+$('#rwSend').onclick = async () => {
+  if (!(VIL && VIL.ok)) return;
+  const rows = rewardRows().filter(x => x.target > x.sent);
+  const okRows = rows.filter(x => VIL.roster.includes(nameOf(x.n)));
+  const skip = rows.filter(x => !okRows.includes(x));
+  if (!okRows.length) { toast(VIL.roster.length ? '보낼 독서력이 없어요' : '⚠️ 우리 반 마을 명단에서 학생 이름을 찾지 못했어요', 3200); return; }
+  if (!(await ask(`${okRows.length}명에게 📚 독서력을 보낼까요?\n${okRows.map(x => `${x.n}번 ${nameOf(x.n)} +${x.target - x.sent}`).join('\n')}`, {ok:'보내기'}))) return;
+  const btn = $('#rwSend'); btn.disabled = true; btn.textContent = '보내는 중…';
+  try {
+    const base = `${VILLAGE_ROOT}/rooms/${VIL.room}/state`, upd = {};
+    for (const x of okRows) {
+      const nm = nameOf(x.n);
+      const cur = (await VIL.vdb.ref(`${base}/sgive/${nm}/read`).get()).val() | 0;
+      upd[`sgive/${nm}/read`] = Math.min(1000000, cur + (x.target - x.sent));
+    }
+    await VIL.vdb.ref(base).update(upd);
+    const mark = {}; okRows.forEach(x => { mark[`${K(x.n)}`] = {sent:x.target, at:TS()}; });
+    await R('rewards').update(mark);
+    toast(`📚 ${okRows.length}명에게 독서력을 보냈어요!`, 3200);
+    $('#rwStatus').innerHTML += `<br>📚 ${okRows.length}명에게 보냈어요.${skip.length ? ` (명단에 없어 못 보낸 학생: ${skip.map(x => x.n + '번').join(', ')})` : ''}`;
+  } catch (e) {
+    console.warn(e); toast('⚠️ 보내지 못했어요. 우리 반 마을의 선생님 권한을 확인해 주세요.', 3600);
+  }
+  btn.textContent = '📚 독서력 보내기'; renderRewardTab();
+};
+$('#rwGroups').addEventListener('click', async e => {
+  if (e.target.id !== 'rwManual') return;
+  if (!(await ask('우리 반 마을에서 직접 독서력을 줬나요?\n보낸 것으로 표시하면 나중에 ‘보내기’를 눌러도 다시 보내지 않아요.', {ok:'보낸 것으로 표시'}))) return;
+  const mark = {}; rewardRows().forEach(x => { if (x.target > x.sent) mark[K(x.n)] = {sent:x.target, at:TS(), manual:true}; });
+  await R('rewards').update(mark); toast('✅ 보낸 것으로 표시했어요');
+});
+
+/* ── 설정: 초기화 ── */
+$('#ap-setting').addEventListener('click', async e => {
+  const b = e.target.closest('[data-reset]'); if (!b || !db) return;
+  const k = b.dataset.reset;
+  const msg = {roles:'모든 학생의 역할을 지울까요?', assign:'관찰 친구 배정을 지울까요?', obs:'모든 관찰 기록과 한 줄 정리를 지울까요?',
+    all:'역할·광고·관찰·배정·진행 단계를 모두 지울까요?\n(보낸 독서력 기록은 남겨서 두 번 보내지 않게 해요)', rewards:'보낸 독서력 기록을 지울까요?\n다음에 ‘보내기’를 누르면 독서력을 다시 보내요.'}[k];
+  if (!(await ask(msg, {ok:'지우기', danger:true}))) return;
+  if (k === 'roles') { await R('roles').remove(); const u = {}; for (let n = 1; n <= N; n++) u[`${K(n)}/maxStep`] = null; await R('students').update(u); }
+  if (k === 'assign') await R('assign').remove();
+  if (k === 'obs') { await R('obs').remove(); await R('summary').remove(); }
+  if (k === 'rewards') await R('rewards').remove();
+  if (k === 'all') { await Promise.all(['roles','students','posters','assign','obs','summary','control'].map(p => R(p).remove())); }
+  toast('🧹 지웠어요');
+});
+
+/* ═════════════════════════════════════════════
+   시작
+═════════════════════════════════════════════ */
+(function boot(){
+  renderNumGrid();
+  if (!db) { $('#netWarn').hidden = false; }
+  else {
+    R('presence').on('value', s => { presenceAll = s.val() || {}; if (curScreen === 'login') renderNumGrid(); });
+    R('control/phase').on('value', s => {
+      const prev = phase; phase = s.val() || 'wait';
+      if (prev !== phase && curScreen === 'act1' && phase !== 'act1') savePoster.flush();
+      route();
+      if (curScreen === 'act2') renderAct2();
+    });
+    let connT = setTimeout(() => { $('#netWarn').hidden = false; }, 8000);
+    db.ref('.info/connected').on('value', s => {
+      clearTimeout(connT);
+      if (s.val()) $('#netWarn').hidden = true;
+      else connT = setTimeout(() => { $('#netWarn').hidden = false; }, 8000);
+    });
+  }
+  const saved = parseInt(store.get('idt_num') || '', 10);
+  if (saved >= 1 && saved <= N) login(saved); else route();
+})();
+</script>
+</body>
+</html>
